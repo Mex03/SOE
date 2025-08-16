@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Nota Pesanan</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #e6f2ff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 30px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #007acc;
+            margin-bottom: 10px;
+        }
+
+        .info {
+            margin-bottom: 20px;
+        }
+
+        .info p {
+            margin: 5px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        table thead {
+            background: #007acc;
+            color: #fff;
+        }
+
+        .actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .actions button {
+            margin: 5px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .invoice-btn {
+            background: #28a745;
+            color: #fff;
+        }
+
+        .thermal-btn {
+            background: #ff9800;
+            color: #fff;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #555;
+        }
+
+        /* Nota Thermal Style */
+        @media print {
+            body {
+                background: #fff;
+            }
+
+            .container,
+            .actions,
+            .footer {
+                display: none;
+            }
+
+            #thermal {
+                display: block;
+            }
+        }
+
+        #thermal {
+            display: none;
+            width: 80mm;
+            padding: 10px;
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        #thermal h3 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        #thermal table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #thermal td {
+            padding: 3px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Detail Pesanan</h2>
+
+        <div id="orderInfo" class="info">
+            <p><b>ID ORDER:</b> -</p>
+            <p><b>Tanggal:</b> -</p>
+            <p><b>Customer:</b> -</p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Artikel</th>
+                    <th>Qty</th>
+                    <th>Harga</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="orderTable">
+                <tr>
+                    <td colspan="4" style="text-align:center">Memuat data...</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="actions">
+            <button class="invoice-btn" onclick="printInvoice()">Lihat Invoice</button>
+            <button class="thermal-btn" onclick="printThermal()">Cetak Nota Thermal</button>
+        </div>
+
+        <div class="footer">
+            <p>© <span id="year"></span> Mex Garment - Semua Hak Dilindungi</p>
+        </div>
+    </div>
+
+    <!-- Nota Thermal -->
+    <div id="thermal">
+        <h3>Mex Garment</h3>
+        <p id="thermalInfo"></p>
+        <table id="thermalTable"></table>
+        <p style="text-align:center">Terima kasih 🙏</p>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbwDdPPhEUGkhj06pkHRZMfecEElNzefW2XnK8vsf_M_QipO58B-5cSVeIlauRmKzfbf/exec"; // ganti dengan URL API Anda
+
+        function getQueryParams() {
+            const params = {};
+            window.location.search.substring(1).split("&").forEach(p => {
+                const [key, value] = p.split("=");
+                if (key && value) params[key] = decodeURIComponent(value.replace(/\+/g, " "));
+            });
+            return params;
+        }
+
+        async function loadOrder() {
+            const params = getQueryParams();
+            if (!params.id_order) {
+                document.getElementById("orderTable").innerHTML = `<tr><td colspan="4" style="text-align:center;color:red">ID ORDER tidak ditemukan</td></tr>`;
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}?id_order=${encodeURIComponent(params.id_order)}`);
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    document.getElementById("orderTable").innerHTML = `<tr><td colspan="4" style="text-align:center;color:red">Data tidak ditemukan</td></tr>`;
+                    return;
+                }
+
+                // info order
+                document.getElementById("orderInfo").innerHTML = `
+        <p><b>ID ORDER:</b> ${data[0]["ID ORDER"]}</p>
+        <p><b>Tanggal:</b> ${data[0]["TANGGAL"]}</p>
+        <p><b>Customer:</b> ${data[0]["CUSTOMER"]}</p>
+        `;
+
+                // tabel invoice
+                const tbody = document.getElementById("orderTable");
+                tbody.innerHTML = "";
+                let total = 0;
+
+                data.forEach(item => {
+                    const harga = parseInt(item["HARGA"]) || 0;
+                    const qty = parseInt(item["QTY"]) || 0;
+                    const subtotal = harga * qty;
+                    total += subtotal;
+
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+            <td>${item["ARTIKEL"]}</td>
+            <td>${qty}</td>
+            <td>Rp ${harga.toLocaleString("id-ID")}</td>
+            <td>Rp ${subtotal.toLocaleString("id-ID")}</td>
+        `;
+                    tbody.appendChild(row);
+                });
+
+                const totalRow = document.createElement("tr");
+                totalRow.innerHTML = `<td colspan="3"><b>Total</b></td><td><b>Rp ${total.toLocaleString("id-ID")}</b></td>`;
+                tbody.appendChild(totalRow);
+
+                // thermal nota
+                document.getElementById("thermalInfo").innerHTML = `
+        ID: ${data[0]["ID ORDER"]}<br>
+        Tgl: ${data[0]["TANGGAL"]}<br>
+        Cust: ${data[0]["CUSTOMER"]}
+        `;
+
+                const thermalTable = document.getElementById("thermalTable");
+                thermalTable.innerHTML = "";
+                data.forEach(item => {
+                    const harga = parseInt(item["HARGA"]) || 0;
+                    const qty = parseInt(item["QTY"]) || 0;
+                    const subtotal = harga * qty;
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td>${item["ARTIKEL"]} x${qty}</td><td style="text-align:right">Rp ${subtotal.toLocaleString("id-ID")}</td>`;
+                    thermalTable.appendChild(row);
+                });
+                thermalTable.innerHTML += `<tr><td><b>Total</b></td><td style="text-align:right"><b>Rp ${total.toLocaleString("id-ID")}</b></td></tr>`;
+
+            } catch (err) {
+                document.getElementById("orderTable").innerHTML = `<tr><td colspan="4" style="text-align:center;color:red">Gagal memuat data</td></tr>`;
+                console.error(err);
+            }
+        }
+
+        function printInvoice() {
+            window.print(); // default cetak seluruh halaman (invoice style)
+        }
+
+        function printThermal() {
+            document.querySelector(".container").style.display = "none";
+            document.querySelector(".footer").style.display = "none";
+            document.getElementById("thermal").style.display = "block";
+            window.print();
+            location.reload(); // reload biar kembali ke tampilan semula
+        }
+
+        loadOrder();
+        document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+</body>
+
+</html>
