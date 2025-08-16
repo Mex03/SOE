@@ -97,7 +97,7 @@
         const idOrder = urlParams.get("ID ORDER");
 
         // Fetch data dari Google Apps Script API
-        fetch(`https://script.google.com/macros/s/AKfycbwDdPPhEUGkhj06pkHRZMfecEElNzefW2XnK8vsf_M_QipO58B-5cSVeIlauRmKzfbf/exec?id_order=${idOrder}`)
+        fetch(`https://script.google.com/macros/s/AKfycbwDdPPhEUGkhj06pkHRZMfecEElNzefW2XnK8vsf_M_QipO58B-5cSVeIlauRmKzfbf/exec?id=${idOrder}`)
             .then(res => res.json())
             .then(data => {
                 if (data.error) {
