@@ -78,12 +78,12 @@
         <h2>MEX GARMENT INDONESIA</h2>
         <h3>Nota Order</h3>
         <div class="nota" id="nota">
-            <p>ID ORDER: <span id="idOrder"></span></p>
-            <p>NAMA CUSTOMER: <span id="namaCustomer"></span></p>
-            <p>ARTIKEL UTAMA / SEASON: <span id="artikel"></span></p>
-            <p>QTY: <span id="qty"></span></p>
-            <p>TOTAL SETELAH DISCOUNT: <span id="total"></span></p>
-            <p>TANGGAL ORDER: <span id="tanggal"></span></p>
+            <p>ID ORDER: <span id="ID ORDER"></span></p>
+            <p>NAMA CUSTOMER: <span id="NAMA CUSTOMER"></span></p>
+            <p>ARTIKEL UTAMA / SEASON: <span id="ARTIKEL UTAMA / SEASON"></span></p>
+            <p>QTY: <span id="QTY"></span></p>
+            <p>TOTAL SETELAH DISCOUNT: <span id="TOTAL SETELAH DISCOUNT"></span></p>
+            <p>TANGGAL ORDER: <span id="TANGGAL ORDER"></span></p>
         </div>
         <div class="buttons">
             <button class="invoice-btn" onclick="lihatInvoice()">Lihat Invoice</button>
@@ -94,7 +94,7 @@
     <script>
         // Ambil ID ORDER dari URL
         const urlParams = new URLSearchParams(window.location.search);
-        const idOrder = urlParams.get("id_order");
+        const idOrder = urlParams.get("ID ORDER");
 
         // Fetch data dari Google Apps Script API
         fetch(`https://script.google.com/macros/s/AKfycbwDdPPhEUGkhj06pkHRZMfecEElNzefW2XnK8vsf_M_QipO58B-5cSVeIlauRmKzfbf/exec?id_order=${idOrder}`)
@@ -103,12 +103,12 @@
                 if (data.error) {
                     document.getElementById("nota").innerHTML = "<p>❌ Data tidak ditemukan</p>";
                 } else {
-                    document.getElementById("idOrder").innerText = data[0];
-                    document.getElementById("namaCustomer").innerText = data[1];
-                    document.getElementById("artikel").innerText = data[2];
-                    document.getElementById("qty").innerText = data[3];
-                    document.getElementById("total").innerText = data[4];
-                    document.getElementById("tanggal").innerText = data[5];
+                    document.getElementById("ID ORDER").innerText = data[0];
+                    document.getElementById("NAMA CUSTOMER").innerText = data[1];
+                    document.getElementById("ARTIKEL UTAMA / SEASON").innerText = data[2];
+                    document.getElementById("QTY").innerText = data[3];
+                    document.getElementById("TOTAL SETELAH DISCOUNT").innerText = data[4];
+                    document.getElementById("TANGGAL ORDER").innerText = data[5];
                 }
             })
             .catch(err => {
