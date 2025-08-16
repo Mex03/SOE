@@ -3,156 +3,125 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nota Order</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #a2d4f7, #d6ecff);
+            background: linear-gradient(to bottom, #a0d8ef, #cbe6fa);
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
             margin: 0;
         }
 
-        .nota {
+        .nota-container {
             background: white;
-            width: 320px;
-            padding: 20px;
+            padding: 20px 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
             text-align: center;
+            width: 360px;
         }
 
-        .nota h2 {
+        .nota-container h2 {
             margin: 0;
-            font-size: 20px;
-            color: #004b8d;
+            font-size: 18px;
+            color: #0073e6;
         }
 
-        .nota .company {
-            font-weight: bold;
+        .nota-container h3 {
+            margin: 8px 0 15px;
             font-size: 16px;
-            margin-bottom: 10px;
-            color: #006bb3;
+            color: #333;
         }
 
-        .nota table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
+        .nota p {
+            margin: 6px 0;
+            text-align: left;
+            font-weight: bold;
             font-size: 14px;
         }
 
-        .nota table td {
-            padding: 4px 0;
-            text-align: left;
+        .nota span {
+            font-weight: normal;
+            color: #444;
         }
 
-        .nota .total {
-            font-weight: bold;
-            color: #e63946;
-        }
-
-        .btn-group {
-            display: flex;
-            justify-content: space-around;
+        .buttons {
             margin-top: 15px;
         }
 
         button {
-            padding: 8px 12px;
+            padding: 8px 16px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
-        }
-
-        .btn-invoice {
-            background: #007bff;
+            font-size: 14px;
+            margin: 0 5px;
             color: white;
         }
 
-        .btn-print {
+        .invoice-btn {
+            background: #0073e6;
+        }
+
+        .print-btn {
             background: #28a745;
-            color: white;
         }
     </style>
 </head>
 
 <body>
-    <div class="nota" id="nota">
-        <div class="company">MEX GARMENT INDONESIA</div>
-        <h2>Nota Order</h2>
-        <table>
-            <tr>
-                <td><b>ID ORDER</b></td>
-                <td id="idOrder"></td>
-            </tr>
-            <tr>
-                <td><b>NAMA CUSTOMER</b></td>
-                <td id="namaCustomer"></td>
-            </tr>
-            <tr>
-                <td><b>ARTIKEL UTAMA / SEASON</b></td>
-                <td id="produk"></td>
-            </tr>
-            <tr>
-                <td><b>QTY</b></td>
-                <td id="qty"></td>
-            </tr>
-            <tr>
-                <td><b>TOTAL SETELAH DISCOUNT</b></td>
-                <td id="harga" class="total"></td>
-            </tr>
-            <tr>
-                <td><b>TANGGAL ORDER</b></td>
-                <td id="tanggal"></td>
-            </tr>
-        </table>
-        <div class="btn-group">
-            <button class="btn-invoice" onclick="lihatInvoice()">Lihat Invoice</button>
-            <button class="btn-print" onclick="window.print()">Cetak Nota</button>
+    <div class="nota-container">
+        <h2>MEX GARMENT INDONESIA</h2>
+        <h3>Nota Order</h3>
+        <div class="nota" id="nota">
+            <p>ID ORDER: <span id="idOrder"></span></p>
+            <p>NAMA CUSTOMER: <span id="namaCustomer"></span></p>
+            <p>ARTIKEL UTAMA / SEASON: <span id="artikel"></span></p>
+            <p>QTY: <span id="qty"></span></p>
+            <p>TOTAL SETELAH DISCOUNT: <span id="total"></span></p>
+            <p>TANGGAL ORDER: <span id="tanggal"></span></p>
+        </div>
+        <div class="buttons">
+            <button class="invoice-btn" onclick="lihatInvoice()">Lihat Invoice</button>
+            <button class="print-btn" onclick="window.print()">Cetak Nota</button>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwDdPPhEUGkhj06pkHRZMfecEElNzefW2XnK8vsf_M_QipO58B-5cSVeIlauRmKzfbf/exec"; // Ganti dengan URL Apps Script Anda
+        // Ambil ID ORDER dari URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const idOrder = urlParams.get("id_order");
 
-        // ambil query param ?id_order=...
-        const params = new URLSearchParams(window.location.search);
-        const idOrder = params.get("id_order");
-
-        async function getData() {
-            if (!idOrder) {
-                alert("ID ORDER tidak ditemukan di URL");
-                return;
-            }
-            try {
-                const res = await fetch(`${API_URL}?id_order=${idOrder}`);
-                const data = await res.json();
-                if (data && data.length > 0) {
-                    const order = data[0];
-                    document.getElementById("idOrder").textContent = order["ID ORDER"] || "-";
-                    document.getElementById("namaCustomer").textContent = order["NAMA CUSTOMER"] || "-";
-                    document.getElementById("produk").textContent = order["ARTIKEL UTAMA / SEASON"] || "-";
-                    document.getElementById("qty").textContent = order["QTY"] || "-";
-                    document.getElementById("harga").textContent = order["TOTAL SETELAH DISCOUNT"] || "-";
-                    document.getElementById("tanggal").textContent = order["TANGGAL ORDER"] || "-";
+        // Fetch data dari Google Apps Script API
+        fetch(`https://script.google.com/macros/s/AKfycbwDdPPhEUGkhj06pkHRZMfecEElNzefW2XnK8vsf_M_QipO58B-5cSVeIlauRmKzfbf/exec?id_order=${idOrder}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById("nota").innerHTML = "<p>❌ Data tidak ditemukan</p>";
                 } else {
-                    alert("Data order tidak ditemukan");
+                    document.getElementById("idOrder").innerText = data[0];
+                    document.getElementById("namaCustomer").innerText = data[1];
+                    document.getElementById("artikel").innerText = data[2];
+                    document.getElementById("qty").innerText = data[3];
+                    document.getElementById("total").innerText = data[4];
+                    document.getElementById("tanggal").innerText = data[5];
                 }
-            } catch (err) {
+            })
+            .catch(err => {
                 console.error(err);
-                alert("Gagal mengambil data dari API");
-            }
-        }
+                document.getElementById("nota").innerHTML = "<p>⚠️ Gagal memuat data</p>";
+            });
 
+        // Fungsi lihat invoice
         function lihatInvoice() {
-            window.open(`${API_URL}?id_order=${idOrder}`, "_blank");
+            alert("👉 Fitur Lihat Invoice bisa diarahkan ke halaman invoice detail.");
+            // Bisa diarahkan ke halaman lain misalnya:
+            // window.location.href = "invoice.html?id_order=" + idOrder;
         }
-
-        getData();
     </script>
 </body>
 
