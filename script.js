@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (orderId) {
         // Replace this with your actual AppSheet API endpoint or Google Apps Script URL
-        const api_url = `https://script.google.com/macros/s/AKfycbwDdPPhEUGkhj06pkHRZMfecEElNzefW2XnK8vsf_M_QipO58B-5cSVeIlauRmKzfbf/exec/?id=${orderId}`;
+        const api_url = `https://script.google.com/macros/s/AKfycbwDdPPhEUGkhj06pkHRZMfecEElNzefW2XnK8vsf_M_QipO58B-5cSVeIlauRmKzfbf/exec${orderId}`;
 
         fetch(api_url)
             .then(response => {
