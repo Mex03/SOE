@@ -1,264 +1,63 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice - Ryo Digital Printing</title>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f8ff; /* Light blue background */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 800px;
-            width: 100%;
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #007bff; /* Blue line */
-            margin-bottom: 20px;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-        }
-
-        .header-left .logo {
-            width: 50px;
-            margin-right: 15px;
-            border-radius: 8px;
-        }
-
-        .header-left .title h1 {
-            font-size: 1.5rem;
-            color: #007bff;
-            margin: 0;
-        }
-
-        .header-right {
-            text-align: right;
-            color: #555;
-        }
-
-        .header-right p {
-            margin: 4px 0;
-            font-size: 0.9rem;
-        }
-
-        .info-section {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-        }
-
-        .info-block {
-            width: 48%;
-        }
-
-        .info-block h2 {
-            font-size: 1.2rem;
-            color: #333;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-        }
-
-        .info-block p {
-            margin: 8px 0;
-            line-height: 1.5;
-        }
-
-        .info-block span {
-            font-weight: bold;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-        }
-
-        table th, table td {
-            text-align: left;
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        table th {
-            background-color: #f2f2f2;
-            font-weight: 600;
-        }
-
-        .totals {
-            text-align: right;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-        }
-
-        .totals p {
-            margin: 6px 0;
-            font-weight: 600;
-        }
-
-        .totals .grand-total {
-            font-size: 1.2rem;
-            color: #007bff;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            color: #888;
-            font-size: 0.8rem;
-        }
-
-        .loading-state {
-            text-align: center;
-            padding: 50px;
-        }
-    </style>
+    <title>Order Invoice</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <div class="loading-state" id="loading-state">
-            Memuat data...
-        </div>
-        <div class="content" id="invoice-content" style="display: none;">
-            <header>
-                <div class="header-left">
-                    <img src="https://placehold.co/100x100/A0A0FF/0000FF?text=LOGO" alt="Logo" class="logo">
-                    <div class="title">
-                        <h1>Ryo Digital Printing</h1>
-                    </div>
-                </div>
-                <div class="header-right">
-                    <p>No Nota: <span id="nota-number"></span></p>
-                    <p>Tanggal: <span id="invoice-date"></span></p>
-                </div>
-            </header>
-
-            <main>
-                <div class="info-section">
-                    <div class="info-block">
-                        <h2>Informasi Pelanggan</h2>
-                        <p>Nama: <span id="customer-name"></span></p>
-                        <p>Alamat: <span id="customer-address"></span></p>
-                        <p>No. WhatsApp: <span id="customer-phone"></span></p>
-                    </div>
-                    <div class="info-block">
-                        <h2>Informasi Pesanan</h2>
-                        <p>Artikel Utama: <span id="artikel-utama"></span></p>
-                        <p>Kuantitas (QTY): <span id="qty"></span></p>
-                    </div>
-                </div>
-
+        <header>
+            <div class="logo">
+                <img src="https://example.com/your-logo.png" alt="Ryo Digital Printing">
+                <h1>Ryo Digital Printing Malang</h1>
+            </div>
+            <div class="invoice-info">
+                <p>No Nota: <span id="nota-number"></span></p>
+                <p>Date: <span id="invoice-date"></span></p>
+            </div>
+        </header>
+        <main>
+            <div class="customer-info">
+                <h2>Billing Information</h2>
+                <p>Customer Name: <span id="customer-name"></span></p>
+                <p>Address: <span id="customer-address"></span></p>
+                <p>Phone: <span id="customer-phone"></span></p>
+            </div>
+            <div class="payment-info">
+                <h2>Payment Method</h2>
+                <p>Method: <span id="payment-method"></span></p>
+                <p>Bank: <span id="bank-name"></span></p>
+                <p>Payment Status: <span id="payment-status"></span></p>
+            </div>
+            <div class="item-table">
                 <table>
                     <thead>
                         <tr>
-                            <th>Deskripsi Barang</th>
+                            <th>Nama Barang</th>
                             <th>Jumlah</th>
-                            <th>Harga Satuan</th>
+                            <th>Harga</th>
                             <th>Total Harga</th>
                         </tr>
                     </thead>
                     <tbody id="item-list">
-                        <!-- Item data will be populated here by JavaScript -->
-                    </tbody>
+                        </tbody>
                 </table>
-
-                <div class="totals">
-                    <p>Sub Total: Rp. <span id="sub-total"></span></p>
-                    <p>Diskon: Rp. <span id="discount"></span></p>
-                    <p class="grand-total">Total Harga: Rp. <span id="total-price"></span></p>
-                </div>
-            </main>
-
-            <footer class="footer">
-                <p>Terima kasih atas pesanan Anda.</p>
-            </footer>
-        </div>
+            </div>
+            <div class="totals">
+                <p>Sub Total: <span id="sub-total"></span></p>
+                <p>Diskon: <span id="discount"></span></p>
+                <hr>
+                <p>Total Harga: <span id="total-price"></span></p>
+                <p>Bayar: <span id="paid-amount"></span></p>
+                <p>Kembali: <span id="change"></span></p>
+            </div>
+        </main>
+        <footer>
+            <p>Terima Kasih.</p>
+        </footer>
     </div>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const loadingState = document.getElementById('loading-state');
-            const invoiceContent = document.getElementById('invoice-content');
-
-            function getQueryParam(param) {
-                const urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get(param);
-            }
-
-            const orderId = getQueryParam('order_id');
-
-            if (orderId) {
-                // Ganti URL ini dengan URL Web app dari Google Apps Script Anda
-                const apiUrl = 'https://script.google.com/macros/s/AKfycbwDdPPhEUGkhj06pkHRZMfecEElNzefW2XnK8vsf_M_QipO58B-5cSVeIlauRmKzfbf/exec';
-                
-                fetch(`${apiUrl}?order_id=${orderId}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Gagal mengambil data.');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data && data['ID ORDER']) {
-                            populateInvoice(data);
-                            loadingState.style.display = 'none';
-                            invoiceContent.style.display = 'block';
-                        } else {
-                            loadingState.textContent = 'Data pesanan tidak ditemukan.';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        loadingState.textContent = 'Terjadi kesalahan saat memuat data. Silakan coba lagi.';
-                    });
-            } else {
-                loadingState.textContent = 'Tidak ada ID Pesanan yang disediakan di URL.';
-            }
-
-            function populateInvoice(order) {
-                document.getElementById('nota-number').textContent = order['ID ORDER'];
-                document.getElementById('invoice-date').textContent = order['TANGGAL ORDER'];
-                document.getElementById('customer-name').textContent = order['NAMA CUSTOMER'];
-                document.getElementById('customer-address').textContent = order['ALAMAT'];
-                document.getElementById('customer-phone').textContent = order['NO WHATSAPP'];
-                document.getElementById('artikel-utama').textContent = order['ARTIKEL UTAMA'];
-                document.getElementById('qty').textContent = order['QTY'];
-                document.getElementById('sub-total').textContent = order['TOTAL'];
-                document.getElementById('discount').textContent = order['DISCOUNT'];
-                document.getElementById('total-price').textContent = order['TOTAL SETELAH DISCOUNT'];
-
-                // Populate table item
-                const itemList = document.getElementById('item-list');
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${order['ARTIKEL UTAMA']}</td>
-                    <td>${order['QTY']}</td>
-                    <td>${order['HARGA']}</td>
-                    <td>${order['TOTAL']}</td>
-                `;
-                itemList.appendChild(row);
-            }
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
