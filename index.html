@@ -1,264 +1,318 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice - Ryo Digital Printing</title>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f8ff; /* Light blue background */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+  <meta charset="UTF-8">
+  <title>Nota Order</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b79d3;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
 
-        .container {
-            max-width: 800px;
-            width: 100%;
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #007bff; /* Blue line */
-            margin-bottom: 20px;
-        }
+    h2 {
+      text-align: center;
+      color: #0077cc;
+    }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-        }
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
 
-        .header-left .logo {
-            width: 50px;
-            margin-right: 15px;
-            border-radius: 8px;
-        }
+    .info-table td {
+      padding: 3px 5px;
+      vertical-align: top;
+    }
 
-        .header-left .title h1 {
-            font-size: 1.5rem;
-            color: #007bff;
-            margin: 0;
-        }
+    .label {
+      width: 150px;
+      text-align: left;
+      white-space: nowrap;
+      font-weight: bold;
+    }
 
-        .header-right {
-            text-align: right;
-            color: #555;
-        }
+    .colon {
+      width: 10px;
+      text-align: center;
+    }
 
-        .header-right p {
-            margin: 4px 0;
-            font-size: 0.9rem;
-        }
+    .value {
+      text-align: left;
+    }
 
-        .info-section {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-        }
+    table.order-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
 
-        .info-block {
-            width: 48%;
-        }
+    table.order-table th,
+    table.order-table td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+    }
 
-        .info-block h2 {
-            font-size: 1.2rem;
-            color: #333;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-        }
+    table.order-table th {
+      background: #e6f2ff;
+      text-align: center;
+    }
 
-        .info-block p {
-            margin: 8px 0;
-            line-height: 1.5;
-        }
+    table.order-table td {
+      text-align: center;
+    }
 
-        .info-block span {
-            font-weight: bold;
-        }
+    td.money {
+      padding: 4px 6px;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-        }
+    .money-wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-        table th, table td {
-            text-align: left;
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
+    .money-wrap .rp {
+      text-align: left;
+      flex: 0 0 25px;
+    }
 
-        table th {
-            background-color: #f2f2f2;
-            font-weight: 600;
-        }
+    .money-wrap .nominal {
+      text-align: right;
+      flex: 1;
+    }
 
-        .totals {
-            text-align: right;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-        }
+    .btn {
+      display: inline-block;
+      padding: 10px 15px;
+      margin: 10px 5px 0 0;
+      font-size: 14px;
+      background: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
 
-        .totals p {
-            margin: 6px 0;
-            font-weight: 600;
-        }
+    .btn:hover {
+      background: #005fa3;
+    }
 
-        .totals .grand-total {
-            font-size: 1.2rem;
-            color: #007bff;
-        }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
 
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            color: #888;
-            font-size: 0.8rem;
-        }
+    .modal-content {
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 400px;
+      text-align: center;
+      position: relative;
+    }
 
-        .loading-state {
-            text-align: center;
-            padding: 50px;
-        }
-    </style>
+    .close {
+      color: #aaa;
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .steps {
+      display: flex;
+      justify-content: space-between;
+      margin: 20px 0 10px;
+      font-size: 14px;
+    }
+
+    .progress-bar {
+      position: relative;
+      width: 100%;
+      height: 8px;
+      background: #eee;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00c853, #76ff03);
+      transition: width 1s ease;
+    }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="loading-state" id="loading-state">
-            Memuat data...
-        </div>
-        <div class="content" id="invoice-content" style="display: none;">
-            <header>
-                <div class="header-left">
-                    <img src="https://placehold.co/100x100/A0A0FF/0000FF?text=LOGO" alt="Logo" class="logo">
-                    <div class="title">
-                        <h1>Ryo Digital Printing</h1>
-                    </div>
-                </div>
-                <div class="header-right">
-                    <p>No Nota: <span id="nota-number"></span></p>
-                    <p>Tanggal: <span id="invoice-date"></span></p>
-                </div>
-            </header>
+  <div class="container">
+    <h2>Nota Order</h2>
 
-            <main>
-                <div class="info-section">
-                    <div class="info-block">
-                        <h2>Informasi Pelanggan</h2>
-                        <p>Nama: <span id="customer-name"></span></p>
-                        <p>Alamat: <span id="customer-address"></span></p>
-                        <p>No. WhatsApp: <span id="customer-phone"></span></p>
-                    </div>
-                    <div class="info-block">
-                        <h2>Informasi Pesanan</h2>
-                        <p>Artikel Utama: <span id="artikel-utama"></span></p>
-                        <p>Kuantitas (QTY): <span id="qty"></span></p>
-                    </div>
-                </div>
+    <table class="info-table">
+      <tr>
+        <td class="label">ID Order</td>
+        <td class="colon">:</td>
+        <td class="value" id="id-order"></td>
+      </tr>
+      <tr>
+        <td class="label">Tanggal Order</td>
+        <td class="colon">:</td>
+        <td class="value" id="tgl-order"></td>
+      </tr>
+      <tr>
+        <td class="label">Deadline</td>
+        <td class="colon">:</td>
+        <td class="value" id="deadline"></td>
+      </tr>
+      <tr>
+        <td class="label">Nama Customer</td>
+        <td class="colon">:</td>
+        <td class="value" id="nama-customer"></td>
+      </tr>
+      <tr>
+        <td class="label">No. WhatsApp</td>
+        <td class="colon">:</td>
+        <td class="value" id="no-wa"></td>
+      </tr>
+      <tr>
+        <td class="label">Alamat</td>
+        <td class="colon">:</td>
+        <td class="value" id="alamat"></td>
+      </tr>
+    </table>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Deskripsi Barang</th>
-                            <th>Jumlah</th>
-                            <th>Harga Satuan</th>
-                            <th>Total Harga</th>
-                        </tr>
-                    </thead>
-                    <tbody id="item-list">
-                        <!-- Item data will be populated here by JavaScript -->
-                    </tbody>
-                </table>
+    <h3>Detail Pesanan</h3>
+    <table class="order-table">
+      <thead>
+        <tr>
+          <th>Artikel</th>
+          <th>Qty</th>
+          <th>Total</th>
+          <th>Diskon</th>
+          <th>Total Setelah Diskon</th>
+        </tr>
+      </thead>
+      <tbody id="order-detail"></tbody>
+    </table>
 
-                <div class="totals">
-                    <p>Sub Total: Rp. <span id="sub-total"></span></p>
-                    <p>Diskon: Rp. <span id="discount"></span></p>
-                    <p class="grand-total">Total Harga: Rp. <span id="total-price"></span></p>
-                </div>
-            </main>
+    <button class="btn" onclick="showTracking()">Tracking Barang</button>
+  </div>
 
-            <footer class="footer">
-                <p>Terima kasih atas pesanan Anda.</p>
-            </footer>
-        </div>
+  <!-- Modal Tracking -->
+  <div id="trackingModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeTracking()">&times;</span>
+      <h3>STATUS ORDER</h3>
+      <div class="steps">
+        <span>DP</span>
+        <span>Produksi</span>
+        <span>Selesai</span>
+      </div>
+      <div class="progress-bar">
+        <div id="progress" class="progress"></div>
+      </div>
     </div>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const loadingState = document.getElementById('loading-state');
-            const invoiceContent = document.getElementById('invoice-content');
+  </div>
 
-            function getQueryParam(param) {
-                const urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get(param);
-            }
+  <script>
+    function formatDate(dateStr) {
+      if (!dateStr) return "-";
+      const date = new Date(dateStr);
+      const options = { day: "2-digit", month: "long", year: "numeric" };
+      return date.toLocaleDateString("id-ID", options).replace(/\s/g, " / ");
+    }
 
-            const orderId = getQueryParam('order_id');
+    function formatNumber(num) {
+      if (!num) return "-";
+      return new Intl.NumberFormat("id-ID").format(num);
+    }
 
-            if (orderId) {
-                // Ganti URL ini dengan URL Web app dari Google Apps Script Anda
-                const apiUrl = 'https://script.google.com/macros/s/AKfycbwDdPPhEUGkhj06pkHRZMfecEElNzefW2XnK8vsf_M_QipO58B-5cSVeIlauRmKzfbf/exec';
-                
-                fetch(`${apiUrl}?order_id=${orderId}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Gagal mengambil data.');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data && data['ID ORDER']) {
-                            populateInvoice(data);
-                            loadingState.style.display = 'none';
-                            invoiceContent.style.display = 'block';
-                        } else {
-                            loadingState.textContent = 'Data pesanan tidak ditemukan.';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        loadingState.textContent = 'Terjadi kesalahan saat memuat data. Silakan coba lagi.';
-                    });
-            } else {
-                loadingState.textContent = 'Tidak ada ID Pesanan yang disediakan di URL.';
-            }
+    const params = new URLSearchParams(window.location.search);
+    const idOrder = params.get("id_order") || "ORD001";
 
-            function populateInvoice(order) {
-                document.getElementById('nota-number').textContent = order['ID ORDER'];
-                document.getElementById('invoice-date').textContent = order['TANGGAL ORDER'];
-                document.getElementById('customer-name').textContent = order['NAMA CUSTOMER'];
-                document.getElementById('customer-address').textContent = order['ALAMAT'];
-                document.getElementById('customer-phone').textContent = order['NO WHATSAPP'];
-                document.getElementById('artikel-utama').textContent = order['ARTIKEL UTAMA'];
-                document.getElementById('qty').textContent = order['QTY'];
-                document.getElementById('sub-total').textContent = order['TOTAL'];
-                document.getElementById('discount').textContent = order['DISCOUNT'];
-                document.getElementById('total-price').textContent = order['TOTAL SETELAH DISCOUNT'];
+    const apiUrl = "https://script.google.com/macros/s/AKfycbwDdPPhEUGkhj06pkHRZMfecEElNzefW2XnK8vsf_M_QipO58B-5cSVeIlauRmKzfbf/exec?id_order=" + idOrder;
 
-                // Populate table item
-                const itemList = document.getElementById('item-list');
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${order['ARTIKEL UTAMA']}</td>
-                    <td>${order['QTY']}</td>
-                    <td>${order['HARGA']}</td>
-                    <td>${order['TOTAL']}</td>
-                `;
-                itemList.appendChild(row);
-            }
-        });
-    </script>
+    fetch(apiUrl)
+      .then(res => res.json())
+      .then(data => {
+        if (!data || data.length === 0) {
+          document.querySelector(".container").innerHTML = "<h3>Data tidak ditemukan</h3>";
+          return;
+        }
+
+        let order = data[0];
+        document.getElementById("id-order").textContent = order["ID ORDER"] || "-";
+        document.getElementById("tgl-order").textContent = formatDate(order["TANGGAL ORDER"]);
+        document.getElementById("deadline").textContent = formatDate(order["DEADLINE"]);
+        document.getElementById("nama-customer").textContent = order["NAMA CUSTOMER"] || "-";
+        document.getElementById("no-wa").textContent = order["NO WHATSAPP"] || "-";
+        document.getElementById("alamat").textContent = order["ALAMAT"] || "-";
+
+        const tbody = document.getElementById("order-detail");
+        let row = `
+          <tr>
+            <td>${order["ARTIKEL UTAMA / SEASEON"] || "-"}</td>
+            <td>${formatNumber(order["QTY"])}</td>
+            <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNumber(order["TOTAL"])}</span></div></td>
+            <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNumber(order["DISCOUNT"])}</span></div></td>
+            <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNumber(order["TOTAL SETELAH DISCOUNT"])}</span></div></td>
+          </tr>
+        `;
+        tbody.innerHTML = row;
+      })
+      .catch(err => {
+        console.error("Error:", err);
+        document.querySelector(".container").innerHTML = "<h3>Gagal mengambil data</h3>";
+      });
+
+    // Tracking Modal + Progress
+    function showTracking() {
+      document.getElementById("trackingModal").style.display = "block";
+      let progress = document.getElementById("progress");
+      progress.style.width = "0%";
+
+      // animasi naik step by step
+      setTimeout(() => { progress.style.width = "33%"; }, 500);   // DP
+      setTimeout(() => { progress.style.width = "66%"; }, 1500);  // Produksi
+      setTimeout(() => { progress.style.width = "100%"; }, 2500); // Selesai
+    }
+
+    function closeTracking() {
+      document.getElementById("trackingModal").style.display = "none";
+    }
+
+    window.onclick = function (event) {
+      if (event.target == document.getElementById("trackingModal")) {
+        closeTracking();
+      }
+    }
+  </script>
 </body>
 </html>
