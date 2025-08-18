@@ -14,6 +14,8 @@
             --soft: #e6f2ff;
             --ok: #21c467;
             --ok2: #a6f4c5;
+            --warn: #ffcc00;
+            --fail: #e74c3c;
             --modalMask: rgba(0, 0, 0, .5);
         }
 
@@ -116,13 +118,10 @@
             text-align: left
         }
 
-        /* Rp rata kiri */
         .money-wrap .nominal {
             flex: 1;
             text-align: right
         }
-
-        /* angka rata kanan */
 
         .btn {
             display: inline-block;
@@ -152,7 +151,7 @@
         .modal-card {
             background: #fff;
             width: 100%;
-            max-width: 460px;
+            max-width: 520px;
             margin: auto;
             border-radius: 12px;
             padding: 18px 18px 22px;
@@ -188,24 +187,57 @@
         }
 
         .dot {
-            width: 18px;
-            height: 18px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             background: #e9ecef;
             border: 2px solid #cfd7df;
             display: inline-block;
             margin-bottom: 6px;
-            transition: all .4s ease;
+            position: relative;
+            transition: all .2s ease;
+        }
+
+        .dot::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
         }
 
         .step.active .dot {
-            background: var(--ok);
-            border-color: var(--ok);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, .05);
         }
 
         .step.done .dot {
             background: var(--ok);
             border-color: var(--ok);
+        }
+
+        .step.done .dot::after {
+            content: "\2713";
+        }
+
+        .step.warning .dot {
+            background: var(--warn);
+            border-color: var(--warn);
+        }
+
+        .step.warning .dot::after {
+            content: "!";
+        }
+
+        .step.fail .dot {
+            background: var(--fail);
+            border-color: var(--fail);
+        }
+
+        .step.fail .dot::after {
+            content: "\2715";
         }
 
         .step-label {
@@ -229,7 +261,7 @@
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, var(--ok), var(--ok2));
-            transition: width .8s ease;
+            transition: width .5s ease;
         }
 
         .bar.grid {
@@ -244,7 +276,41 @@
             color: #666;
         }
 
-        /* Print (biarkan ada jika sewaktu-waktu cetak) */
+        .legend-badges {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .legend-badges .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-badges .chip {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .chip-ok {
+            background: var(--ok);
+        }
+
+        .chip-warn {
+            background: var(--warn);
+        }
+
+        .chip-fail {
+            background: var(--fail);
+        }
+
+        /* Print */
         @media print {
             @page {
                 size: 80mm auto;
@@ -364,6 +430,11 @@
                 <span id="statusText">Memuat status…</span>
                 <span id="percentText">0%</span>
             </div>
+            <div class="legend-badges">
+                <span class="badge"><span class="chip chip-ok"></span> Hijau = Selesai</span>
+                <span class="badge"><span class="chip chip-warn"></span> Kuning = Proses</span>
+                <span class="badge"><span class="chip chip-fail"></span> Merah = Belum</span>
+            </div>
         </div>
     </div>
 
@@ -388,6 +459,14 @@
             return p.get(name) ?? def;
         }
 
+        // Utility normalisasi / boolean-ish
+        const TRUE_WORDS = ["true", "ya", "yes", "selesai", "done", "completed", "finish", "ready", "siap", "ok", "1"];
+        const PROC_WORDS = ["proses", "process", "on process", "produksi", "in progress", "progress", "ongoing"];
+        function normalize(v) { return (v ?? "").toString().trim().toLowerCase(); }
+        function isTrueLike(v) { const s = normalize(v); return TRUE_WORDS.includes(s) || s === "x" && false; }
+        function isProcLike(v) { const s = normalize(v); return PROC_WORDS.includes(s); }
+        function hasNumber(v) { if (v === 0) return false; const num = Number(String(v).replace(/[^\d.-]+/g, "")); return !isNaN(num) && num > 0; }
+
         // ===== Config (GAS endpoint) =====
         // Pastikan endpoint sudah mengirim header CORS: Access-Control-Allow-Origin: *
         const idOrder = qs("id_order", "ORD001");
@@ -395,21 +474,6 @@
 
         // ===== State =====
         let ORDER = null;
-        let STATUS_RAW = ""; // nilai status dari sheet
-        // Pemetaan status → step index & persen
-        // DP (1) → 25%, Produksi (2) → 50%, Selesai (3) → 75%, Siap Ambil/Kirim (4) → 100%
-        function statusToStep(status) {
-            const s = (status || "").toString().trim().toLowerCase();
-            if (["dp", "down payment", "uang muka"].includes(s)) return 1;
-            if (["produksi", "proses produksi", "process", "on process"].includes(s)) return 2;
-            if (["selesai", "finish", "done", "completed"].includes(s)) return 3;
-            if (["siap ambil", "siap kirim", "siap ambil / kirim", "ready to pickup", "ready to ship", "siap ambil/kirim"].includes(s)) return 4;
-            // default fallback
-            return 1;
-        }
-        function stepToPercent(step) {
-            return Math.min(Math.max(step, 1), 4) * 25;
-        }
 
         // ===== Fetch data =====
         fetch(apiUrl, { method: "GET" })
@@ -432,23 +496,19 @@
                 // Detail
                 const tbody = document.getElementById("order-detail");
                 tbody.innerHTML = `
-        <tr>
-            <td>${ORDER["ARTIKEL UTAMA / SEASEON"] || "-"}</td>
+          <tr>
+            <td>${ORDER["ARTIKEL UTAMA / SEASEON"] || ORDER["ARTIKEL"] || "-"}</td>
             <td>${formatNum(ORDER["QTY"])}</td>
             <td class="money">
-                <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(ORDER["TOTAL"])}</span></div>
+              <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(ORDER["TOTAL"])}</span></div>
             </td>
             <td class="money">
-                <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(ORDER["DISCOUNT"])}</span></div>
+              <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(ORDER["DISCOUNT"])}</span></div>
             </td>
             <td class="money">
-                <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(ORDER["TOTAL SETELAH DISCOUNT"])}</span></div>
+              <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(ORDER["TOTAL SETELAH DISCOUNT"])}</span></div>
             </td>
-        </tr>
-        `;
-
-                // Status produksi dari sheet (pastikan nama kolom sesuai)
-                STATUS_RAW = ORDER["STATUS"] || ORDER["STATUS PRODUKSI"] || "";
+          </tr>`;
             })
             .catch(err => {
                 console.error(err);
@@ -456,49 +516,97 @@
             });
 
         // ===== Tracking UI =====
-        function setStepsActive(step) {
-            for (let i = 1; i <= 4; i++) {
-                const el = document.getElementById(`step-${i}`);
-                if (!el) continue;
-                el.classList.remove("active", "done");
-                if (i < step) el.classList.add("done");
-                if (i === step) el.classList.add("active");
-            }
+        function markStep(num, state) {
+            const el = document.getElementById(`step-${num}`);
+            if (!el) return;
+            el.classList.remove("active", "done", "warning", "fail");
+            el.classList.add(state);
+        }
+        function setActive(num) {
+            const el = document.getElementById(`step-${num}`);
+            if (el) el.classList.add("active");
         }
         function animateToPercent(percent) {
             const bar = document.getElementById("progressBar");
             const pctEl = document.getElementById("percentText");
-            // animasi start dari lebar sekarang
             requestAnimationFrame(() => {
-                bar.style.width = percent + "%";
-                pctEl.textContent = percent + "%";
+                bar.style.width = Math.max(0, Math.min(100, percent)) + "%";
+                pctEl.textContent = Math.round(percent) + "%";
             });
         }
 
         function openTracking() {
-            // Hitung target dari STATUS
-            const step = statusToStep(STATUS_RAW || "DP");
-            const percent = stepToPercent(step);
+            if (!ORDER) {
+                document.getElementById("trackingModal").style.display = "block";
+                document.getElementById("statusText").textContent = "Data belum termuat";
+                return;
+            }
 
-            // Set teks status
-            const statusText = document.getElementById("statusText");
-            statusText.textContent = (STATUS_RAW && STATUS_RAW.trim()) ? `Status: ${STATUS_RAW}` : "Status: DP";
+            // Ambil nilai dari sheet (akomodasi beberapa kemungkinan nama kolom)
+            const dpVal = ORDER["DP"] ?? ORDER["UANG MUKA"] ?? ORDER["DEPOSIT"];
+            const prodVal = ORDER["PRODUKSI"] ?? ORDER["STATUS PRODUKSI"];
+            const selesaiVal = ORDER["SELESAI"] ?? ORDER["STATUS SELESAI"];
+            const siapVal = ORDER["SIAP KIRIM"] ?? ORDER["SIAP AMBIL / KIRIM"] ?? ORDER["READY"];
 
-            // Render UI
-            setStepsActive(step);
+            const dpPaid = hasNumber(dpVal) || isTrueLike(dpVal);
+            const prodDone = isTrueLike(prodVal) || normalize(prodVal) === "selesai";
+            const prodProc = !prodDone && (isProcLike(prodVal) || normalize(prodVal) === "proses");
+            const selesaiDone = isTrueLike(selesaiVal) || prodDone;
+            const siapDone = isTrueLike(siapVal) || (dpPaid && prodDone && selesaiDone);
+
+            // Reset & status per step
+            for (let i = 1; i <= 4; i++) markStep(i, "fail");
+
+            // Step 1: DP
+            markStep(1, dpPaid ? "done" : "fail");
+
+            // Step 2: Produksi
+            if (!dpPaid) {
+                markStep(2, "fail");
+            } else if (prodDone) {
+                markStep(2, "done");
+            } else if (prodProc) {
+                markStep(2, "warning");
+            } else {
+                // DP sudah, tapi produksi belum mulai → kuning biar terlihat "menunggu produksi"
+                markStep(2, "warning");
+            }
+
+            // Step 3: Selesai
+            markStep(3, selesaiDone ? "done" : "fail");
+
+            // Step 4: Siap Ambil / Kirim
+            if (dpPaid && prodDone && selesaiDone) {
+                markStep(4, siapDone ? "done" : "warning"); // semua selesai tapi belum flag siap → kuning
+            } else {
+                markStep(4, "fail");
+            }
+
+            // Hitung persen progres berdasarkan jumlah step "done"
+            const states = [1, 2, 3, 4].map(i => document.getElementById(`step-${i}`));
+            const doneCount = states.filter(el => el.classList.contains("done")).length;
+            const percent = (doneCount / 4) * 100;
             animateToPercent(percent);
+
+            // Teks status ringkas
+            const statusParts = [];
+            statusParts.push(`DP: ${dpPaid ? 'OK' : 'Belum'}`);
+            statusParts.push(`Produksi: ${prodDone ? 'Selesai' : (dpPaid ? (prodProc ? 'Proses' : 'Menunggu') : 'Belum DP')}`);
+            statusParts.push(`Selesai: ${selesaiDone ? 'OK' : 'Belum'}`);
+            statusParts.push(`Kirim: ${siapDone ? 'Siap' : (dpPaid && prodDone && selesaiDone ? 'Menunggu' : 'Belum')}`);
+            document.getElementById("statusText").textContent = statusParts.join(" • ");
+
+            // Set active step visual (step paling kanan yang bukan fail)
+            const activeIdx = [4, 3, 2, 1].find(i => document.getElementById(`step-${i}`).classList.contains("done") || document.getElementById(`step-${i}`).classList.contains("warning")) || 1;
+            setActive(activeIdx);
 
             // Show modal
             document.getElementById("trackingModal").style.display = "block";
         }
-        function closeTracking() {
-            document.getElementById("trackingModal").style.display = "none";
-        }
-        window.addEventListener("click", (e) => {
-            if (e.target === document.getElementById("trackingModal")) closeTracking();
-        });
+
+        function closeTracking() { document.getElementById("trackingModal").style.display = "none"; }
+        window.addEventListener("click", (e) => { if (e.target === document.getElementById("trackingModal")) closeTracking(); });
     </script>
 </body>
 
 </html>
-
