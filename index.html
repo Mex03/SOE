@@ -8,7 +8,7 @@
     :root {
       --brand: #0077cc;
       --ink: #333;
-      --bg: #006ac0;
+      --bg: #ff057a;
       --line: #ddd;
       --soft: #e6f2fa;
     }
@@ -176,7 +176,7 @@
     const idOrder = qs("id_order", "ORD001");
     const apiUrl = "https://script.google.com/macros/s/AKfycbxi5V7MFpzvzAGw1tOdOpF4qwJNS3fvBg5T05KcuftU4w8tKO40H2rtLc7g4vDtGmHg/exec?id_order=" + encodeURIComponent(idOrder);
 
-    let ORDER = null;
+    let IPP = null;
     let LST_IPP = [];
     let STATUS_RAW = "";
 
@@ -196,12 +196,12 @@
     fetch(apiUrl)
       .then(r => r.json())
       .then(data => {
-        if (!data || !data.ORDER) {
+        if (!data || !data.IPP) {
           document.querySelector(".container").innerHTML = "<h3>Data tidak ditemukan</h3>";
           return;
         }
 
-        ORDER = data.ORDER;
+        IPP = data.IPP;
         LST_IPP = data.LST_IPP || [];
 
         // Header
