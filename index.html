@@ -27,7 +27,7 @@
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    h2 { margin-top: 0; color: var(--bg); }
+    h2 { margin-top: 0; color: var(--bg); text-align: center; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -41,7 +41,25 @@
     th {
       background: var(--soft);
     }
-    .money-wrap { display: flex; justify-content: flex-end; }
+    .money-wrap {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .money-wrap .rp {
+        flex: 0 0 30px;   /* lebar tetap untuk "Rp" */
+        text-align: left;
+    }
+
+    .money-wrap .nominal {
+         flex: 1;
+        text-align: right;
+        font-variant-numeric: tabular-nums; /* angka sejajar */
+        padding-right: 4px;
+    }
+
     .rp { margin-right: 4px; }
     .btn {
       background: var(--brand);
@@ -107,7 +125,7 @@
 </head>
 <body>
   <div class="container">
-    <h2>Detail Order</h2>
+    <h2>Nota Order</h2>
     <p><strong>ID Order:</strong> <span id="id-order">-</span></p>
     <p><strong>Tanggal Order:</strong> <span id="tgl-order">-</span></p>
     <p><strong>Deadline:</strong> <span id="deadline">-</span></p>
@@ -218,15 +236,18 @@
         if (LST_IPP.length) {
           LST_IPP.forEach(item => {
             tbody.innerHTML += `
-              <tr>
-                <td>${item["NAMA ARTIKEL"] || "-"}</td>
-                <td>${item["PRODUK"] || "-"}</td>
-                <td>${item["WARNA"] || "-"}</td>
-                <td>${formatNum(item["JML"])}</td>
-                <td class="money">
-                  <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(item["TOTAL"])}</span></div>
-                </td>
-              </tr>`;
+                <tr>
+                    <td>${item["NAMA ARTIKEL"] || "-"}</td>
+                    <td>${item["PRODUK"] || "-"}</td>
+                    <td>${item["WARNA"] || "-"}</td>
+                    <td>${formatNum(item["JML"])}</td>
+                    <td>
+                        <div class="money-wrap">
+                        <span class="rp">Rp</span>
+                        <span class="nominal">${formatNum(item["TOTAL"])}</span>
+                        </div>
+                    </td>
+                </tr>`;
           });
         } else {
           tbody.innerHTML = `<tr><td colspan="5">Tidak ada detail pesanan</td></tr>`;
