@@ -2,611 +2,443 @@
 <html lang="id">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>Nota Order</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-        :root {
-            --brand: #0077cc;
-            --ink: #333;
-            --bg: #006ac0;
-            --line: #ddd;
-            --soft: #e6f2ff;
-            --ok: #21c467;
-            --ok2: #a6f4c5;
-            --warn: #ffcc00;
-            --fail: #e74c3c;
-            --modalMask: rgba(0, 0, 0, .5);
-        }
+  <meta charset="UTF-8" />
+  <title>Nota Order</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --brand: #0077cc;
+      --ink: #333;
+      --bg: #006ac0;
+      --line: #ddd;
+      --soft: #e6f2ff;
+      --ok: #21c467;
+      --ok2: #a6f4c5;
+      --modalMask: rgba(0, 0, 0, .5);
+    }
 
-        * {
-            box-sizing: border-box
-        }
+    * {
+      box-sizing: border-box
+    }
 
-        body {
-            font-family: Arial, sans-serif;
-            background: var(--bg);
-            color: var(--ink);
-            margin: 0;
-            padding: 20px;
-        }
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      margin: 0;
+      padding: 20px;
+    }
 
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, .08);
-        }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .08);
+    }
 
-        h2 {
-            text-align: center;
-            color: var(--brand);
-            margin: 0 0 12px
-        }
+    h2 {
+      text-align: center;
+      color: var(--brand);
+      margin: 0 0 12px
+    }
 
-        h3 {
-            margin: 16px 0 8px
-        }
+    h3 {
+      margin: 16px 0 8px
+    }
 
-        /* Info Order (":" sejajar) */
-        .info-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px
-        }
+    /* Info Order (":" sejajar) */
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px
+    }
 
-        .info-table td {
-            padding: 4px 6px;
-            vertical-align: top;
-        }
+    .info-table td {
+      padding: 4px 6px;
+      vertical-align: top;
+    }
 
-        .label {
-            width: 160px;
-            text-align: left;
-            white-space: nowrap;
-            font-weight: bold;
-        }
+    .label {
+      width: 160px;
+      text-align: left;
+      white-space: nowrap;
+      font-weight: bold;
+    }
 
-        .colon {
-            width: 12px;
-            text-align: center;
-        }
+    .colon {
+      width: 12px;
+      text-align: center;
+    }
 
-        .value {
-            text-align: left;
-        }
+    .value {
+      text-align: left;
+    }
 
-        /* Tabel detail */
-        table.order-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 12px
-        }
+    /* Tabel detail */
+    table.order-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px
+    }
 
-        table.order-table th,
-        table.order-table td {
-            padding: 8px;
-            border: 1px solid var(--line);
-            font-size: 14px;
-        }
+    table.order-table th,
+    table.order-table td {
+      padding: 8px;
+      border: 1px solid var(--line);
+      font-size: 14px;
+    }
 
-        table.order-table th {
-            background: var(--soft);
-            text-align: center
-        }
+    table.order-table th {
+      background: var(--soft);
+      text-align: center
+    }
 
-        table.order-table td {
-            text-align: center
-        }
+    table.order-table td {
+      text-align: center
+    }
 
-        /* Kolom uang -> Rp kiri, angka kanan */
-        td.money {
-            padding: 4px 6px
-        }
+    td.money {
+      padding: 4px 6px
+    }
 
-        .money-wrap {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            width: 100%;
-        }
+    .money-wrap {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+    }
 
-        .money-wrap .rp {
-            min-width: 28px;
-            text-align: left
-        }
+    .money-wrap .rp {
+      min-width: 28px;
+      text-align: left
+    }
 
-        .money-wrap .nominal {
-            flex: 1;
-            text-align: right
-        }
+    .money-wrap .nominal {
+      flex: 1;
+      text-align: right
+    }
 
-        .btn {
-            display: inline-block;
-            padding: 10px 14px;
-            margin-top: 12px;
-            background: var(--brand);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+    .btn {
+      display: inline-block;
+      padding: 10px 14px;
+      margin-top: 12px;
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
 
-        .btn:hover {
-            background: #005fa3
-        }
+    .btn:hover {
+      background: #005fa3
+    }
 
-        /* Modal Tracking */
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: var(--modalMask);
-            z-index: 999;
-            padding: 18px;
-        }
+    /* Modal Tracking */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--modalMask);
+      z-index: 999;
+      padding: 18px;
+    }
 
-        .modal-card {
-            background: #fff;
-            width: 100%;
-            max-width: 520px;
-            margin: auto;
-            border-radius: 12px;
-            padding: 18px 18px 22px;
-            position: relative;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, .12);
-        }
+    .modal-card {
+      background: #fff;
+      width: 100%;
+      max-width: 460px;
+      margin: auto;
+      border-radius: 12px;
+      padding: 18px 18px 22px;
+      position: relative;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, .12);
+    }
 
-        .modal-close {
-            position: absolute;
-            right: 10px;
-            top: 8px;
-            border: none;
-            background: transparent;
-            font-size: 22px;
-            cursor: pointer;
-        }
+    .modal-close {
+      position: absolute;
+      right: 10px;
+      top: 8px;
+      border: none;
+      background: transparent;
+      font-size: 22px;
+      cursor: pointer;
+    }
 
-        .steps {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            margin: 10px 0 6px;
-            font-size: 13px;
-            color: #666;
-        }
+    .steps {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin: 10px 0 6px;
+      font-size: 13px;
+      color: #666;
+    }
 
-        .step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 25%;
-        }
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 25%;
+    }
 
-        .dot {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: #e9ecef;
-            border: 2px solid #cfd7df;
-            display: inline-block;
-            margin-bottom: 6px;
-            position: relative;
-            transition: all .2s ease;
-        }
+    .dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #e9ecef;
+      border: 2px solid #cfd7df;
+      display: inline-block;
+      margin-bottom: 6px;
+      transition: all .4s ease;
+    }
 
-        .dot::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            display: grid;
-            place-items: center;
-            font-size: 14px;
-            font-weight: bold;
-            color: #fff;
-        }
+    .step.active .dot {
+      background: var(--ok);
+      border-color: var(--ok);
+    }
 
-        .step.active .dot {
-            box-shadow: 0 0 0 3px rgba(0, 0, 0, .05);
-        }
+    .step.done .dot {
+      background: var(--ok);
+      border-color: var(--ok);
+    }
 
-        .step.done .dot {
-            background: var(--ok);
-            border-color: var(--ok);
-        }
+    .step-label {
+      text-align: center;
+      min-height: 2.4em
+    }
 
-        .step.done .dot::after {
-            content: "\2713";
-        }
+    .bar-wrap {
+      position: relative;
+      width: 100%;
+      height: 8px;
+      background: #edf1f5;
+      border-radius: 6px;
+      overflow: hidden;
+    }
 
-        .step.warning .dot {
-            background: var(--warn);
-            border-color: var(--warn);
-        }
+    .bar {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--ok), var(--ok2));
+      transition: width .8s ease;
+    }
 
-        .step.warning .dot::after {
-            content: "!";
-        }
+    .bar.grid {
+      background: repeating-linear-gradient(90deg, var(--ok), var(--ok) 20px, var(--ok2) 20px, var(--ok2) 40px);
+    }
 
-        .step.fail .dot {
-            background: var(--fail);
-            border-color: var(--fail);
-        }
+    .legend {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 12px;
+      color: #666;
+    }
 
-        .step.fail .dot::after {
-            content: "\2715";
-        }
+    @media print {
+      @page {
+        size: 80mm auto;
+        margin: 5mm;
+      }
 
-        .step-label {
-            text-align: center;
-            min-height: 2.4em
-        }
+      body {
+        background: #fff;
+        margin: 0;
+        padding: 0
+      }
 
-        .bar-wrap {
-            position: relative;
-            width: 100%;
-            height: 8px;
-            background: #edf1f5;
-            border-radius: 6px;
-            overflow: hidden;
-        }
+      .container {
+        box-shadow: none;
+        border-radius: 0;
+        width: 80mm;
+        padding: 6px;
+        font-size: 12px
+      }
 
-        .bar {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--ok), var(--ok2));
-            transition: width .5s ease;
-        }
+      h2,
+      h3 {
+        color: #000;
+        margin: 5px 0;
+        text-align: center
+      }
 
-        .bar.grid {
-            background: repeating-linear-gradient(90deg, var(--ok), var(--ok) 20px, var(--ok2) 20px, var(--ok2) 40px);
-        }
+      .btn,
+      .modal {
+        display: none !important
+      }
 
-        .legend {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 6px;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .legend-badges {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            margin-top: 8px;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .legend-badges .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .legend-badges .chip {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        .chip-ok {
-            background: var(--ok);
-        }
-
-        .chip-warn {
-            background: var(--warn);
-        }
-
-        .chip-fail {
-            background: var(--fail);
-        }
-
-        /* Print */
-        @media print {
-            @page {
-                size: 80mm auto;
-                margin: 5mm;
-            }
-
-            body {
-                background: #fff;
-                margin: 0;
-                padding: 0
-            }
-
-            .container {
-                box-shadow: none;
-                border-radius: 0;
-                width: 80mm;
-                padding: 6px;
-                font-size: 12px
-            }
-
-            h2,
-            h3 {
-                color: #000;
-                margin: 5px 0;
-                text-align: center
-            }
-
-            .btn,
-            .modal {
-                display: none !important
-            }
-
-            table.order-table th,
-            table.order-table td {
-                border: none;
-                font-size: 11px;
-                text-align: left;
-                padding: 3px 0;
-            }
-        }
-    </style>
+      table.order-table th,
+      table.order-table td {
+        border: none;
+        font-size: 11px;
+        text-align: left;
+        padding: 3px 0;
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <div class="container">
-        <h2>Nota Order</h2>
+  <div class="container">
+    <h2>Nota Order</h2>
 
-        <!-- Info Order -->
-        <table class="info-table">
-            <tr>
-                <td class="label">ID Order</td>
-                <td class="colon">:</td>
-                <td class="value" id="id-order"></td>
-            </tr>
-            <tr>
-                <td class="label">Tanggal Order</td>
-                <td class="colon">:</td>
-                <td class="value" id="tgl-order"></td>
-            </tr>
-            <tr>
-                <td class="label">Deadline</td>
-                <td class="colon">:</td>
-                <td class="value" id="deadline"></td>
-            </tr>
-            <tr>
-                <td class="label">Nama Customer</td>
-                <td class="colon">:</td>
-                <td class="value" id="nama-customer"></td>
-            </tr>
-            <tr>
-                <td class="label">No. WhatsApp</td>
-                <td class="colon">:</td>
-                <td class="value" id="no-wa"></td>
-            </tr>
-            <tr>
-                <td class="label">Alamat</td>
-                <td class="colon">:</td>
-                <td class="value" id="alamat"></td>
-            </tr>
-        </table>
+    <!-- Info Order -->
+    <table class="info-table">
+      <tr><td class="label">ID Order</td><td class="colon">:</td><td class="value" id="id-order"></td></tr>
+      <tr><td class="label">Tanggal Order</td><td class="colon">:</td><td class="value" id="tgl-order"></td></tr>
+      <tr><td class="label">Deadline</td><td class="colon">:</td><td class="value" id="deadline"></td></tr>
+      <tr><td class="label">Nama Customer</td><td class="colon">:</td><td class="value" id="nama-customer"></td></tr>
+      <tr><td class="label">No. WhatsApp</td><td class="colon">:</td><td class="value" id="no-wa"></td></tr>
+      <tr><td class="label">Alamat</td><td class="colon">:</td><td class="value" id="alamat"></td></tr>
+    </table>
 
-        <h3>Detail Pesanan</h3>
-        <table class="order-table">
-            <thead>
-                <tr>
-                    <th>Artikel</th>
-                    <th>Qty</th>
-                    <th>Total</th>
-                    <th>Diskon</th>
-                    <th>Total Setelah Diskon</th>
-                </tr>
-            </thead>
-            <tbody id="order-detail"></tbody>
-        </table>
+    <h3>Detail Pesanan</h3>
+    <table class="order-table">
+      <thead>
+        <tr>
+          <th>Artikel</th>
+          <th>Qty</th>
+          <th>Total</th>
+          <th>Diskon</th>
+          <th>Total Setelah Diskon</th>
+        </tr>
+      </thead>
+      <tbody id="order-detail"></tbody>
+    </table>
 
-        <button class="btn" onclick="openTracking()">Tracking Barang</button>
+    <button class="btn" onclick="openTracking()">Tracking Barang</button>
+  </div>
+
+  <!-- Modal Tracking -->
+  <div id="trackingModal" class="modal">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeTracking()">✕</button>
+      <h3 style="text-align:center; margin:4px 0 10px;">Status Produksi</h3>
+
+      <div class="steps">
+        <div class="step" id="step-1"><span class="dot"></span><span class="step-label">DP</span></div>
+        <div class="step" id="step-2"><span class="dot"></span><span class="step-label">Produksi</span></div>
+        <div class="step" id="step-3"><span class="dot"></span><span class="step-label">Selesai</span></div>
+        <div class="step" id="step-4"><span class="dot"></span><span class="step-label">Siap Ambil / Kirim</span></div>
+      </div>
+
+      <div class="bar-wrap"><div id="progressBar" class="bar grid"></div></div>
+      <div class="legend"><span id="statusText">Memuat status…</span><span id="percentText">0%</span></div>
     </div>
+  </div>
 
-    <!-- Modal Tracking -->
-    <div id="trackingModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="trackingTitle">
-        <div class="modal-card">
-            <button class="modal-close" aria-label="Tutup" onclick="closeTracking()">✕</button>
-            <h3 id="trackingTitle" style="text-align:center; margin:4px 0 10px;">Status Produksi</h3>
+  <script>
+    function formatDateDDMMMMYYYY(dateStr) {
+      if (!dateStr) return "-";
+      const d = new Date(dateStr);
+      if (isNaN(d)) return dateStr;
+      const opt = { day: "2-digit", month: "long", year: "numeric" };
+      return d.toLocaleDateString("id-ID", opt).replace(/\s/g, " / ");
+    }
+    function formatNum(n) {
+      if (n === undefined || n === null || n === "") return "-";
+      const num = typeof n === "string" ? Number(String(n).replace(/[^\d.-]+/g, "")) : n;
+      if (isNaN(num)) return n;
+      return new Intl.NumberFormat("id-ID").format(num);
+    }
+    function qs(name, def = "") {
+      const p = new URLSearchParams(location.search);
+      return p.get(name) ?? def;
+    }
 
-            <div class="steps">
-                <div class="step" id="step-1"><span class="dot"></span><span class="step-label">DP</span></div>
-                <div class="step" id="step-2"><span class="dot"></span><span class="step-label">Produksi</span></div>
-                <div class="step" id="step-3"><span class="dot"></span><span class="step-label">Selesai</span></div>
-                <div class="step" id="step-4"><span class="dot"></span><span class="step-label">Siap Ambil /
-                        Kirim</span></div>
-            </div>
+    const idOrder = qs("id_order", "ORD001");
+    const apiBase = "https://script.google.com/macros/s/AKfycbwDdPPhEUGkhj06pkHRZMfecEElNzefW2XnK8vsf_M_QipO58B-5cSVeIlauRmKzfbf/exec"; // ganti URL GAS kamu
 
-            <div class="bar-wrap">
-                <div id="progressBar" class="bar grid"></div>
-            </div>
-            <div class="legend">
-                <span id="statusText">Memuat status…</span>
-                <span id="percentText">0%</span>
-            </div>
-            <div class="legend-badges">
-                <span class="badge"><span class="chip chip-ok"></span> Hijau = Selesai</span>
-                <span class="badge"><span class="chip chip-warn"></span> Kuning = Proses</span>
-                <span class="badge"><span class="chip chip-fail"></span> Merah = Belum</span>
-            </div>
-        </div>
-    </div>
+    let STATUS_RAW = "";
 
-    <script>
-        // ===== Helpers =====
-        function formatDateDDMMMMYYYY(dateStr) {
-            if (!dateStr) return "-";
-            const d = new Date(dateStr);
-            if (isNaN(d)) return dateStr; // fallback jika format sheet bukan ISO
-            const opt = { day: "2-digit", month: "long", year: "numeric" };
-            // "17 Agustus 2025" → "17 / Agustus / 2025"
-            return d.toLocaleDateString("id-ID", opt).replace(/\s/g, " / ");
-        }
-        function formatNum(n) {
-            if (n === undefined || n === null || n === "") return "-";
-            const num = typeof n === "string" ? Number(String(n).replace(/[^\d.-]+/g, "")) : n;
-            if (isNaN(num)) return n;
-            return new Intl.NumberFormat("id-ID").format(num);
-        }
-        function qs(name, def = "") {
-            const p = new URLSearchParams(location.search);
-            return p.get(name) ?? def;
+    // === Fetch gabungan ===
+    fetch(`${apiBase}?id_order=${encodeURIComponent(idOrder)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (!data.order || !data.order["ID ORDER"]) {
+          document.querySelector(".container").innerHTML = "<h3>Data tidak ditemukan</h3>";
+          return;
         }
 
-        // Utility normalisasi / boolean-ish
-        const TRUE_WORDS = ["true", "ya", "yes", "selesai", "done", "completed", "finish", "ready", "siap", "ok", "1"];
-        const PROC_WORDS = ["proses", "process", "on process", "produksi", "in progress", "progress", "ongoing"];
-        function normalize(v) { return (v ?? "").toString().trim().toLowerCase(); }
-        function isTrueLike(v) { const s = normalize(v); return TRUE_WORDS.includes(s) || s === "x" && false; }
-        function isProcLike(v) { const s = normalize(v); return PROC_WORDS.includes(s); }
-        function hasNumber(v) { if (v === 0) return false; const num = Number(String(v).replace(/[^\d.-]+/g, "")); return !isNaN(num) && num > 0; }
+        const ORDER = data.order;
+        const DETAIL = data.detail;
 
-        // ===== Config (GAS endpoint) =====
-        // Pastikan endpoint sudah mengirim header CORS: Access-Control-Allow-Origin: *
-        const idOrder = qs("id_order", "ORD001");
-        const apiUrl = "https://script.google.com/macros/s/AKfycbwDdPPhEUGkhj06pkHRZMfecEElNzefW2XnK8vsf_M_QipO58B-5cSVeIlauRmKzfbf/exec?id_order=" + encodeURIComponent(idOrder);
+        document.getElementById("id-order").textContent = ORDER["ID ORDER"] || "-";
+        document.getElementById("tgl-order").textContent = formatDateDDMMMMYYYY(ORDER["TANGGAL ORDER"]);
+        document.getElementById("deadline").textContent = formatDateDDMMMMYYYY(ORDER["DEADLINE"]);
+        document.getElementById("nama-customer").textContent = ORDER["NAMA CUSTOMER"] || "-";
+        document.getElementById("no-wa").textContent = ORDER["NO WHATSAPP"] || "-";
+        document.getElementById("alamat").textContent = ORDER["ALAMAT"] || "-";
 
-        // ===== State =====
-        let ORDER = null;
+        STATUS_RAW = ORDER["STATUS"] || ORDER["STATUS PRODUKSI"] || "";
 
-        // ===== Fetch data =====
-        fetch(apiUrl, { method: "GET" })
-            .then(r => r.json())
-            .then(rows => {
-                if (!rows || !rows.length) {
-                    document.querySelector(".container").innerHTML = "<h3>Data tidak ditemukan</h3>";
-                    return;
-                }
-                ORDER = rows[0];
+        const tbody = document.getElementById("order-detail");
+        tbody.innerHTML = "";
+        DETAIL.forEach(item => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${item["ARTIKEL"] || "-"}</td>
+              <td>${formatNum(item["QTY"])}</td>
+              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(item["TOTAL"])}</span></div></td>
+              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(item["DISCOUNT"])}</span></div></td>
+              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(item["TOTAL SETELAH DISCOUNT"])}</span></div></td>
+            </tr>
+          `;
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        document.querySelector(".container").innerHTML = "<h3>Gagal mengambil data</h3>";
+      });
 
-                // Isi Info
-                document.getElementById("id-order").textContent = ORDER["ID ORDER"] || "-";
-                document.getElementById("tgl-order").textContent = formatDateDDMMMMYYYY(ORDER["TANGGAL ORDER"]);
-                document.getElementById("deadline").textContent = formatDateDDMMMMYYYY(ORDER["DEADLINE"]);
-                document.getElementById("nama-customer").textContent = ORDER["NAMA CUSTOMER"] || "-";
-                document.getElementById("no-wa").textContent = ORDER["NO WHATSAPP"] || "-";
-                document.getElementById("alamat").textContent = ORDER["ALAMAT"] || "-";
-
-                // Detail
-                const tbody = document.getElementById("order-detail");
-                tbody.innerHTML = `
-          <tr>
-            <td>${ORDER["ARTIKEL UTAMA / SEASEON"] || ORDER["ARTIKEL"] || "-"}</td>
-            <td>${formatNum(ORDER["QTY"])}</td>
-            <td class="money">
-              <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(ORDER["TOTAL"])}</span></div>
-            </td>
-            <td class="money">
-              <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(ORDER["DISCOUNT"])}</span></div>
-            </td>
-            <td class="money">
-              <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(ORDER["TOTAL SETELAH DISCOUNT"])}</span></div>
-            </td>
-          </tr>`;
-            })
-            .catch(err => {
-                console.error(err);
-                document.querySelector(".container").innerHTML = "<h3>Gagal mengambil data</h3>";
-            });
-
-        // ===== Tracking UI =====
-        function markStep(num, state) {
-            const el = document.getElementById(`step-${num}`);
-            if (!el) return;
-            el.classList.remove("active", "done", "warning", "fail");
-            el.classList.add(state);
-        }
-        function setActive(num) {
-            const el = document.getElementById(`step-${num}`);
-            if (el) el.classList.add("active");
-        }
-        function animateToPercent(percent) {
-            const bar = document.getElementById("progressBar");
-            const pctEl = document.getElementById("percentText");
-            requestAnimationFrame(() => {
-                bar.style.width = Math.max(0, Math.min(100, percent)) + "%";
-                pctEl.textContent = Math.round(percent) + "%";
-            });
-        }
-
-        function openTracking() {
-            if (!ORDER) {
-                document.getElementById("trackingModal").style.display = "block";
-                document.getElementById("statusText").textContent = "Data belum termuat";
-                return;
-            }
-
-            // Ambil nilai dari sheet (akomodasi beberapa kemungkinan nama kolom)
-            const dpVal = ORDER["DP"] ?? ORDER["UANG MUKA"] ?? ORDER["DEPOSIT"];
-            const prodVal = ORDER["PRODUKSI"] ?? ORDER["STATUS PRODUKSI"];
-            const selesaiVal = ORDER["SELESAI"] ?? ORDER["STATUS SELESAI"];
-            const siapVal = ORDER["SIAP KIRIM"] ?? ORDER["SIAP AMBIL / KIRIM"] ?? ORDER["READY"];
-
-            const dpPaid = hasNumber(dpVal) || isTrueLike(dpVal);
-            const prodDone = isTrueLike(prodVal) || normalize(prodVal) === "selesai";
-            const prodProc = !prodDone && (isProcLike(prodVal) || normalize(prodVal) === "proses");
-            const selesaiDone = isTrueLike(selesaiVal) || prodDone;
-            const siapDone = isTrueLike(siapVal) || (dpPaid && prodDone && selesaiDone);
-
-            // Reset & status per step
-            for (let i = 1; i <= 4; i++) markStep(i, "fail");
-
-            // Step 1: DP
-            markStep(1, dpPaid ? "done" : "fail");
-
-            // Step 2: Produksi
-            if (!dpPaid) {
-                markStep(2, "fail");
-            } else if (prodDone) {
-                markStep(2, "done");
-            } else if (prodProc) {
-                markStep(2, "warning");
-            } else {
-                // DP sudah, tapi produksi belum mulai → kuning biar terlihat "menunggu produksi"
-                markStep(2, "warning");
-            }
-
-            // Step 3: Selesai
-            markStep(3, selesaiDone ? "done" : "fail");
-
-            // Step 4: Siap Ambil / Kirim
-            if (dpPaid && prodDone && selesaiDone) {
-                markStep(4, siapDone ? "done" : "warning"); // semua selesai tapi belum flag siap → kuning
-            } else {
-                markStep(4, "fail");
-            }
-
-            // Hitung persen progres berdasarkan jumlah step "done"
-            const states = [1, 2, 3, 4].map(i => document.getElementById(`step-${i}`));
-            const doneCount = states.filter(el => el.classList.contains("done")).length;
-            const percent = (doneCount / 4) * 100;
-            animateToPercent(percent);
-
-            // Teks status ringkas
-            const statusParts = [];
-            statusParts.push(`DP: ${dpPaid ? 'OK' : 'Belum'}`);
-            statusParts.push(`Produksi: ${prodDone ? 'Selesai' : (dpPaid ? (prodProc ? 'Proses' : 'Menunggu') : 'Belum DP')}`);
-            statusParts.push(`Selesai: ${selesaiDone ? 'OK' : 'Belum'}`);
-            statusParts.push(`Kirim: ${siapDone ? 'Siap' : (dpPaid && prodDone && selesaiDone ? 'Menunggu' : 'Belum')}`);
-            document.getElementById("statusText").textContent = statusParts.join(" • ");
-
-            // Set active step visual (step paling kanan yang bukan fail)
-            const activeIdx = [4, 3, 2, 1].find(i => document.getElementById(`step-${i}`).classList.contains("done") || document.getElementById(`step-${i}`).classList.contains("warning")) || 1;
-            setActive(activeIdx);
-
-            // Show modal
-            document.getElementById("trackingModal").style.display = "block";
-        }
-
-        function closeTracking() { document.getElementById("trackingModal").style.display = "none"; }
-        window.addEventListener("click", (e) => { if (e.target === document.getElementById("trackingModal")) closeTracking(); });
-    </script>
+    // === Tracking UI ===
+    function statusToStep(status) {
+      const s = (status || "").toString().trim().toLowerCase();
+      if (["dp", "down payment", "uang muka"].includes(s)) return 1;
+      if (["produksi", "proses produksi", "process", "on process"].includes(s)) return 2;
+      if (["selesai", "finish", "done", "completed"].includes(s)) return 3;
+      if (["siap ambil", "siap kirim", "siap ambil / kirim", "ready to pickup", "ready to ship", "siap ambil/kirim"].includes(s)) return 4;
+      return 1;
+    }
+    function stepToPercent(step) {
+      return Math.min(Math.max(step, 1), 4) * 25;
+    }
+    function setStepsActive(step) {
+      for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById(`step-${i}`);
+        if (!el) continue;
+        el.classList.remove("active", "done");
+        if (i < step) el.classList.add("done");
+        if (i === step) el.classList.add("active");
+      }
+    }
+    function animateToPercent(percent) {
+      const bar = document.getElementById("progressBar");
+      const pctEl = document.getElementById("percentText");
+      requestAnimationFrame(() => {
+        bar.style.width = percent + "%";
+        pctEl.textContent = percent + "%";
+      });
+    }
+    function openTracking() {
+      const step = statusToStep(STATUS_RAW || "DP");
+      const percent = stepToPercent(step);
+      document.getElementById("statusText").textContent = STATUS_RAW ? `Status: ${STATUS_RAW}` : "Status: DP";
+      setStepsActive(step);
+      animateToPercent(percent);
+      document.getElementById("trackingModal").style.display = "block";
+    }
+    function closeTracking() {
+      document.getElementById("trackingModal").style.display = "none";
+    }
+    window.addEventListener("click", (e) => {
+      if (e.target === document.getElementById("trackingModal")) closeTracking();
+    });
+  </script>
 </body>
-
 </html>
