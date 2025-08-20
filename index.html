@@ -131,7 +131,7 @@
       if (isNaN(d)) return dateStr; // fallback jika format sheet bukan ISO
       const opt = { day: "2-digit", month: "long", year: "numeric" };
       // "17 Agustus 2025" → "17 / Agustus / 2025"
-      return d.toLocaleDateString("id-ID", opt).replace(/\s/g, " / ");
+      return d.toLocaleDateString("id-ID", opt).replace(/\s/g, " ");
     }
     function formatNum(n) {
       if (n === undefined || n === null || n === "") return "-";
