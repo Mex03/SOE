@@ -124,13 +124,28 @@
   </div>
 
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const idOrder = urlParams.get("id_order");
-
-    function formatNum(num) {
-      if (!num || isNaN(num)) return "0";
+    // ===== Helpers =====
+    function formatDateDDMMMMYYYY(dateStr) {
+      if (!dateStr) return "-";
+      const d = new Date(dateStr);
+      if (isNaN(d)) return dateStr; // fallback jika format sheet bukan ISO
+      const opt = { day: "2-digit", month: "long", year: "numeric" };
+      // "17 Agustus 2025" → "17 / Agustus / 2025"
+      return d.toLocaleDateString("id-ID", opt).replace(/\s/g, " / ");
+    }
+    function formatNum(n) {
+      if (n === undefined || n === null || n === "") return "-";
+      const num = typeof n === "string" ? Number(String(n).replace(/[^\d.-]+/g, "")) : n;
+      if (isNaN(num)) return n;
       return new Intl.NumberFormat("id-ID").format(num);
     }
+    function qs(name, def = "") {
+      const p = new URLSearchParams(location.search);
+      return p.get(name) ?? def;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const idOrder = urlParams.get("id_order");
 
     async function loadData() {
       try {
@@ -145,7 +160,7 @@
             <p><b>Tanggal Order</b> : ${order["TANGGAL ORDER"]}</p>
             <p><b>Deadline</b> : ${order["DEADLINE"]}</p>
             <p><b>Nama Customer</b> : ${order["NAMA CUSTOMER"]}</p>
-            <p><b>No. WhatsApp</b> : ${order["NO WHATSAPP"]}</p>
+            <p><b>No. HP</b> : ${order["NO WHATSAPP"]}</p>
             <p><b>Alamat</b> : ${order["ALAMAT"]}</p>
           `;
 
