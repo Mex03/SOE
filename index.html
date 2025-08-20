@@ -60,7 +60,7 @@
       cursor: pointer;
       color: red;
     }
-    /* Kolom uang -> Rp kiri, angka kanan */
+    /* Kolom uang */
     td.money {
       padding: 4px 6px
     }
@@ -74,10 +74,30 @@
       min-width: 28px;
       text-align: left
     }
-    /* Rp rata kiri */
     .money-wrap .nominal {
       flex: 1;
       text-align: right
+    }
+
+    /* Table info order agar ":" sejajar */
+    .info-table {
+      width: 100%;
+      border: none;
+      margin-bottom: 15px;
+    }
+    .info-table td {
+      border: none;
+      padding: 4px 6px;
+      text-align: left;
+    }
+    .info-table td.label {
+      font-weight: bold;
+      width: 150px;
+      white-space: nowrap;
+    }
+    .info-table td.sep {
+      width: 10px;
+      text-align: center;
     }
   </style>
 </head>
@@ -128,9 +148,8 @@
     function formatDateDDMMMMYYYY(dateStr) {
       if (!dateStr) return "-";
       const d = new Date(dateStr);
-      if (isNaN(d)) return dateStr; // fallback jika format sheet bukan ISO
+      if (isNaN(d)) return dateStr;
       const opt = { day: "2-digit", month: "long", year: "numeric" };
-      // "17 Agustus 2025" → "17 / Agustus / 2025"
       return d.toLocaleDateString("id-ID", opt).replace(/\s/g, " ");
     }
     function formatNum(n) {
@@ -156,12 +175,14 @@
         const order = data.order;
         if (order) {
           document.getElementById("orderData").innerHTML = `
-            <p><b>ID Order</b> : ${order["ID ORDER"]}</p>
-            <p><b>Tanggal Order</b> : ${formatDateDDMMMMYYYY(order["TANGGAL ORDER"])}</p>
-            <p><b>Deadline</b> : ${formatDateDDMMMMYYYY(order["DEADLINE"])}</p>
-            <p><b>Nama Customer</b> : ${order["NAMA CUSTOMER"]}</p>
-            <p><b>No. HP</b> : ${order["NO WHATSAPP"]}</p>
-            <p><b>Alamat</b> : ${order["ALAMAT"]}</p>
+            <table class="info-table">
+              <tr><td class="label">ID Order</td><td class="sep">:</td><td>${order["ID ORDER"]}</td></tr>
+              <tr><td class="label">Tanggal Order</td><td class="sep">:</td><td>${formatDateDDMMMMYYYY(order["TANGGAL ORDER"])}</td></tr>
+              <tr><td class="label">Deadline</td><td class="sep">:</td><td>${formatDateDDMMMMYYYY(order["DEADLINE"])}</td></tr>
+              <tr><td class="label">Nama Customer</td><td class="sep">:</td><td>${order["NAMA CUSTOMER"]}</td></tr>
+              <tr><td class="label">No. WhatsApp</td><td class="sep">:</td><td>${order["NO WHATSAPP"]}</td></tr>
+              <tr><td class="label">Alamat</td><td class="sep">:</td><td>${order["ALAMAT"]}</td></tr>
+            </table>
           `;
 
           const tbody = document.querySelector("#orderTable tbody");
