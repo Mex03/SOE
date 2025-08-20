@@ -204,66 +204,66 @@
     // 🔥 Ganti URL berikut dengan URL Web App Google Apps Script kamu
     const GAS_URL = "https://script.google.com/macros/s/AKfycbz7nFoLuaZF_Hxrmc67O9uj8nD0MSwcUaYchak59O9WteSe2KIGlIaQfWJ0y8ldcRWL/exec";
 
-    function formatDateDDMMMMYYYY(dateStr) {
-      if (!dateStr) return "-";
-      const d = new Date(dateStr);
-      if (isNaN(d)) return dateStr;
-      const opt = { day: "2-digit", month: "long", year: "numeric" };
-      return d.toLocaleDateString("id-ID", opt).replace(/\s/g, " ");
-    }
-    function formatNum(n) {
-      if (n === undefined || n === null || n === "") return "-";
-      const num = typeof n === "string" ? Number(String(n).replace(/[^\d.-]+/g, "")) : n;
-      if (isNaN(num)) return n;
-      return new Intl.NumberFormat("id-ID").format(num);
-    }
-
     const urlParams = new URLSearchParams(window.location.search);
     const idOrder = urlParams.get("id_order");
 
     let cachedInvoice = [];
     let orderData = {};
 
+    function formatDateDDMMMMYYYY(dateStr) {
+      if (!dateStr) return "-";
+      const d = new Date(dateStr);
+      if (isNaN(d)) return dateStr;
+      return d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+    }
+
+    function formatNum(n) {
+      if (n === undefined || n === null || n === "") return "-";
+      const num = typeof n === "string" ? Number(n.replace(/[^\d.-]+/g, "")) : n;
+      return isNaN(num) ? n : new Intl.NumberFormat("id-ID").format(num);
+    }
+
     async function loadOrderAndInvoice() {
       try {
-        const response = await fetch(`${GAS_URL}?id_order=${idOrder}`);
-        const data = await response.json();
+        const res = await fetch(`${GAS_URL}?id_order=${idOrder}`);
+        const data = await res.json();
 
         orderData = data.order || {};
         cachedInvoice = data.invoice || [];
 
-        if (orderData) {
-          document.getElementById("orderData").innerHTML = `
-            <table class="info-table">
-              <tr><td class="label">ID Order</td><td class="sep">:</td><td>${orderData["ID ORDER"] || "-"}</td></tr>
-              <tr><td class="label">Tanggal Order</td><td class="sep">:</td><td>${formatDateDDMMMMYYYY(orderData["TANGGAL ORDER"])}</td></tr>
-              <tr><td class="label">Deadline</td><td class="sep">:</td><td>${formatDateDDMMMMYYYY(orderData["DEADLINE"])}</td></tr>
-              <tr><td class="label">Nama Customer</td><td class="sep">:</td><td>${orderData["NAMA CUSTOMER"] || "-"}</td></tr>
-              <tr><td class="label">No. WhatsApp</td><td class="sep">:</td><td>${orderData["NO WHATSAPP"] || "-"}</td></tr>
-              <tr><td class="label">Alamat</td><td class="sep">:</td><td>${orderData["ALAMAT"] || "-"}</td></tr>
-            </table>
-          `;
-
-          const tbody = document.querySelector("#orderTable tbody");
-          tbody.innerHTML = `
-            <tr>
-              <td>${orderData["ARTIKEL UTAMA / SEASEON"] || "-"}</td>
-              <td>${orderData["QTY"] || "-"}</td>
-              <td class="money">
-                <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(orderData["TOTAL"])}</span></div>
-              </td>
-              <td class="money">
-                <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(orderData["DISCOUNT"])}</span></div>
-              </td>
-              <td class="money">
-                <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(orderData["TOTAL SETELAH DISCOUNT"])}</span></div>
-              </td>
-            </tr>`;
-        }
+        renderOrder(orderData);
       } catch (err) {
         console.error("Gagal memuat data:", err);
-        document.getElementById("orderData").innerHTML = "Terjadi kesalahan.";
+        document.getElementById("orderData").innerHTML = "❌ Terjadi kesalahan.";
       }
+    }
+
+    function renderOrder(order) {
+      if (!order || Object.keys(order).length === 0) {
+        document.getElementById("orderData").innerHTML = "❌ Data order tidak ditemukan.";
+        return;
+      }
+
+      document.getElementById("orderData").innerHTML = `
+        <table class="info-table">
+          <tr><td class="label">ID Order</td><td class="sep">:</td><td>${order["ID ORDER"] || "-"}</td></tr>
+          <tr><td class="label">Tanggal Order</td><td class="sep">:</td><td>${formatDateDDMMMMYYYY(order["TANGGAL ORDER"])}</td></tr>
+          <tr><td class="label">Deadline</td><td class="sep">:</td><td>${formatDateDDMMMMYYYY(order["DEADLINE"])}</td></tr>
+          <tr><td class="label">Nama Customer</td><td class="sep">:</td><td>${order["NAMA CUSTOMER"] || "-"}</td></tr>
+          <tr><td class="label">No. WhatsApp</td><td class="sep">:</td><td>${order["NO WHATSAPP"] || "-"}</td></tr>
+          <tr><td class="label">Alamat</td><td class="sep">:</td><td>${order["ALAMAT"] || "-"}</td></tr>
+        </table>
+      `;
+
+      const tbody = document.querySelector("#orderTable tbody");
+      tbody.innerHTML = `
+        <tr>
+          <td>${order["ARTIKEL UTAMA / SEASEON"] || "-"}</td>
+          <td>${order["QTY"] || "-"}</td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(order["TOTAL"])}</span></div></td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(order["DISCOUNT"])}</span></div></td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(order["TOTAL SETELAH DISCOUNT"])}</span></div></td>
+        </tr>`;
     }
 
     function openInvoice() {
@@ -276,9 +276,7 @@
             <tr>
               <td>${item["NAMA ARTIKEL"] || "-"}</td>
               <td>${item["JML"] || "-"}</td>
-              <td class="money">
-                <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(item["TOTAL"])}</span></div>
-              </td>
+              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(item["TOTAL"])}</span></div></td>
             </tr>`);
         });
       } else {
@@ -293,41 +291,21 @@
 
     function openTracking() {
       const tbodyTrack = document.querySelector("#trackingBody");
-      tbodyTrack.innerHTML = "";
 
-      if (!orderData) {
+      if (!orderData || Object.keys(orderData).length === 0) {
         tbodyTrack.innerHTML = `<tr><td colspan="3">Data tidak tersedia</td></tr>`;
       } else {
-        let dpStatus, produksiStatus, ambilStatus;
+        const dp = Number(orderData["TOTAL DP"] || 0);
+        const statusProd = orderData["STATUS PRODUKSI"];
+        const tanggalAmbil = orderData["TANGGAL PENGAMBILAN"];
 
-        if (!orderData["TOTAL DP"] || Number(orderData["TOTAL DP"]) === 0) {
-          dpStatus = `<span class="status-fail">✖</span>`;
-        } else {
-          dpStatus = `<span class="status-ok">✓</span>`;
-        }
+        const dpStatus = dp > 0 ? `<span class="status-ok">✓</span>` : `<span class="status-fail">✖</span>`;
+        const produksiStatus = dp === 0 ? `<span class="status-fail">✖</span>` :
+                               statusProd === "SELESAI" ? `<span class="status-ok">✓</span>` : `<span class="status-wait">-</span>`;
+        const ambilStatus = dp === 0 || statusProd === "BELUM SELESAI" ? `<span class="status-fail">✖</span>` :
+                            !tanggalAmbil ? `<span class="status-wait">-</span>` : `<span class="status-ok">✓</span>`;
 
-        if (!orderData["TOTAL DP"] || Number(orderData["TOTAL DP"]) === 0) {
-          produksiStatus = `<span class="status-fail">✖</span>`;
-        } else if (orderData["STATUS PRODUKSI"] === "SELESAI") {
-          produksiStatus = `<span class="status-ok">✓</span>`;
-        } else {
-          produksiStatus = `<span class="status-wait">-</span>`;
-        }
-
-        if (!orderData["TOTAL DP"] || Number(orderData["TOTAL DP"]) === 0 || orderData["STATUS PRODUKSI"] === "BELUM SELESAI") {
-          ambilStatus = `<span class="status-fail">✖</span>`;
-        } else if (!orderData["TANGGAL PENGAMBILAN"]) {
-          ambilStatus = `<span class="status-wait">-</span>`;
-        } else {
-          ambilStatus = `<span class="status-ok">✓</span>`;
-        }
-
-        tbodyTrack.innerHTML = `
-          <tr>
-            <td>${dpStatus}</td>
-            <td>${produksiStatus}</td>
-            <td>${ambilStatus}</td>
-          </tr>`;
+        tbodyTrack.innerHTML = `<tr><td>${dpStatus}</td><td>${produksiStatus}</td><td>${ambilStatus}</td></tr>`;
       }
 
       document.getElementById("trackingOverlay").style.display = "flex";
@@ -340,4 +318,3 @@
   </script>
 </body>
 </html>
-
