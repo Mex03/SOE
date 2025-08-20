@@ -47,19 +47,46 @@
     .btn:hover {
       background: #025aa5;
     }
+
+    /* Overlay blur */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Popup invoice */
     .invoice-card {
       background: #fff;
       padding: 15px;
       border-radius: 8px;
-      margin: 20px auto;
       width: 400px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      position: relative;
+      animation: fadeIn 0.3s ease;
     }
     .close-btn {
-      float: right;
+      position: absolute;
+      top: 8px;
+      right: 10px;
       cursor: pointer;
       color: red;
+      font-size: 18px;
+      font-weight: bold;
     }
+
+    /* Animasi popup */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
     /* Kolom uang */
     td.money {
       padding: 4px 6px
@@ -79,7 +106,7 @@
       text-align: right
     }
 
-    /* Table info order agar ":" sejajar */
+    /* Table info order */
     .info-table {
       width: 100%;
       border: none;
@@ -125,22 +152,24 @@
     <button class="btn" onclick="openInvoice()">Invoice</button>
   </div>
 
-  <!-- Invoice Modal -->
-  <div class="invoice-card" id="invoiceCard" style="display:none;">
-    <span class="close-btn" onclick="closeInvoice()">✖</span>
-    <h3 style="text-align:center; color:#0275d8;">List Pesanan</h3>
-    <table id="invoiceTable">
-      <thead>
-        <tr>
-          <th>Nama Artikel</th>
-          <th>Qty</th>
-          <th>Total Harga</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td colspan="3">Memuat data...</td></tr>
-      </tbody>
-    </table>
+  <!-- Overlay + Invoice Popup -->
+  <div class="overlay" id="invoiceOverlay">
+    <div class="invoice-card">
+      <span class="close-btn" onclick="closeInvoice()">✖</span>
+      <h3 style="text-align:center; color:#0275d8;">List Pesanan</h3>
+      <table id="invoiceTable">
+        <thead>
+          <tr>
+            <th>Nama Artikel</th>
+            <th>Qty</th>
+            <th>Total Harga</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="3">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script>
@@ -158,20 +187,16 @@
       if (isNaN(num)) return n;
       return new Intl.NumberFormat("id-ID").format(num);
     }
-    function qs(name, def = "") {
-      const p = new URLSearchParams(location.search);
-      return p.get(name) ?? def;
-    }
 
     const urlParams = new URLSearchParams(window.location.search);
     const idOrder = urlParams.get("id_order");
 
-    async function loadData() {
+    // Hanya load data order
+    async function loadOrder() {
       try {
         const response = await fetch("https://script.google.com/macros/s/AKfycbwAQc7jcbJtzXrVSaOjXoHn6ZCv2C8lSVtRZCYchjZN2HPGZoqxaTQirAIp9F1b4KDUMA/exec?id_order=" + idOrder);
         const data = await response.json();
 
-        // --- Render Order Utama ---
         const order = data.order;
         if (order) {
           document.getElementById("orderData").innerHTML = `
@@ -203,8 +228,18 @@
             </tr>`;
           tbody.insertAdjacentHTML("beforeend", row);
         }
+      } catch (err) {
+        console.error("Gagal memuat data:", err);
+        document.getElementById("orderData").innerHTML = "Terjadi kesalahan.";
+      }
+    }
 
-        // --- Render Invoice ---
+    // Baru fetch & tampilkan invoice saat tombol diklik
+    async function openInvoice() {
+      try {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbwAQc7jcbJtzXrVSaOjXoHn6ZCv2C8lSVtRZCYchjZN2HPGZoqxaTQirAIp9F1b4KDUMA/exec?id_order=" + idOrder);
+        const data = await response.json();
+
         const invoice = data.invoice;
         const tbodyInvoice = document.querySelector("#invoiceTable tbody");
         tbodyInvoice.innerHTML = "";
@@ -225,21 +260,19 @@
           tbodyInvoice.innerHTML = `<tr><td colspan="3">Tidak ada data invoice</td></tr>`;
         }
 
+        document.getElementById("invoiceOverlay").style.display = "flex";
       } catch (err) {
-        console.error("Gagal memuat data:", err);
-        document.getElementById("orderData").innerHTML = "Terjadi kesalahan.";
+        console.error("Gagal memuat invoice:", err);
+        alert("Gagal memuat invoice!");
       }
     }
 
-    function openInvoice() {
-      document.getElementById("invoiceCard").style.display = "block";
-    }
-
     function closeInvoice() {
-      document.getElementById("invoiceCard").style.display = "none";
+      document.getElementById("invoiceOverlay").style.display = "none";
     }
 
-    loadData();
+    // Jalankan pertama kali hanya untuk data order
+    loadOrder();
   </script>
 </body>
 </html>
