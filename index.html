@@ -201,7 +201,8 @@
   </div>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbz7nFoLuaZF_Hxrmc67O9uj8nD0MSwcUaYchak59O9WteSe2KIGlIaQfWJ0y8ldcRWL/exec"; // 🔥 ganti dengan URL GAS kamu
+    // 🔥 Ganti URL berikut dengan URL Web App Google Apps Script kamu
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbz7nFoLuaZF_Hxrmc67O9uj8nD0MSwcUaYchak59O9WteSe2KIGlIaQfWJ0y8ldcRWL/exec";
 
     function formatDateDDMMMMYYYY(dateStr) {
       if (!dateStr) return "-";
@@ -234,12 +235,12 @@
         if (orderData) {
           document.getElementById("orderData").innerHTML = `
             <table class="info-table">
-              <tr><td class="label">ID Order</td><td class="sep">:</td><td>${orderData["ID ORDER"]}</td></tr>
+              <tr><td class="label">ID Order</td><td class="sep">:</td><td>${orderData["ID ORDER"] || "-"}</td></tr>
               <tr><td class="label">Tanggal Order</td><td class="sep">:</td><td>${formatDateDDMMMMYYYY(orderData["TANGGAL ORDER"])}</td></tr>
               <tr><td class="label">Deadline</td><td class="sep">:</td><td>${formatDateDDMMMMYYYY(orderData["DEADLINE"])}</td></tr>
-              <tr><td class="label">Nama Customer</td><td class="sep">:</td><td>${orderData["NAMA CUSTOMER"]}</td></tr>
-              <tr><td class="label">No. WhatsApp</td><td class="sep">:</td><td>${orderData["NO WHATSAPP"]}</td></tr>
-              <tr><td class="label">Alamat</td><td class="sep">:</td><td>${orderData["ALAMAT"]}</td></tr>
+              <tr><td class="label">Nama Customer</td><td class="sep">:</td><td>${orderData["NAMA CUSTOMER"] || "-"}</td></tr>
+              <tr><td class="label">No. WhatsApp</td><td class="sep">:</td><td>${orderData["NO WHATSAPP"] || "-"}</td></tr>
+              <tr><td class="label">Alamat</td><td class="sep">:</td><td>${orderData["ALAMAT"] || "-"}</td></tr>
             </table>
           `;
 
