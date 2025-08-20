@@ -60,6 +60,25 @@
       cursor: pointer;
       color: red;
     }
+    /* Kolom uang -> Rp kiri, angka kanan */
+    td.money {
+      padding: 4px 6px
+    }
+    .money-wrap {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+    }
+    .money-wrap .rp {
+      min-width: 28px;
+      text-align: left
+    }
+    /* Rp rata kiri */
+    .money-wrap .nominal {
+      flex: 1;
+      text-align: right
+    }
   </style>
 </head>
 <body>
@@ -67,7 +86,7 @@
     <h2>Nota Order</h2>
     <div id="orderData">Memuat data...</div>
 
-    <h3>Detail Pesanan</h3>
+    <h3>Rekap Pesanan</h3>
     <table id="orderTable">
       <thead>
         <tr>
@@ -89,12 +108,12 @@
   <!-- Invoice Modal -->
   <div class="invoice-card" id="invoiceCard" style="display:none;">
     <span class="close-btn" onclick="closeInvoice()">✖</span>
-    <h3 style="text-align:center; color:#0275d8;">Invoice</h3>
+    <h3 style="text-align:center; color:#0275d8;">List Pesanan</h3>
     <table id="invoiceTable">
       <thead>
         <tr>
           <th>Nama Artikel</th>
-          <th>JML</th>
+          <th>Qty</th>
           <th>Total Harga</th>
         </tr>
       </thead>
@@ -123,22 +142,28 @@
         if (order) {
           document.getElementById("orderData").innerHTML = `
             <p><b>ID Order</b> : ${order["ID ORDER"]}</p>
-            <p><b>Tanggal Order</b> : ${order["Tanggal Order"]}</p>
-            <p><b>Deadline</b> : ${order["Deadline"]}</p>
-            <p><b>Nama Customer</b> : ${order["Nama Customer"]}</p>
-            <p><b>No. WhatsApp</b> : ${order["No. WhatsApp"]}</p>
-            <p><b>Alamat</b> : ${order["Alamat"]}</p>
+            <p><b>Tanggal Order</b> : ${order["TANGGAL ORDER"]}</p>
+            <p><b>Deadline</b> : ${order["DEADLINE"]}</p>
+            <p><b>Nama Customer</b> : ${order["NAMA CUSTOMER"]}</p>
+            <p><b>No. WhatsApp</b> : ${order["NO WHATSAPP"]}</p>
+            <p><b>Alamat</b> : ${order["ALAMAT"]}</p>
           `;
 
           const tbody = document.querySelector("#orderTable tbody");
           tbody.innerHTML = "";
           const row = `
             <tr>
-              <td>${order["Artikel"] || "-"}</td>
-              <td>${order["Qty"] || "-"}</td>
-              <td>Rp ${formatNum(order["Total"])}</td>
-              <td>${order["Diskon"] || "Rp -"}</td>
-              <td>Rp ${formatNum(order["Total Setelah Diskon"])}</td>
+              <td>${order["ARTIKEL UTAMA / SEASEON"] || "-"}</td>
+              <td>${order["QTY"] || "-"}</td>
+              <td class="money">
+                <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(order["TOTAL"])}</span></div>
+              </td>
+              <td class="money">
+                <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(order["DISCOUNT"])}</span></div>
+              </td>
+              <td class="money">
+                <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(order["TOTAL SETELAH DISCOUNT"])}</span></div>
+              </td>
             </tr>`;
           tbody.insertAdjacentHTML("beforeend", row);
         }
@@ -154,7 +179,9 @@
               <tr>
                 <td>${item["NAMA ARTIKEL"] || "-"}</td>
                 <td>${item["JML"] || "-"}</td>
-                <td>Rp ${formatNum(item["TOTAL"])}</td>
+                <td class="money">
+                  <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(item["TOTAL"])}</span></div>
+                </td>
               </tr>`;
             tbodyInvoice.insertAdjacentHTML("beforeend", row);
           });
