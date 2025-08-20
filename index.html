@@ -1,243 +1,74 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-  <meta charset="UTF-8" />
-  <title>Nota Order + Invoice</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <title>Nota Order</title>
   <style>
-    :root {
-      --brand: #0077cc;
-      --ink: #333;
-      --bg: #006ac0;
-      --line: #ddd;
-      --soft: #e6f2ff;
-      --ok: #21c467;
-      --ok2: #a6f4c5;
-    }
-
     body {
       font-family: Arial, sans-serif;
-      background: var(--bg);
-      color: var(--ink);
+      background: #0275d8;
       margin: 0;
       padding: 20px;
     }
-
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: #ffffff;
-      border-radius: 12px;
+    .card {
+      background: #fff;
       padding: 20px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, .08);
+      border-radius: 8px;
+      margin: auto;
+      width: 600px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
-
     h2 {
       text-align: center;
-      color: var(--brand);
-      margin: 0 0 12px
+      color: #0275d8;
     }
-
-    h3 {
-      margin: 16px 0 8px
-    }
-
-    .info-table {
+    table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px
+      margin-top: 10px;
     }
-
-    .info-table td {
-      padding: 4px 6px;
-      vertical-align: top;
-    }
-
-    .label {
-      width: 160px;
-      font-weight: bold;
-    }
-
-    .colon {
-      width: 12px;
-      text-align: center;
-    }
-
-    .value {
-      text-align: left;
-    }
-
-    table.order-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 12px
-    }
-
-    table.order-table th,
-    table.order-table td {
+    th, td {
+      border: 1px solid #ddd;
       padding: 8px;
-      border: 1px solid var(--line);
-      font-size: 14px;
       text-align: center;
     }
-
-    table.order-table th {
-      background: var(--soft);
+    th {
+      background: #f0f8ff;
     }
-
     .btn {
-      display: inline-block;
-      padding: 10px 14px;
-      margin-top: 12px;
-      margin-right: 8px;
-      background: var(--brand);
+      background: #0275d8;
       color: #fff;
       border: none;
-      border-radius: 8px;
+      padding: 6px 12px;
+      border-radius: 4px;
       cursor: pointer;
+      margin-top: 10px;
     }
-
     .btn:hover {
-      background: #005fa3
+      background: #025aa5;
     }
-
-    /* Popup */
-    .popup {
-      display: none;
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
+    .invoice-card {
       background: #fff;
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, .2);
-      z-index: 999;
-      width: 90%;
-      max-width: 400px;
-      animation: slideUp .4s ease;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px auto;
+      width: 400px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
-
-    .popup h3 {
-      margin: 0 0 8px;
-      font-size: 16px;
-      text-align: center;
-      color: var(--brand);
-    }
-
-    .popup-close {
-      position: absolute;
-      right: 10px;
-      top: 8px;
-      border: none;
-      background: transparent;
-      font-size: 20px;
+    .close-btn {
+      float: right;
       cursor: pointer;
-      color: #666;
-    }
-
-    @keyframes slideUp {
-      from {
-        transform: translate(-50%, 100%);
-      }
-
-      to {
-        transform: translate(-50%, 0);
-      }
-    }
-
-    /* Progress */
-    .steps {
-      display: flex;
-      justify-content: space-between;
-      margin: 10px 0 6px;
-      font-size: 13px;
-      color: #666;
-    }
-
-    .step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 25%;
-    }
-
-    .dot {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #e9ecef;
-      border: 2px solid #cfd7df;
-      margin-bottom: 4px;
-      transition: all .4s ease;
-    }
-
-    .step.active .dot,
-    .step.done .dot {
-      background: var(--ok);
-      border-color: var(--ok);
-    }
-
-    .bar-wrap {
-      width: 100%;
-      height: 6px;
-      background: #edf1f5;
-      border-radius: 6px;
-      overflow: hidden;
-      margin-top: 4px;
-    }
-
-    .bar {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--ok), var(--ok2));
-      transition: width .8s ease;
-    }
-
-    .legend {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 6px;
-      font-size: 12px;
-      color: #666;
-    }
-
-    table.invoice-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 8px
-    }
-
-    table.invoice-table th,
-    table.invoice-table td {
-      border: 1px solid var(--line);
-      padding: 6px;
-      font-size: 13px;
-      text-align: center;
-    }
-
-    table.invoice-table th {
-      background: var(--soft);
+      color: red;
     }
   </style>
 </head>
-
 <body>
-  <div class="container">
+  <div class="card">
     <h2>Nota Order</h2>
-
-    <table class="info-table">
-      <tr><td class="label">ID Order</td><td class="colon">:</td><td class="value" id="id-order"></td></tr>
-      <tr><td class="label">Tanggal Order</td><td class="colon">:</td><td class="value" id="tgl-order"></td></tr>
-      <tr><td class="label">Deadline</td><td class="colon">:</td><td class="value" id="deadline"></td></tr>
-      <tr><td class="label">Nama Customer</td><td class="colon">:</td><td class="value" id="nama-customer"></td></tr>
-      <tr><td class="label">No. WhatsApp</td><td class="colon">:</td><td class="value" id="no-wa"></td></tr>
-      <tr><td class="label">Alamat</td><td class="colon">:</td><td class="value" id="alamat"></td></tr>
-    </table>
+    <div id="orderData">Memuat data...</div>
 
     <h3>Detail Pesanan</h3>
-    <table class="order-table">
+    <table id="orderTable">
       <thead>
         <tr>
           <th>Artikel</th>
@@ -247,135 +78,105 @@
           <th>Total Setelah Diskon</th>
         </tr>
       </thead>
-      <tbody id="order-detail"></tbody>
+      <tbody>
+        <tr><td colspan="5">Memuat data...</td></tr>
+      </tbody>
     </table>
 
-    <button class="btn" onclick="openTracking()">Tracking Barang</button>
     <button class="btn" onclick="openInvoice()">Invoice</button>
   </div>
 
-  <!-- Popup Tracking -->
-  <div id="trackingPopup" class="popup">
-    <button class="popup-close" onclick="closeTracking()">✕</button>
-    <h3>Status Produksi</h3>
-    <div class="steps">
-      <div class="step" id="step-1"><span class="dot"></span><span>DP</span></div>
-      <div class="step" id="step-2"><span class="dot"></span><span>Produksi</span></div>
-      <div class="step" id="step-3"><span class="dot"></span><span>Selesai</span></div>
-      <div class="step" id="step-4"><span class="dot"></span><span>Siap Ambil/Kirim</span></div>
-    </div>
-    <div class="bar-wrap"><div id="progressBar" class="bar"></div></div>
-    <div class="legend">
-      <span id="statusText">Memuat status…</span>
-      <span id="percentText">0%</span>
-    </div>
-  </div>
-
-  <!-- Popup Invoice -->
-  <div id="invoicePopup" class="popup">
-    <button class="popup-close" onclick="closeInvoice()">✕</button>
-    <h3>Invoice</h3>
-    <table class="invoice-table">
+  <!-- Invoice Modal -->
+  <div class="invoice-card" id="invoiceCard" style="display:none;">
+    <span class="close-btn" onclick="closeInvoice()">✖</span>
+    <h3 style="text-align:center; color:#0275d8;">Invoice</h3>
+    <table id="invoiceTable">
       <thead>
-        <tr><th>NAMA ARTIKEL</th><th>JML</th><th>TOTAL HARGA</th></tr>
+        <tr>
+          <th>Nama Artikel</th>
+          <th>JML</th>
+          <th>Total Harga</th>
+        </tr>
       </thead>
-      <tbody id="invoice-body">
-        <tr><td colspan="3">Memuat data…</td></tr>
+      <tbody>
+        <tr><td colspan="3">Memuat data...</td></tr>
       </tbody>
     </table>
   </div>
 
   <script>
-    function formatDate(dateStr) {
-      if (!dateStr) return "-";
-      const d = new Date(dateStr);
-      if (isNaN(d)) return dateStr;
-      return d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
-    }
-    function formatNum(n) {
-      if (!n) return "-";
-      const num = parseFloat(String(n).replace(/[^\d.-]/g, ""));
-      return isNaN(num) ? n : new Intl.NumberFormat("id-ID").format(num);
-    }
-    function qs(name, def = "") {
-      const p = new URLSearchParams(location.search);
-      return p.get(name) ?? def;
+    const urlParams = new URLSearchParams(window.location.search);
+    const idOrder = urlParams.get("id_order");
+
+    function formatNum(num) {
+      if (!num || isNaN(num)) return "0";
+      return new Intl.NumberFormat("id-ID").format(num);
     }
 
-    const idOrder = qs("id_order", "ORD001");
-    const apiURL = "https://script.google.com/macros/s/AKfycbwAQc7jcbJtzXrVSaOjXoHn6ZCv2C8lSVtRZCYchjZN2HPGZoqxaTQirAIp9F1b4KDUMA/exec?id_order=" + encodeURIComponent(idOrder);
+    async function loadData() {
+      try {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbwAQc7jcbJtzXrVSaOjXoHn6ZCv2C8lSVtRZCYchjZN2HPGZoqxaTQirAIp9F1b4KDUMA/exec?id_order=" + idOrder);
+        const data = await response.json();
 
-    let STATUS_RAW = "";
+        // --- Render Order Utama ---
+        const order = data.order;
+        if (order) {
+          document.getElementById("orderData").innerHTML = `
+            <p><b>ID Order</b> : ${order["ID ORDER"]}</p>
+            <p><b>Tanggal Order</b> : ${order["Tanggal Order"]}</p>
+            <p><b>Deadline</b> : ${order["Deadline"]}</p>
+            <p><b>Nama Customer</b> : ${order["Nama Customer"]}</p>
+            <p><b>No. WhatsApp</b> : ${order["No. WhatsApp"]}</p>
+            <p><b>Alamat</b> : ${order["Alamat"]}</p>
+          `;
 
-    fetch(apiURL).then(r => r.json()).then(data => {
-      // isi Nota Order
-      if (data.order) {
-        const o = data.order;
-        document.getElementById("id-order").textContent = o["ID ORDER"] || "-";
-        document.getElementById("tgl-order").textContent = formatDate(o["TANGGAL ORDER"]);
-        document.getElementById("deadline").textContent = formatDate(o["DEADLINE"]);
-        document.getElementById("nama-customer").textContent = o["NAMA CUSTOMER"] || "-";
-        document.getElementById("no-wa").textContent = o["NO WHATSAPP"] || "-";
-        document.getElementById("alamat").textContent = o["ALAMAT"] || "-";
-        document.getElementById("order-detail").innerHTML = `
-          <tr>
-            <td>${o["ARTIKEL UTAMA / SEASEON"] || "-"}</td>
-            <td>${formatNum(o["QTY"])}</td>
-            <td>Rp ${formatNum(o["TOTAL"])}</td>
-            <td>Rp ${formatNum(o["DISCOUNT"])}</td>
-            <td>Rp ${formatNum(o["TOTAL SETELAH DISCOUNT"])}</td>
-          </tr>`;
-        STATUS_RAW = o["STATUS"] || o["STATUS PRODUKSI"] || "";
-      }
+          const tbody = document.querySelector("#orderTable tbody");
+          tbody.innerHTML = "";
+          const row = `
+            <tr>
+              <td>${order["Artikel"] || "-"}</td>
+              <td>${order["Qty"] || "-"}</td>
+              <td>Rp ${formatNum(order["Total"])}</td>
+              <td>${order["Diskon"] || "Rp -"}</td>
+              <td>Rp ${formatNum(order["Total Setelah Diskon"])}</td>
+            </tr>`;
+          tbody.insertAdjacentHTML("beforeend", row);
+        }
 
-      // isi Invoice
-      if (data.invoice && data.invoice.length) {
-        const tbody = document.getElementById("invoice-body");
-        tbody.innerHTML = data.invoice.map(r => `
-          <tr>
-            <td>${formatDate(r["NAMA ARTIKEL"])}</td>
-            <td>${formatNum(o["JML"])}</td>
-            <td>
-                <div class="money-wrap">
-                <span class="rp">Rp</span>
-                <span class="nominal">${formatNum(item["TOTAL"])}</span>
-                </div>
-            </td>
-          </tr>
-        `).join("");
-      }
-    });
+        // --- Render Invoice ---
+        const invoice = data.invoice;
+        const tbodyInvoice = document.querySelector("#invoiceTable tbody");
+        tbodyInvoice.innerHTML = "";
 
-    function statusToStep(status) {
-      const s = (status || "").toLowerCase();
-      if (s.includes("produksi")) return 2;
-      if (s.includes("selesai")) return 3;
-      if (s.includes("siap")) return 4;
-      return 1;
-    }
-    function stepToPercent(step) { return step * 25; }
-    function setStepsActive(step) {
-      for (let i = 1; i <= 4; i++) {
-        const el = document.getElementById(`step-${i}`);
-        el.classList.remove("active", "done");
-        if (i < step) el.classList.add("done");
-        if (i === step) el.classList.add("active");
+        if (invoice && invoice.length > 0) {
+          invoice.forEach(item => {
+            const row = `
+              <tr>
+                <td>${item["NAMA ARTIKEL"] || "-"}</td>
+                <td>${item["JML"] || "-"}</td>
+                <td>Rp ${formatNum(item["TOTAL"])}</td>
+              </tr>`;
+            tbodyInvoice.insertAdjacentHTML("beforeend", row);
+          });
+        } else {
+          tbodyInvoice.innerHTML = `<tr><td colspan="3">Tidak ada data invoice</td></tr>`;
+        }
+
+      } catch (err) {
+        console.error("Gagal memuat data:", err);
+        document.getElementById("orderData").innerHTML = "Terjadi kesalahan.";
       }
     }
 
-    function openTracking() {
-      const step = statusToStep(STATUS_RAW);
-      const percent = stepToPercent(step);
-      document.getElementById("statusText").textContent = `Status: ${STATUS_RAW}`;
-      setStepsActive(step);
-      document.getElementById("progressBar").style.width = percent + "%";
-      document.getElementById("percentText").textContent = percent + "%";
-      document.getElementById("trackingPopup").style.display = "block";
+    function openInvoice() {
+      document.getElementById("invoiceCard").style.display = "block";
     }
-    function closeTracking() { document.getElementById("trackingPopup").style.display = "none"; }
 
-    function openInvoice() { document.getElementById("invoicePopup").style.display = "block"; }
-    function closeInvoice() { document.getElementById("invoicePopup").style.display = "none"; }
+    function closeInvoice() {
+      document.getElementById("invoiceCard").style.display = "none";
+    }
+
+    loadData();
   </script>
 </body>
 </html>
