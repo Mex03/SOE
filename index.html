@@ -157,8 +157,8 @@
         if (order) {
           document.getElementById("orderData").innerHTML = `
             <p><b>ID Order</b> : ${order["ID ORDER"]}</p>
-            <p><b>Tanggal Order</b> : ${order["TANGGAL ORDER"]}</p>
-            <p><b>Deadline</b> : ${order["DEADLINE"]}</p>
+            <p><b>Tanggal Order</b> : ${formatDateDDMMMMYYYY(order["TANGGAL ORDER"])}</p>
+            <p><b>Deadline</b> : ${formatDateDDMMMMYYYY(order["DEADLINE"])}</p>
             <p><b>Nama Customer</b> : ${order["NAMA CUSTOMER"]}</p>
             <p><b>No. HP</b> : ${order["NO WHATSAPP"]}</p>
             <p><b>Alamat</b> : ${order["ALAMAT"]}</p>
