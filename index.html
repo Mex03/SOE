@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Nota Order</title>
+  <title>NOTA ORDER</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -56,7 +56,6 @@
       background: rgba(0, 0, 0, 0.3);
       backdrop-filter: blur(5px);
       z-index: 1000;
-      display: flex;
       align-items: center;
       justify-content: center;
     }
@@ -67,8 +66,8 @@
       padding: 15px;
       border-radius: 8px;
       width: 400px;
-      max-height: 80vh;       /* Batas tinggi popup */
-      overflow-y: auto;       /* Scroll jika konten melebihi */
+      max-height: 80vh;
+      overflow-y: auto;
       box-shadow: 0 2px 10px rgba(0,0,0,0.3);
       position: relative;
       animation: fadeIn 0.3s ease;
@@ -90,23 +89,15 @@
     }
 
     /* Kolom uang */
-    td.money {
-      padding: 4px 6px
-    }
+    td.money { padding: 4px 6px }
     .money-wrap {
       display: flex;
       gap: 8px;
       align-items: center;
       width: 100%;
     }
-    .money-wrap .rp {
-      min-width: 28px;
-      text-align: left
-    }
-    .money-wrap .nominal {
-      flex: 1;
-      text-align: right
-    }
+    .money-wrap .rp { min-width: 28px; text-align: left }
+    .money-wrap .nominal { flex: 1; text-align: right }
 
     /* Table info order */
     .info-table {
@@ -168,14 +159,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td colspan="3">Klik tombol Invoice untuk memuat data...</td></tr>
+          <tr><td colspan="3">Memuat data...</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
   <script>
-    // ===== Helpers =====
     function formatDateDDMMMMYYYY(dateStr) {
       if (!dateStr) return "-";
       const d = new Date(dateStr);
@@ -193,13 +183,16 @@
     const urlParams = new URLSearchParams(window.location.search);
     const idOrder = urlParams.get("id_order");
 
-    // Load data order otomatis saat halaman dibuka
-    async function loadOrder() {
+    let cachedInvoice = []; // ✅ simpan invoice supaya tidak fetch ulang
+
+    async function loadOrderAndInvoice() {
       try {
         const response = await fetch("https://script.google.com/macros/s/AKfycbwAQc7jcbJtzXrVSaOjXoHn6ZCv2C8lSVtRZCYchjZN2HPGZoqxaTQirAIp9F1b4KDUMA/exec?id_order=" + idOrder);
         const data = await response.json();
 
         const order = data.order;
+        cachedInvoice = data.invoice || []; // ✅ simpan invoice
+
         if (order) {
           document.getElementById("orderData").innerHTML = `
             <table class="info-table">
@@ -214,7 +207,7 @@
 
           const tbody = document.querySelector("#orderTable tbody");
           tbody.innerHTML = "";
-          const row = `
+          tbody.insertAdjacentHTML("beforeend", `
             <tr>
               <td>${order["ARTIKEL UTAMA / SEASEON"] || "-"}</td>
               <td>${order["QTY"] || "-"}</td>
@@ -227,8 +220,7 @@
               <td class="money">
                 <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(order["TOTAL SETELAH DISCOUNT"])}</span></div>
               </td>
-            </tr>`;
-          tbody.insertAdjacentHTML("beforeend", row);
+            </tr>`);
         }
       } catch (err) {
         console.error("Gagal memuat data:", err);
@@ -236,45 +228,33 @@
       }
     }
 
-    // Baru fetch & tampilkan invoice saat tombol diklik
-    async function openInvoice() {
-      try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbwAQc7jcbJtzXrVSaOjXoHn6ZCv2C8lSVtRZCYchjZN2HPGZoqxaTQirAIp9F1b4KDUMA/exec?id_order=" + idOrder);
-        const data = await response.json();
+    function openInvoice() {
+      const tbodyInvoice = document.querySelector("#invoiceTable tbody");
+      tbodyInvoice.innerHTML = "";
 
-        const invoice = data.invoice;
-        const tbodyInvoice = document.querySelector("#invoiceTable tbody");
-        tbodyInvoice.innerHTML = "";
-
-        if (invoice && invoice.length > 0) {
-          invoice.forEach(item => {
-            const row = `
-              <tr>
-                <td>${item["NAMA ARTIKEL"] || "-"}</td>
-                <td>${item["JML"] || "-"}</td>
-                <td class="money">
-                  <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(item["TOTAL"])}</span></div>
-                </td>
-              </tr>`;
-            tbodyInvoice.insertAdjacentHTML("beforeend", row);
-          });
-        } else {
-          tbodyInvoice.innerHTML = `<tr><td colspan="3">Tidak ada data invoice</td></tr>`;
-        }
-
-        document.getElementById("invoiceOverlay").style.display = "flex";
-      } catch (err) {
-        console.error("Gagal memuat invoice:", err);
-        alert("Gagal memuat invoice!");
+      if (cachedInvoice.length > 0) {
+        cachedInvoice.forEach(item => {
+          tbodyInvoice.insertAdjacentHTML("beforeend", `
+            <tr>
+              <td>${item["NAMA ARTIKEL"] || "-"}</td>
+              <td>${item["JML"] || "-"}</td>
+              <td class="money">
+                <div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(item["TOTAL"])}</span></div>
+              </td>
+            </tr>`);
+        });
+      } else {
+        tbodyInvoice.innerHTML = `<tr><td colspan="3">Tidak ada data invoice</td></tr>`;
       }
+
+      document.getElementById("invoiceOverlay").style.display = "flex";
     }
 
     function closeInvoice() {
       document.getElementById("invoiceOverlay").style.display = "none";
     }
 
-    // Jalankan pertama kali hanya untuk data order
-    loadOrder();
+    loadOrderAndInvoice(); // ✅ ambil order + invoice sekaligus
   </script>
 </body>
 </html>
