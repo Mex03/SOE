@@ -221,14 +221,24 @@
         </table>
       `;
 
+      // --- Rekap Pesanan dihitung dari invoice ---
+      let totalQty = 0, totalHarga = 0;
+      cachedInvoice.forEach(item => {
+        totalQty += Number(item["JML"] || 0);
+        totalHarga += Number(item["TOTAL"] || 0);
+      });
+
+      const diskon = Number(order["DISKON"] || 0);
+      const totalSetelahDiskon = totalHarga - diskon;
+
       const tbody = document.querySelector("#orderTable tbody");
       tbody.innerHTML = `
         <tr>
           <td>${order["ARTIKEL UTAMA / SEASEON"] || "-"}</td>
-          <td>${order["QTY"] || "-"}</td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(order["TOTAL"])}</span></div></td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(order["DISCOUNT"] || order["DISKON"] || 0)}</span></div></td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(order["TOTAL SETELAH DISCOUNT"] || order["TOTAL SETELAH DISKON"] || 0)}</span></div></td>
+          <td>${formatNum(totalQty)}</td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalHarga)}</span></div></td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(diskon)}</span></div></td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalSetelahDiskon)}</span></div></td>
         </tr>`;
     }
 
@@ -252,26 +262,16 @@
     }
     function closeInvoice() { document.getElementById("invoiceOverlay").style.display = "none"; }
 
-    function openTracking() {
-      const tbodyTrack = document.querySelector("#trackingBody");
-      if (!orderData || Object.keys(orderData).length === 0) {
-        tbodyTrack.innerHTML = `<tr><td colspan="3">Data tidak tersedia</td></tr>`;
-      } else {
-        const dp = Number(orderData["TOTAL DP"] || 0);
-        const statusProd = orderData["STATUS PRODUKSI"];
-        const tanggalAmbil = orderData["TANGGAL PENGAMBILAN"];
-
-        const dpStatus = dp > 0 ? `<span class="status-ok">✓</span>` : `<span class="status-fail">✖</span>`;
-        const produksiStatus = dp === 0 ? `<span class="status-fail">✖</span>` :
-                               statusProd === "SELESAI" ? `<span class="status-ok">✓</span>` : `<span class="status-wait">-</span>`;
-        const ambilStatus = dp === 0 || statusProd === "BELUM SELESAI" ? `<span class="status-fail">✖</span>` :
-                            !tanggalAmbil ? `<span class="status-wait">-</span>` : `<span class="status-ok">✓</span>`;
-
-        tbodyTrack.innerHTML = `<tr><td>${dpStatus}</td><td>${produksiStatus}</td><td>${ambilStatus}</td></tr>`;
-      }
-      document.getElementById("trackingOverlay").style.display = "flex";
-    }
+    function openTracking() { document.getElementById("trackingOverlay").style.display = "flex"; }
     function closeTracking() { document.getElementById("trackingOverlay").style.display = "none"; }
+
+    // Tambahan: klik area blur untuk menutup
+    document.getElementById("invoiceOverlay").addEventListener("click", function(e) {
+      if (e.target === this) closeInvoice();
+    });
+    document.getElementById("trackingOverlay").addEventListener("click", function(e) {
+      if (e.target === this) closeTracking();
+    });
 
     loadOrderAndInvoice();
   </script>
