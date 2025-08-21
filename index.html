@@ -94,12 +94,53 @@
     .info-table td { border: none; padding: 4px 6px; text-align: left; }
     .info-table td.label { font-weight: bold; width: 150px; white-space: nowrap; }
     .info-table td.sep { width: 10px; text-align: center; }
-    .status-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    .status-table th, .status-table td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-    .status-table th { background: #f0f8ff; }
-    .status-ok { color: green; font-weight: bold; }
-    .status-wait { color: orange; font-weight: bold; }
-    .status-fail { color: red; font-weight: bold; }
+
+    /* === Timeline Tracking === */
+    .tracking-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 30px auto;
+      max-width: 360px;
+    }
+    .step {
+      text-align: center;
+      flex: 1;
+      position: relative;
+    }
+    .circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #ccc;
+      margin: auto;
+      transition: all 0.4s ease;
+      box-shadow: 0 0 6px rgba(0,0,0,0.2);
+    }
+    .label {
+      margin-top: 6px;
+      font-size: 13px;
+    }
+    .line {
+      flex: 1;
+      height: 3px;
+      background: #ccc;
+      margin: 0 4px;
+      transition: background 0.4s ease;
+    }
+    .step.active .circle {
+      background: #0275d8;
+      transform: scale(1.15);
+    }
+    .step.done .circle {
+      background: green;
+    }
+    .line.active {
+      background: #0275d8;
+    }
+    .line.done {
+      background: green;
+    }
   </style>
 </head>
 <body>
@@ -128,7 +169,7 @@
   </div>
 
   <!-- Overlay + Invoice Popup -->
-  <div class="overlay" id="invoiceOverlay">
+  <div class="overlay" id="invoiceOverlay" onclick="closeOverlay(event, 'invoiceOverlay')">
     <div class="popup-card">
       <span class="close-btn" onclick="closeInvoice()">✖</span>
       <h3 style="text-align:center; color:#0275d8;">List Pesanan</h3>
@@ -148,22 +189,27 @@
   </div>
 
   <!-- Overlay + Tracking Popup -->
-  <div class="overlay" id="trackingOverlay">
+  <div class="overlay" id="trackingOverlay" onclick="closeOverlay(event, 'trackingOverlay')">
     <div class="popup-card">
       <span class="close-btn" onclick="closeTracking()">✖</span>
       <h3 style="text-align:center; color:#0275d8;">Tracking Pesanan</h3>
-      <table class="status-table">
-        <thead>
-          <tr>
-            <th>DP</th>
-            <th>Produksi</th>
-            <th>Sudah Diambil</th>
-          </tr>
-        </thead>
-        <tbody id="trackingBody">
-          <tr><td colspan="3">Memuat data...</td></tr>
-        </tbody>
-      </table>
+
+      <div class="tracking-container">
+        <div class="step" id="step-dp">
+          <div class="circle"></div>
+          <div class="label">DP</div>
+        </div>
+        <div class="line" id="line-1"></div>
+        <div class="step" id="step-produksi">
+          <div class="circle"></div>
+          <div class="label">Produksi</div>
+        </div>
+        <div class="line" id="line-2"></div>
+        <div class="step" id="step-ambil">
+          <div class="circle"></div>
+          <div class="label">Sudah Diambil</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -221,15 +267,11 @@
         </table>
       `;
 
-      // --- Rekap Pesanan dihitung dari invoice ---
-      let totalQty = 0, totalHarga = 0;
-      cachedInvoice.forEach(item => {
-        totalQty += Number(item["JML"] || 0);
-        totalHarga += Number(item["TOTAL"] || 0);
-      });
-
-      const diskon = Number(order["DISKON"] || 0);
-      const totalSetelahDiskon = totalHarga - diskon;
+      // --- Rekap Pesanan dihitung dari invoice langsung ---
+      let totalQty = cachedInvoice.reduce((sum, i) => sum + Number(i["JML"] || 0), 0);
+      let totalHarga = cachedInvoice.reduce((sum, i) => sum + Number(i["TOTAL"] || 0), 0);
+      let diskon = Number(order["DISKON"] || 0);
+      let totalSetelahDiskon = totalHarga - diskon;
 
       const tbody = document.querySelector("#orderTable tbody");
       tbody.innerHTML = `
@@ -251,7 +293,7 @@
           tbodyInvoice.insertAdjacentHTML("beforeend", `
             <tr>
               <td>${item["NAMA ARTIKEL"] || "-"}</td>
-              <td>${item["JML"] || "-"}</td>
+              <td>${item["JML"] || 0}</td>
               <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(item["TOTAL"] || 0)}</span></div></td>
             </tr>`);
         });
@@ -262,16 +304,49 @@
     }
     function closeInvoice() { document.getElementById("invoiceOverlay").style.display = "none"; }
 
-    function openTracking() { document.getElementById("trackingOverlay").style.display = "flex"; }
+    function openTracking() {
+      if (!orderData || Object.keys(orderData).length === 0) {
+        document.querySelector("#step-dp").classList.remove("done","active");
+        document.querySelector("#step-produksi").classList.remove("done","active");
+        document.querySelector("#step-ambil").classList.remove("done","active");
+        return;
+      }
+
+      const dp = Number(orderData["TOTAL DP"] || 0);
+      const statusProd = orderData["STATUS PRODUKSI"];
+      const tanggalAmbil = orderData["TANGGAL PENGAMBILAN"];
+
+      // Reset semua step
+      ["step-dp","step-produksi","step-ambil"].forEach(id => {
+        document.getElementById(id).classList.remove("active","done");
+      });
+      ["line-1","line-2"].forEach(id => {
+        document.getElementById(id).classList.remove("active","done");
+      });
+
+      if (dp > 0) {
+        document.getElementById("step-dp").classList.add("done");
+        document.getElementById("line-1").classList.add("active");
+      }
+      if (statusProd === "SELESAI") {
+        document.getElementById("step-produksi").classList.add("done");
+        document.getElementById("line-1").classList.add("done");
+        document.getElementById("line-2").classList.add("active");
+      }
+      if (tanggalAmbil) {
+        document.getElementById("step-ambil").classList.add("done");
+        document.getElementById("line-2").classList.add("done");
+      }
+
+      document.getElementById("trackingOverlay").style.display = "flex";
+    }
     function closeTracking() { document.getElementById("trackingOverlay").style.display = "none"; }
 
-    // Tambahan: klik area blur untuk menutup
-    document.getElementById("invoiceOverlay").addEventListener("click", function(e) {
-      if (e.target === this) closeInvoice();
-    });
-    document.getElementById("trackingOverlay").addEventListener("click", function(e) {
-      if (e.target === this) closeTracking();
-    });
+    function closeOverlay(event, id) {
+      if (event.target.classList.contains("overlay")) {
+        document.getElementById(id).style.display = "none";
+      }
+    }
 
     loadOrderAndInvoice();
   </script>
