@@ -4,20 +4,91 @@
   <meta charset="UTF-8">
   <title>Nota Order</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #0275d8; margin: 0; padding: 20px; }
-    .card { background: #fff; padding: 20px; border-radius: 8px; margin: auto; width: 600px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-    h2 { text-align: center; color: #0275d8; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-    th { background: #f0f8ff; }
-    .btn { background: #0275d8; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin: 8px 4px 0 0; }
-    .btn:hover { background: #025aa5; }
-    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center; }
-    .popup-card { background: #fff; padding: 15px; border-radius: 8px; width: 420px; max-height: 80vh; overflow-y: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.3); position: relative; animation: fadeIn 0.3s ease; }
-    .close-btn { position: absolute; top: 8px; right: 10px; cursor: pointer; color: red; font-size: 18px; font-weight: bold; }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    body {
+      font-family: Arial, sans-serif;
+      background: #0275d8;
+      margin: 0;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      margin: auto;
+      width: 600px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    h2 {
+      text-align: center;
+      color: #0275d8;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #f0f8ff;
+    }
+    .btn {
+      background: #0275d8;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 8px 4px 0 0;
+    }
+    .btn:hover {
+      background: #025aa5;
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .popup-card {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      width: 420px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      position: relative;
+      animation: fadeIn 0.3s ease;
+    }
+    .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      cursor: pointer;
+      color: red;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
     td.money { padding: 4px 6px }
-    .money-wrap { display: flex; gap: 8px; align-items: center; width: 100%; }
+    .money-wrap {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+    }
     .money-wrap .rp { min-width: 28px; text-align: left }
     .money-wrap .nominal { flex: 1; text-align: right }
     .info-table { width: 100%; border: none; margin-bottom: 15px; }
@@ -98,7 +169,6 @@
   </div>
 
   <script>
-    // 🔥 Ganti URL berikut dengan URL Web App Google Apps Script kamu
     const GAS_URL = "https://script.google.com/macros/s/AKfycbz7nFoLuaZF_Hxrmc67O9uj8nD0MSwcUaYchak59O9WteSe2KIGlIaQfWJ0y8ldcRWL/exec";
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -113,7 +183,6 @@
       if (isNaN(d)) return dateStr;
       return d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
     }
-
     function formatNum(n) {
       if (n === undefined || n === null || n === "") return "-";
       const num = typeof n === "string" ? Number(n.replace(/[^\d.-]+/g, "")) : n;
@@ -125,14 +194,11 @@
         const res = await fetch(`${GAS_URL}?id_order=${idOrder}`);
         const data = await res.json();
 
-        console.log("📦 JSON dari GAS:", data); // Debug ke console
-        document.getElementById("orderData").insertAdjacentHTML("beforeend", 
-          `<pre style="background:#eee; padding:5px; font-size:12px; overflow:auto;">${JSON.stringify(data,null,2)}</pre>`
-        ); // tampilkan JSON mentah di layar untuk cek
-
-        orderData = data.order || {};
+        // 🔑 fix: order adalah array
+        orderData = (Array.isArray(data.order) && data.order.length > 0) ? data.order[0] : {};
         cachedInvoice = data.invoice || [];
 
+        console.log("Data diterima:", data); // debug log
         renderOrder(orderData);
       } catch (err) {
         console.error("Gagal memuat data:", err);
@@ -184,14 +250,12 @@
       } else {
         tbodyInvoice.innerHTML = `<tr><td colspan="3">Tidak ada data invoice</td></tr>`;
       }
-
       document.getElementById("invoiceOverlay").style.display = "flex";
     }
     function closeInvoice() { document.getElementById("invoiceOverlay").style.display = "none"; }
 
     function openTracking() {
       const tbodyTrack = document.querySelector("#trackingBody");
-
       if (!orderData || Object.keys(orderData).length === 0) {
         tbodyTrack.innerHTML = `<tr><td colspan="3">Data tidak tersedia</td></tr>`;
       } else {
@@ -207,7 +271,6 @@
 
         tbodyTrack.innerHTML = `<tr><td>${dpStatus}</td><td>${produksiStatus}</td><td>${ambilStatus}</td></tr>`;
       }
-
       document.getElementById("trackingOverlay").style.display = "flex";
     }
     function closeTracking() { document.getElementById("trackingOverlay").style.display = "none"; }
