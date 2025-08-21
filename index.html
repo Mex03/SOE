@@ -44,9 +44,7 @@
       cursor: pointer;
       margin: 8px 4px 0 0;
     }
-    .btn:hover {
-      background: #025aa5;
-    }
+    .btn:hover { background: #025aa5; }
 
     /* Overlay blur */
     .overlay {
@@ -127,18 +125,19 @@
       padding: 8px;
       text-align: center;
     }
-    .status-table th {
-      background: #f0f8ff;
-    }
+    .status-table th { background: #f0f8ff; }
     .status-ok { color: green; font-weight: bold; }
     .status-wait { color: orange; font-weight: bold; }
     .status-fail { color: red; font-weight: bold; }
+
+    .loading { text-align:center; color:#666; font-style:italic; }
+    .error { text-align:center; color:red; font-weight:bold; }
   </style>
 </head>
 <body>
   <div class="card">
     <h2>Nota Order</h2>
-    <div id="orderData">Memuat data...</div>
+    <div id="orderData" class="loading">⏳ Memuat data order...</div>
 
     <h3>Rekap Pesanan</h3>
     <table id="orderTable">
@@ -152,7 +151,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr><td colspan="5">Memuat data...</td></tr>
+        <tr><td colspan="5" class="loading">⏳ Memuat data...</td></tr>
       </tbody>
     </table>
 
@@ -174,7 +173,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td colspan="3">Memuat data...</td></tr>
+          <tr><td colspan="3" class="loading">⏳ Memuat data...</td></tr>
         </tbody>
       </table>
     </div>
@@ -194,14 +193,14 @@
           </tr>
         </thead>
         <tbody id="trackingBody">
-          <tr><td colspan="3">Memuat data...</td></tr>
+          <tr><td colspan="3" class="loading">⏳ Memuat data...</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
   <script>
-    // 🔥 Ganti URL berikut dengan URL Web App Google Apps Script kamu
+    // 🔥 Ganti dengan URL Web App GAS
     const GAS_URL = "https://script.google.com/macros/s/AKfycbz7nFoLuaZF_Hxrmc67O9uj8nD0MSwcUaYchak59O9WteSe2KIGlIaQfWJ0y8ldcRWL/exec";
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -210,37 +209,41 @@
     let cachedInvoice = [];
     let orderData = {};
 
+    // Format tanggal
     function formatDateDDMMMMYYYY(dateStr) {
       if (!dateStr) return "-";
       const d = new Date(dateStr);
-      if (isNaN(d)) return dateStr;
-      return d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+      return isNaN(d) ? dateStr : d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
     }
 
+    // Format angka
     function formatNum(n) {
-      if (n === undefined || n === null || n === "") return "-";
+      if (!n) return "-";
       const num = typeof n === "string" ? Number(n.replace(/[^\d.-]+/g, "")) : n;
       return isNaN(num) ? n : new Intl.NumberFormat("id-ID").format(num);
     }
 
+    // Load data order + invoice
     async function loadOrderAndInvoice() {
       try {
         const res = await fetch(`${GAS_URL}?id_order=${idOrder}`);
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        
         const data = await res.json();
-
         orderData = data.order || {};
         cachedInvoice = data.invoice || [];
 
         renderOrder(orderData);
       } catch (err) {
-        console.error("Gagal memuat data:", err);
-        document.getElementById("orderData").innerHTML = "❌ Terjadi kesalahan.";
+        console.error("❌ Gagal memuat data:", err);
+        document.getElementById("orderData").innerHTML = `<div class="error">❌ Gagal memuat data order</div>`;
       }
     }
 
+    // Render data order
     function renderOrder(order) {
       if (!order || Object.keys(order).length === 0) {
-        document.getElementById("orderData").innerHTML = "❌ Data order tidak ditemukan.";
+        document.getElementById("orderData").innerHTML = `<div class="error">❌ Data order tidak ditemukan</div>`;
         return;
       }
 
@@ -266,6 +269,7 @@
         </tr>`;
     }
 
+    // Popup Invoice
     function openInvoice() {
       const tbodyInvoice = document.querySelector("#invoiceTable tbody");
       tbodyInvoice.innerHTML = "";
@@ -285,10 +289,9 @@
 
       document.getElementById("invoiceOverlay").style.display = "flex";
     }
-    function closeInvoice() {
-      document.getElementById("invoiceOverlay").style.display = "none";
-    }
+    function closeInvoice() { document.getElementById("invoiceOverlay").style.display = "none"; }
 
+    // Popup Tracking
     function openTracking() {
       const tbodyTrack = document.querySelector("#trackingBody");
 
@@ -296,13 +299,13 @@
         tbodyTrack.innerHTML = `<tr><td colspan="3">Data tidak tersedia</td></tr>`;
       } else {
         const dp = Number(orderData["TOTAL DP"] || 0);
-        const statusProd = orderData["STATUS PRODUKSI"];
-        const tanggalAmbil = orderData["TANGGAL PENGAMBILAN"];
+        const statusProd = orderData["STATUS PRODUKSI"] || "";
+        const tanggalAmbil = orderData["TANGGAL PENGAMBILAN"] || "";
 
         const dpStatus = dp > 0 ? `<span class="status-ok">✓</span>` : `<span class="status-fail">✖</span>`;
         const produksiStatus = dp === 0 ? `<span class="status-fail">✖</span>` :
-                               statusProd === "SELESAI" ? `<span class="status-ok">✓</span>` : `<span class="status-wait">-</span>`;
-        const ambilStatus = dp === 0 || statusProd === "BELUM SELESAI" ? `<span class="status-fail">✖</span>` :
+                               statusProd.toUpperCase() === "SELESAI" ? `<span class="status-ok">✓</span>` : `<span class="status-wait">-</span>`;
+        const ambilStatus = dp === 0 || statusProd.toUpperCase() === "BELUM SELESAI" ? `<span class="status-fail">✖</span>` :
                             !tanggalAmbil ? `<span class="status-wait">-</span>` : `<span class="status-ok">✓</span>`;
 
         tbodyTrack.innerHTML = `<tr><td>${dpStatus}</td><td>${produksiStatus}</td><td>${ambilStatus}</td></tr>`;
@@ -310,10 +313,9 @@
 
       document.getElementById("trackingOverlay").style.display = "flex";
     }
-    function closeTracking() {
-      document.getElementById("trackingOverlay").style.display = "none";
-    }
+    function closeTracking() { document.getElementById("trackingOverlay").style.display = "none"; }
 
+    // Load saat pertama kali
     loadOrderAndInvoice();
   </script>
 </body>
