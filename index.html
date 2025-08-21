@@ -47,7 +47,6 @@
     .btn:hover {
       background: #025aa5;
     }
-
     .overlay {
       display: none;
       position: fixed;
@@ -194,11 +193,9 @@
         const res = await fetch(`${GAS_URL}?id_order=${idOrder}`);
         const data = await res.json();
 
-        // 🔑 fix: order adalah array
         orderData = (Array.isArray(data.order) && data.order.length > 0) ? data.order[0] : {};
         cachedInvoice = data.invoice || [];
 
-        console.log("Data diterima:", data); // debug log
         renderOrder(orderData);
       } catch (err) {
         console.error("Gagal memuat data:", err);
@@ -208,6 +205,7 @@
 
     function renderOrder(order) {
       if (!order || Object.keys(order).length === 0) {
+        document.querySelector("#orderTable tbody").innerHTML = `<tr><td colspan="5">❌ Data order tidak ditemukan.</td></tr>`;
         document.getElementById("orderData").innerHTML = "❌ Data order tidak ditemukan.";
         return;
       }
@@ -223,14 +221,26 @@
         </table>
       `;
 
+      // --- Rekap Pesanan dihitung dari invoice ---
+      let totalQty = 0, totalHarga = 0;
+      cachedInvoice.forEach(item => {
+        const qty = Number(item["JML"] || 0);
+        const harga = Number(item["HARGA"] || 0);
+        totalQty += qty;
+        totalHarga += (qty * harga);
+      });
+
+      const diskon = Number(order["DISKON"] || 0);
+      const totalSetelahDiskon = totalHarga - diskon;
+
       const tbody = document.querySelector("#orderTable tbody");
       tbody.innerHTML = `
         <tr>
           <td>${order["ARTIKEL UTAMA / SEASEON"] || "-"}</td>
-          <td>${order["QTY"] || "-"}</td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(order["TOTAL"])}</span></div></td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(order["DISCOUNT"])}</span></div></td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(order["TOTAL SETELAH DISCOUNT"])}</span></div></td>
+          <td>${formatNum(totalQty)}</td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalHarga)}</span></div></td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(diskon)}</span></div></td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalSetelahDiskon)}</span></div></td>
         </tr>`;
     }
 
@@ -240,11 +250,14 @@
 
       if (cachedInvoice.length > 0) {
         cachedInvoice.forEach(item => {
+          const qty = Number(item["JML"] || 0);
+          const harga = Number(item["HARGA"] || 0);
+          const subtotal = qty * harga;
           tbodyInvoice.insertAdjacentHTML("beforeend", `
             <tr>
               <td>${item["NAMA ARTIKEL"] || "-"}</td>
-              <td>${item["JML"] || "-"}</td>
-              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(item["TOTAL"])}</span></div></td>
+              <td>${qty}</td>
+              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(subtotal)}</span></div></td>
             </tr>`);
         });
       } else {
