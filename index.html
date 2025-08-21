@@ -4,140 +4,38 @@
   <meta charset="UTF-8">
   <title>Nota Order</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0275d8;
-      margin: 0;
-      padding: 20px;
-    }
-    .card {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      margin: auto;
-      width: 600px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-    h2 {
-      text-align: center;
-      color: #0275d8;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background: #f0f8ff;
-    }
-    .btn {
-      background: #0275d8;
-      color: #fff;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin: 8px 4px 0 0;
-    }
+    body { font-family: Arial, sans-serif; background: #0275d8; margin: 0; padding: 20px; }
+    .card { background: #fff; padding: 20px; border-radius: 8px; margin: auto; width: 600px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+    h2 { text-align: center; color: #0275d8; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+    th { background: #f0f8ff; }
+    .btn { background: #0275d8; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin: 8px 4px 0 0; }
     .btn:hover { background: #025aa5; }
-
-    /* Overlay blur */
-    .overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(5px);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* Popup card */
-    .popup-card {
-      background: #fff;
-      padding: 15px;
-      border-radius: 8px;
-      width: 420px;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      position: relative;
-      animation: fadeIn 0.3s ease;
-    }
-    .close-btn {
-      position: absolute;
-      top: 8px;
-      right: 10px;
-      cursor: pointer;
-      color: red;
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center; }
+    .popup-card { background: #fff; padding: 15px; border-radius: 8px; width: 420px; max-height: 80vh; overflow-y: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.3); position: relative; animation: fadeIn 0.3s ease; }
+    .close-btn { position: absolute; top: 8px; right: 10px; cursor: pointer; color: red; font-size: 18px; font-weight: bold; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
     td.money { padding: 4px 6px }
-    .money-wrap {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      width: 100%;
-    }
+    .money-wrap { display: flex; gap: 8px; align-items: center; width: 100%; }
     .money-wrap .rp { min-width: 28px; text-align: left }
     .money-wrap .nominal { flex: 1; text-align: right }
-
-    .info-table {
-      width: 100%;
-      border: none;
-      margin-bottom: 15px;
-    }
-    .info-table td {
-      border: none;
-      padding: 4px 6px;
-      text-align: left;
-    }
-    .info-table td.label {
-      font-weight: bold;
-      width: 150px;
-      white-space: nowrap;
-    }
-    .info-table td.sep {
-      width: 10px;
-      text-align: center;
-    }
-
-    .status-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    .status-table th, .status-table td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-    }
+    .info-table { width: 100%; border: none; margin-bottom: 15px; }
+    .info-table td { border: none; padding: 4px 6px; text-align: left; }
+    .info-table td.label { font-weight: bold; width: 150px; white-space: nowrap; }
+    .info-table td.sep { width: 10px; text-align: center; }
+    .status-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .status-table th, .status-table td { border: 1px solid #ddd; padding: 8px; text-align: center; }
     .status-table th { background: #f0f8ff; }
     .status-ok { color: green; font-weight: bold; }
     .status-wait { color: orange; font-weight: bold; }
     .status-fail { color: red; font-weight: bold; }
-
-    .loading { text-align:center; color:#666; font-style:italic; }
-    .error { text-align:center; color:red; font-weight:bold; }
   </style>
 </head>
 <body>
   <div class="card">
     <h2>Nota Order</h2>
-    <div id="orderData" class="loading">⏳ Memuat data order...</div>
+    <div id="orderData">Memuat data...</div>
 
     <h3>Rekap Pesanan</h3>
     <table id="orderTable">
@@ -151,7 +49,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr><td colspan="5" class="loading">⏳ Memuat data...</td></tr>
+        <tr><td colspan="5">Memuat data...</td></tr>
       </tbody>
     </table>
 
@@ -173,7 +71,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td colspan="3" class="loading">⏳ Memuat data...</td></tr>
+          <tr><td colspan="3">Memuat data...</td></tr>
         </tbody>
       </table>
     </div>
@@ -193,14 +91,14 @@
           </tr>
         </thead>
         <tbody id="trackingBody">
-          <tr><td colspan="3" class="loading">⏳ Memuat data...</td></tr>
+          <tr><td colspan="3">Memuat data...</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
   <script>
-    // 🔥 Ganti dengan URL Web App GAS
+    // 🔥 Ganti URL berikut dengan URL Web App Google Apps Script kamu
     const GAS_URL = "https://script.google.com/macros/s/AKfycbz7nFoLuaZF_Hxrmc67O9uj8nD0MSwcUaYchak59O9WteSe2KIGlIaQfWJ0y8ldcRWL/exec";
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -209,41 +107,42 @@
     let cachedInvoice = [];
     let orderData = {};
 
-    // Format tanggal
     function formatDateDDMMMMYYYY(dateStr) {
       if (!dateStr) return "-";
       const d = new Date(dateStr);
-      return isNaN(d) ? dateStr : d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+      if (isNaN(d)) return dateStr;
+      return d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
     }
 
-    // Format angka
     function formatNum(n) {
-      if (!n) return "-";
+      if (n === undefined || n === null || n === "") return "-";
       const num = typeof n === "string" ? Number(n.replace(/[^\d.-]+/g, "")) : n;
       return isNaN(num) ? n : new Intl.NumberFormat("id-ID").format(num);
     }
 
-    // Load data order + invoice
     async function loadOrderAndInvoice() {
       try {
         const res = await fetch(`${GAS_URL}?id_order=${idOrder}`);
-        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-        
         const data = await res.json();
+
+        console.log("📦 JSON dari GAS:", data); // Debug ke console
+        document.getElementById("orderData").insertAdjacentHTML("beforeend", 
+          `<pre style="background:#eee; padding:5px; font-size:12px; overflow:auto;">${JSON.stringify(data,null,2)}</pre>`
+        ); // tampilkan JSON mentah di layar untuk cek
+
         orderData = data.order || {};
         cachedInvoice = data.invoice || [];
 
         renderOrder(orderData);
       } catch (err) {
-        console.error("❌ Gagal memuat data:", err);
-        document.getElementById("orderData").innerHTML = `<div class="error">❌ Gagal memuat data order</div>`;
+        console.error("Gagal memuat data:", err);
+        document.getElementById("orderData").innerHTML = "❌ Terjadi kesalahan.";
       }
     }
 
-    // Render data order
     function renderOrder(order) {
       if (!order || Object.keys(order).length === 0) {
-        document.getElementById("orderData").innerHTML = `<div class="error">❌ Data order tidak ditemukan</div>`;
+        document.getElementById("orderData").innerHTML = "❌ Data order tidak ditemukan.";
         return;
       }
 
@@ -269,7 +168,6 @@
         </tr>`;
     }
 
-    // Popup Invoice
     function openInvoice() {
       const tbodyInvoice = document.querySelector("#invoiceTable tbody");
       tbodyInvoice.innerHTML = "";
@@ -291,7 +189,6 @@
     }
     function closeInvoice() { document.getElementById("invoiceOverlay").style.display = "none"; }
 
-    // Popup Tracking
     function openTracking() {
       const tbodyTrack = document.querySelector("#trackingBody");
 
@@ -299,13 +196,13 @@
         tbodyTrack.innerHTML = `<tr><td colspan="3">Data tidak tersedia</td></tr>`;
       } else {
         const dp = Number(orderData["TOTAL DP"] || 0);
-        const statusProd = orderData["STATUS PRODUKSI"] || "";
-        const tanggalAmbil = orderData["TANGGAL PENGAMBILAN"] || "";
+        const statusProd = orderData["STATUS PRODUKSI"];
+        const tanggalAmbil = orderData["TANGGAL PENGAMBILAN"];
 
         const dpStatus = dp > 0 ? `<span class="status-ok">✓</span>` : `<span class="status-fail">✖</span>`;
         const produksiStatus = dp === 0 ? `<span class="status-fail">✖</span>` :
-                               statusProd.toUpperCase() === "SELESAI" ? `<span class="status-ok">✓</span>` : `<span class="status-wait">-</span>`;
-        const ambilStatus = dp === 0 || statusProd.toUpperCase() === "BELUM SELESAI" ? `<span class="status-fail">✖</span>` :
+                               statusProd === "SELESAI" ? `<span class="status-ok">✓</span>` : `<span class="status-wait">-</span>`;
+        const ambilStatus = dp === 0 || statusProd === "BELUM SELESAI" ? `<span class="status-fail">✖</span>` :
                             !tanggalAmbil ? `<span class="status-wait">-</span>` : `<span class="status-ok">✓</span>`;
 
         tbodyTrack.innerHTML = `<tr><td>${dpStatus}</td><td>${produksiStatus}</td><td>${ambilStatus}</td></tr>`;
@@ -315,7 +212,6 @@
     }
     function closeTracking() { document.getElementById("trackingOverlay").style.display = "none"; }
 
-    // Load saat pertama kali
     loadOrderAndInvoice();
   </script>
 </body>
