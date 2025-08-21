@@ -1,154 +1,85 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Nota Order</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nota Order (GViz - Tanpa API Key)</title>
   <style>
+    :root {
+      --brand: #0275d8;
+      --brand-dark: #025aa5;
+      --ok: #0a7c2f;
+      --muted: #ccc;
+      --bg: #e9f3ff;
+    }
+    html, body { height: 100%; }
     body {
-      font-family: Arial, sans-serif;
-      background: #0275d8;
-      margin: 0;
-      padding: 20px;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--brand);
+      margin: 0; padding: 16px;
     }
     .card {
       background: #fff;
+      max-width: 720px;
+      margin: 0 auto;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.15);
       padding: 20px;
-      border-radius: 8px;
-      margin: auto;
-      width: 600px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
-    h2 {
-      text-align: center;
-      color: #0275d8;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background: #f0f8ff;
-    }
-    .btn {
-      background: #0275d8;
-      color: #fff;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin: 8px 4px 0 0;
-    }
-    .btn:hover {
-      background: #025aa5;
-    }
-    .overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(5px);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-    .popup-card {
-      background: #fff;
-      padding: 15px;
-      border-radius: 8px;
-      width: 420px;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      position: relative;
-      animation: fadeIn 0.3s ease;
-    }
-    .close-btn {
-      position: absolute;
-      top: 8px;
-      right: 10px;
-      cursor: pointer;
-      color: red;
-      font-size: 18px;
-      font-weight: bold;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    td.money { padding: 4px 6px }
-    .money-wrap {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      width: 100%;
-    }
+    h1, h2, h3 { color: var(--brand); margin: 0 0 10px; }
+    h1 { text-align: center; font-size: 22px; letter-spacing: .3px; }
+    .muted { color: #65778b; font-size: 13px; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #e6e6e6; padding: 8px 10px; text-align: center; }
+    th { background: #f5faff; font-weight: 600; }
+    .info-table { width: 100%; border: none; margin-bottom: 14px; }
+    .info-table td { border: none; padding: 4px 6px; text-align: left; }
+    .info-table td.label { font-weight: 700; width: 160px; white-space: nowrap; }
+    .info-table td.sep { width: 12px; text-align: center; }
+
+    .btn { background: var(--brand); color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin: 10px 6px 0 0; }
+    .btn:hover { background: var(--brand-dark); }
+
+    /* money cell */
+    td.money { padding: 4px 6px; }
+    .money-wrap { display: flex; gap: 8px; align-items: center; width: 100%; }
     .money-wrap .rp { min-width: 28px; text-align: left }
     .money-wrap .nominal { flex: 1; text-align: right }
-    .info-table { width: 100%; border: none; margin-bottom: 15px; }
-    .info-table td { border: none; padding: 4px 6px; text-align: left; }
-    .info-table td.label { font-weight: bold; width: 150px; white-space: nowrap; }
-    .info-table td.sep { width: 10px; text-align: center; }
 
-    /* === Timeline Tracking === */
-    .tracking-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 30px auto;
-      max-width: 360px;
-    }
-    .step {
-      text-align: center;
-      flex: 1;
-      position: relative;
-    }
-    .circle {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: #ccc;
-      margin: auto;
-      transition: all 0.4s ease;
-      box-shadow: 0 0 6px rgba(0,0,0,0.2);
-    }
-    .label {
-      margin-top: 6px;
-      font-size: 13px;
-    }
-    .line {
-      flex: 1;
-      height: 3px;
-      background: #ccc;
-      margin: 0 4px;
-      transition: background 0.4s ease;
-    }
-    .step.active .circle {
-      background: #0275d8;
-      transform: scale(1.15);
-    }
-    .step.done .circle {
-      background: green;
-    }
-    .line.active {
-      background: #0275d8;
-    }
-    .line.done {
-      background: green;
-    }
+    /* Overlay / Popup */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; }
+    .popup-card { background: #fff; width: 540px; max-width: calc(100% - 24px); max-height: 80vh; overflow: auto; border-radius: 10px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.2); position: relative; animation: fadeIn .25s ease; }
+    .close-btn { position: absolute; top: 8px; right: 10px; font-weight: 700; color: #ff4d4f; cursor: pointer; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+    /* Tracking timeline */
+    .tracking-container { display: flex; justify-content: space-between; align-items: center; margin: 26px auto 6px; max-width: 420px; }
+    .step { text-align: center; flex: 1; position: relative; }
+    .circle { width: 28px; height: 28px; border-radius: 50%; background: var(--muted); margin: auto; transition: .25s ease; box-shadow: 0 0 6px rgba(0,0,0,.18); }
+    .label { margin-top: 6px; font-size: 13px; }
+    .line { flex: 1; height: 3px; background: var(--muted); margin: 0 6px; transition: background .25s ease; }
+    .step.active .circle { background: var(--brand); transform: scale(1.08); }
+    .step.done .circle { background: var(--ok); }
+    .line.active { background: var(--brand); }
+    .line.done { background: var(--ok); }
+
+    /* skeleton */
+    .skeleton { background: linear-gradient(90deg,#eee 25%,#f5f5f5 37%,#eee 63%); border-radius: 6px; background-size: 400% 100%; animation: shimmer 1.2s infinite; }
+    @keyframes shimmer { 0%{background-position:100% 0} 100%{background-position:0 0} }
+    .s-row { height: 12px; margin: 6px 0; }
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>Nota Order</h2>
-    <div id="orderData">Memuat data...</div>
+    <h1>Nota Order</h1>
+    <div id="orderData">
+      <div class="skeleton s-row" style="width:60%"></div>
+      <div class="skeleton s-row" style="width:70%"></div>
+      <div class="skeleton s-row" style="width:50%"></div>
+    </div>
 
-    <h3>Rekap Pesanan</h3>
+    <h2>Rekap Pesanan</h2>
     <table id="orderTable">
       <thead>
         <tr>
@@ -160,7 +91,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr><td colspan="5">Memuat data...</td></tr>
+        <tr><td colspan="5" class="muted">Memuat data…</td></tr>
       </tbody>
     </table>
 
@@ -172,7 +103,7 @@
   <div class="overlay" id="invoiceOverlay" onclick="closeOverlay(event, 'invoiceOverlay')">
     <div class="popup-card">
       <span class="close-btn" onclick="closeInvoice()">✖</span>
-      <h3 style="text-align:center; color:#0275d8;">List Pesanan</h3>
+      <h2 style="text-align:center;">List Pesanan</h2>
       <table id="invoiceTable">
         <thead>
           <tr>
@@ -182,7 +113,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td colspan="3">Memuat data...</td></tr>
+          <tr><td colspan="3" class="muted">Memuat data…</td></tr>
         </tbody>
       </table>
     </div>
@@ -192,7 +123,7 @@
   <div class="overlay" id="trackingOverlay" onclick="closeOverlay(event, 'trackingOverlay')">
     <div class="popup-card">
       <span class="close-btn" onclick="closeTracking()">✖</span>
-      <h3 style="text-align:center; color:#0275d8;">Tracking Pesanan</h3>
+      <h2 style="text-align:center;">Tracking Pesanan</h2>
 
       <div class="tracking-container">
         <div class="step" id="step-dp">
@@ -210,18 +141,27 @@
           <div class="label">Sudah Diambil</div>
         </div>
       </div>
+      <p id="trackingNote" class="muted" style="text-align:center;margin-top:8px"></p>
     </div>
   </div>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbz7nFoLuaZF_Hxrmc67O9uj8nD0MSwcUaYchak59O9WteSe2KIGlIaQfWJ0y8ldcRWL/exec";
+    // === CONFIG ===
+    // Ganti dengan ID spreadsheet Anda (string di antara "/d/" dan "/edit").
+    const SHEET_ID = "18ByyZE1euk5v4QHNr5rkHJyiwvIUj8ocbiZn1boiMmI";
+    // Nama sheet persis (huruf besar/kecil & spasi harus sama). 
+    // Anda menyebut: Order = "IPP", Invoice = "LST_IPP".
+    const SHEET_ORDER = "IPP";
+    const SHEET_INVOICE = "LST_IPP";
 
+    // === URL Param ===
     const urlParams = new URLSearchParams(window.location.search);
     const idOrder = urlParams.get("id_order");
 
     let cachedInvoice = [];
     let orderData = {};
 
+    // === Utils ===
     function formatDateDDMMMMYYYY(dateStr) {
       if (!dateStr) return "-";
       const d = new Date(dateStr);
@@ -230,53 +170,101 @@
     }
     function formatNum(n) {
       if (n === undefined || n === null || n === "") return "-";
-      const num = typeof n === "string" ? Number(n.replace(/[^\d.-]+/g, "")) : n;
-      return isNaN(num) ? n : new Intl.NumberFormat("id-ID").format(num);
+      const num = typeof n === "string" ? Number(n.replace(/[^\d.-]+/g, "")) : Number(n);
+      return isNaN(num) ? "-" : new Intl.NumberFormat("id-ID").format(num);
+    }
+    function escapeQueryValue(v){
+      return String(v).replaceAll("'","\u2019"); // hindari konflik quote
+    }
+
+    // Ambil data dari Google Visualization API (GViz)
+    async function fetchGVizRows(sheetName, query, { timeoutMs = 12000 } = {}) {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=out:json&tq=${encodeURIComponent(query)}`;
+        const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
+        const text = await res.text();
+        // GViz response: /**/ google.visualization.Query.setResponse({...})
+        const json = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
+        const table = json.table || { rows: [], cols: [] };
+        // Kembalikan sebagai array of objects (pakai label kolom)
+        const labels = table.cols.map(c => c.label || "");
+        const rows = table.rows.map(r => {
+          const obj = {};
+          labels.forEach((label, i) => { obj[label || `COL_${i}`] = r.c[i] ? r.c[i].v : ""; });
+          return obj;
+        });
+        return rows;
+      } finally { clearTimeout(t); }
     }
 
     async function loadOrderAndInvoice() {
-      try {
-        const res = await fetch(`${GAS_URL}?id_order=${idOrder}`);
-        const data = await res.json();
+      const orderQuery = `select * where A = '${escapeQueryValue(idOrder)}'`;
+      const invoiceQuery = `select * where A = '${escapeQueryValue(idOrder)}'`;
 
-        orderData = (Array.isArray(data.order) && data.order.length > 0) ? data.order[0] : {};
-        cachedInvoice = data.invoice || [];
+      try {
+        if (!idOrder) {
+          document.getElementById("orderData").innerHTML = "❌ Parameter id_order tidak ditemukan di URL.";
+          document.querySelector("#orderTable tbody").innerHTML = `<tr><td colspan="5">-</td></tr>`;
+          return;
+        }
+
+        // Ambil paralel untuk kecepatan
+        const [orderRows, invoiceRows] = await Promise.all([
+          fetchGVizRows(SHEET_ORDER, orderQuery),
+          fetchGVizRows(SHEET_INVOICE, invoiceQuery)
+        ]);
+
+        orderData = orderRows && orderRows.length ? orderRows[0] : {};
+        cachedInvoice = (invoiceRows || []).map(r => ({
+          "NAMA ARTIKEL": r["NAMA ARTIKEL"] ?? r["Nama Artikel"] ?? r["ARTIKEL"] ?? r["Artikel"] ?? r["B"] ?? "",
+          "JML": Number(r["JML"] ?? r["Qty"] ?? r["QTY"] ?? r["Jumlah"] ?? r["C"] ?? 0),
+          "TOTAL": Number(String(r["TOTAL"] ?? r["Total"] ?? r["Total Harga"] ?? r["D"] ?? 0).toString().replace(/[^\d.-]/g, ""))
+        }));
 
         renderOrder(orderData);
       } catch (err) {
-        console.error("Gagal memuat data:", err);
-        document.getElementById("orderData").innerHTML = "❌ Terjadi kesalahan.";
+        console.error(err);
+        document.getElementById("orderData").innerHTML = "❌ Terjadi kesalahan saat memuat data.";
+        document.querySelector("#orderTable tbody").innerHTML = `<tr><td colspan="5">Coba muat ulang halaman.</td></tr>`;
       }
     }
 
     function renderOrder(order) {
       if (!order || Object.keys(order).length === 0) {
-        document.querySelector("#orderTable tbody").innerHTML = `<tr><td colspan="5">❌ Data order tidak ditemukan.</td></tr>`;
+        document.querySelector("#orderTable tbody").innerHTML = `<tr><td colspan=\"5\">❌ Data order tidak ditemukan.</td></tr>`;
         document.getElementById("orderData").innerHTML = "❌ Data order tidak ditemukan.";
         return;
       }
 
+      const id = order["ID ORDER"] ?? order["ID Order"] ?? order["ID_ORDER"] ?? idOrder;
+      const tglOrder = order["TANGGAL ORDER"] ?? order["Tanggal Order"] ?? order["Tanggal"] ?? "";
+      const deadline = order["DEADLINE"] ?? order["Deadline"] ?? "";
+      const nama = order["NAMA CUSTOMER"] ?? order["Nama Customer"] ?? order["Customer"] ?? "";
+      const wa = order["NO WHATSAPP"] ?? order["No. WhatsApp"] ?? order["WhatsApp"] ?? "";
+      const alamat = order["ALAMAT"] ?? order["Alamat"] ?? "";
+      const artikel = order["ARTIKEL UTAMA / SEASEON"] ?? order["ARTIKEL UTAMA / SEASON"] ?? order["Artikel"] ?? "-";
+      const diskon = Number(order["DISKON"] ?? order["Diskon"] ?? 0);
+
       document.getElementById("orderData").innerHTML = `
         <table class="info-table">
-          <tr><td class="label">ID Order</td><td class="sep">:</td><td>${order["ID ORDER"] || "-"}</td></tr>
-          <tr><td class="label">Tanggal Order</td><td class="sep">:</td><td>${formatDateDDMMMMYYYY(order["TANGGAL ORDER"])}</td></tr>
-          <tr><td class="label">Deadline</td><td class="sep">:</td><td>${formatDateDDMMMMYYYY(order["DEADLINE"])}</td></tr>
-          <tr><td class="label">Nama Customer</td><td class="sep">:</td><td>${order["NAMA CUSTOMER"] || "-"}</td></tr>
-          <tr><td class="label">No. WhatsApp</td><td class="sep">:</td><td>${order["NO WHATSAPP"] || "-"}</td></tr>
-          <tr><td class="label">Alamat</td><td class="sep">:</td><td>${order["ALAMAT"] || "-"}</td></tr>
+          <tr><td class="label">ID Order</td><td class="sep">:</td><td>${id}</td></tr>
+          <tr><td class="label">Tanggal Order</td><td class="sep">:</td><td>${formatDateDDMMMMYYYY(tglOrder)}</td></tr>
+          <tr><td class="label">Deadline</td><td class="sep">:</td><td>${formatDateDDMMMMYYYY(deadline)}</td></tr>
+          <tr><td class="label">Nama Customer</td><td class="sep">:</td><td>${nama || '-'}</td></tr>
+          <tr><td class="label">No. WhatsApp</td><td class="sep">:</td><td>${wa || '-'}</td></tr>
+          <tr><td class="label">Alamat</td><td class="sep">:</td><td>${alamat || '-'}</td></tr>
         </table>
       `;
 
-      // --- Rekap Pesanan dihitung dari invoice langsung ---
-      let totalQty = cachedInvoice.reduce((sum, i) => sum + Number(i["JML"] || 0), 0);
-      let totalHarga = cachedInvoice.reduce((sum, i) => sum + Number(i["TOTAL"] || 0), 0);
-      let diskon = Number(order["DISKON"] || 0);
-      let totalSetelahDiskon = totalHarga - diskon;
+      const totalQty = cachedInvoice.reduce((s,i)=> s + (Number(i.JML)||0), 0);
+      const totalHarga = cachedInvoice.reduce((s,i)=> s + (Number(i.TOTAL)||0), 0);
+      const totalSetelahDiskon = Math.max(0, totalHarga - (Number.isFinite(diskon)? diskon: 0));
 
-      const tbody = document.querySelector("#orderTable tbody");
-      tbody.innerHTML = `
+      document.querySelector("#orderTable tbody").innerHTML = `
         <tr>
-          <td>${order["ARTIKEL UTAMA / SEASEON"] || "-"}</td>
+          <td>${artikel}</td>
           <td>${formatNum(totalQty)}</td>
           <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalHarga)}</span></div></td>
           <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(diskon)}</span></div></td>
@@ -286,49 +274,35 @@
 
     function openInvoice() {
       const tbodyInvoice = document.querySelector("#invoiceTable tbody");
-      tbodyInvoice.innerHTML = "";
-
-      if (cachedInvoice.length > 0) {
-        cachedInvoice.forEach(item => {
-          tbodyInvoice.insertAdjacentHTML("beforeend", `
-            <tr>
-              <td>${item["NAMA ARTIKEL"] || "-"}</td>
-              <td>${item["JML"] || 0}</td>
-              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(item["TOTAL"] || 0)}</span></div></td>
-            </tr>`);
-        });
-      } else {
+      if (!cachedInvoice || cachedInvoice.length === 0) {
         tbodyInvoice.innerHTML = `<tr><td colspan="3">Tidak ada data invoice</td></tr>`;
+      } else {
+        tbodyInvoice.innerHTML = cachedInvoice.map(item => `
+          <tr>
+            <td>${item["NAMA ARTIKEL"] || '-'}</td>
+            <td>${formatNum(item["JML"])}</td>
+            <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(item["TOTAL"])}</span></div></td>
+          </tr>`).join("");
       }
       document.getElementById("invoiceOverlay").style.display = "flex";
     }
-    function closeInvoice() { document.getElementById("invoiceOverlay").style.display = "none"; }
+    function closeInvoice(){ document.getElementById("invoiceOverlay").style.display = "none"; }
 
+    // === Tracking ===
     function openTracking() {
-      if (!orderData || Object.keys(orderData).length === 0) {
-        document.querySelector("#step-dp").classList.remove("done","active");
-        document.querySelector("#step-produksi").classList.remove("done","active");
-        document.querySelector("#step-ambil").classList.remove("done","active");
-        return;
-      }
+      const stepIds = ["step-dp","step-produksi","step-ambil"]; const lineIds=["line-1","line-2"]; 
+      stepIds.forEach(id=> document.getElementById(id).className = "step");
+      lineIds.forEach(id=> document.getElementById(id).className = "line");
 
-      const dp = Number(orderData["TOTAL DP"] || 0);
-      const statusProd = orderData["STATUS PRODUKSI"];
-      const tanggalAmbil = orderData["TANGGAL PENGAMBILAN"];
-
-      // Reset semua step
-      ["step-dp","step-produksi","step-ambil"].forEach(id => {
-        document.getElementById(id).classList.remove("active","done");
-      });
-      ["line-1","line-2"].forEach(id => {
-        document.getElementById(id).classList.remove("active","done");
-      });
+      const dp = Number(orderData["TOTAL DP"] ?? orderData["Total DP"] ?? 0);
+      const statusProd = (orderData["STATUS PRODUKSI"] ?? orderData["Status Produksi"] ?? "").toString().toUpperCase();
+      const tanggalAmbil = orderData["TANGGAL PENGAMBILAN"] ?? orderData["Tanggal Pengambilan"] ?? "";
 
       if (dp > 0) {
         document.getElementById("step-dp").classList.add("done");
         document.getElementById("line-1").classList.add("active");
       }
-      if (statusProd === "SELESAI") {
+      if (statusProd === "SELESAI" || statusProd === "DONE" || statusProd === "FINISH") {
         document.getElementById("step-produksi").classList.add("done");
         document.getElementById("line-1").classList.add("done");
         document.getElementById("line-2").classList.add("active");
@@ -338,9 +312,15 @@
         document.getElementById("line-2").classList.add("done");
       }
 
+      const note = [];
+      if (dp>0) note.push("DP sudah masuk"); else note.push("DP belum masuk");
+      if (statusProd) note.push(`Produksi: ${statusProd}`);
+      if (tanggalAmbil) note.push(`Diambil: ${formatDateDDMMMMYYYY(tanggalAmbil)}`);
+      document.getElementById("trackingNote").textContent = note.join(" • ");
+
       document.getElementById("trackingOverlay").style.display = "flex";
     }
-    function closeTracking() { document.getElementById("trackingOverlay").style.display = "none"; }
+    function closeTracking(){ document.getElementById("trackingOverlay").style.display = "none"; }
 
     function closeOverlay(event, id) {
       if (event.target.classList.contains("overlay")) {
@@ -348,7 +328,8 @@
       }
     }
 
-    loadOrderAndInvoice();
+    // Jalankan saat halaman siap
+    window.addEventListener('DOMContentLoaded', loadOrderAndInvoice);
   </script>
 </body>
 </html>
