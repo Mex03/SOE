@@ -1,41 +1,128 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Nota Order</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
-    body { font-family: Arial, sans-serif; background:#0275d8; margin:0; padding:20px }
-    .card { background:#fff; padding:20px; border-radius:8px; margin:auto; width:600px; box-shadow:0 2px 6px rgba(0,0,0,0.2) }
-    h2 { text-align:center; color:#0275d8 }
-    table { width:100%; border-collapse:collapse; margin-top:10px }
-    th, td { border:1px solid #ddd; padding:8px; text-align:center }
-    th { background:#f0f8ff }
-    .btn { background:#0275d8; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; margin:8px 4px 0 0 }
-    .btn:hover { background:#025aa5 }
-    .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.3); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center }
-    .popup-card { background:#fff; padding:15px; border-radius:8px; width:420px; max-height:80vh; overflow-y:auto; box-shadow:0 2px 10px rgba(0,0,0,.3); position:relative; animation:fadeIn .3s ease }
-    .close-btn { position:absolute; top:8px; right:10px; cursor:pointer; color:red; font-size:18px; font-weight:bold }
-    @keyframes fadeIn { from{opacity:0; transform:scale(.9)} to{opacity:1; transform:scale(1)} }
-    td.money { padding:4px 6px }
-    .money-wrap { display:flex; gap:8px; align-items:center; width:100% }
-    .money-wrap .rp { min-width:28px; text-align:left }
-    .money-wrap .nominal { flex:1; text-align:right }
-    .info-table { width:100%; border:none; margin-bottom:15px }
-    .info-table td { border:none; padding:4px 6px; text-align:left }
-    .info-table td.label { font-weight:bold; width:150px; white-space:nowrap }
-    .info-table td.sep { width:10px; text-align:center }
-    .muted { color:#666; font-size:12px; margin-top:6px; text-align:center }
-    /* Timeline */
-    .tracking-container { display:flex; justify-content:space-between; align-items:center; margin:30px auto; max-width:360px }
-    .step { text-align:center; flex:1; position:relative }
-    .circle { width:28px; height:28px; border-radius:50%; background:#ccc; margin:auto; transition:all .4s ease; box-shadow:0 0 6px rgba(0,0,0,.2) }
-    .label { margin-top:6px; font-size:13px }
-    .line { flex:1; height:3px; background:#ccc; margin:0 4px; transition:background .4s ease }
-    .step.active .circle { background:#0275d8; transform:scale(1.15) }
-    .step.done .circle { background:green }
-    .line.active { background:#0275d8 }
-    .line.done { background:green }
+    body {
+      font-family: Arial, sans-serif;
+      background: #0275d8;
+      margin: 0;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      margin: auto;
+      width: 600px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    h2 {
+      text-align: center;
+      color: #0275d8;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #f0f8ff;
+    }
+    .btn {
+      background: #0275d8;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 8px 4px 0 0;
+    }
+    .btn:hover {
+      background: #025aa5;
+    }
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .popup-card {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      width: 420px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      position: relative;
+      animation: fadeIn 0.3s ease;
+    }
+    .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      cursor: pointer;
+      color: red;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    td.money { padding: 4px 6px }
+    .money-wrap {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+    }
+    .money-wrap .rp { min-width: 28px; text-align: left }
+    .money-wrap .nominal { flex: 1; text-align: right }
+    .info-table { width: 100%; border: none; margin-bottom: 15px; }
+    .info-table td { border: none; padding: 4px 6px; text-align: left; }
+    .info-table td.label { font-weight: bold; width: 150px; white-space: nowrap; }
+
+    .tracking-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 30px auto;
+      max-width: 360px;
+    }
+    .step { text-align: center; flex: 1; position: relative; }
+    .circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #ccc;
+      margin: auto;
+      transition: all 0.4s ease;
+      box-shadow: 0 0 6px rgba(0,0,0,0.2);
+    }
+    .label { margin-top: 6px; font-size: 13px; }
+    .line {
+      flex: 1;
+      height: 3px;
+      background: #ccc;
+      margin: 0 4px;
+      transition: background 0.4s ease;
+    }
+    .step.active .circle { background: #0275d8; transform: scale(1.15); }
+    .step.done .circle { background: green; }
+    .line.active { background: #0275d8; }
+    .line.done { background: green; }
   </style>
 </head>
 <body>
@@ -61,10 +148,9 @@
 
     <button class="btn" onclick="openInvoice()">List Pesanan</button>
     <button class="btn" onclick="openTracking()">Tracking</button>
-    <div class="muted" id="note"></div>
   </div>
 
-  <!-- Overlay + Invoice Popup -->
+  <!-- Invoice Popup -->
   <div class="overlay" id="invoiceOverlay" onclick="closeOverlay(event, 'invoiceOverlay')">
     <div class="popup-card">
       <span class="close-btn" onclick="closeInvoice()">✖</span>
@@ -84,232 +170,115 @@
     </div>
   </div>
 
-  <!-- Overlay + Tracking Popup -->
+  <!-- Tracking Popup -->
   <div class="overlay" id="trackingOverlay" onclick="closeOverlay(event, 'trackingOverlay')">
     <div class="popup-card">
       <span class="close-btn" onclick="closeTracking()">✖</span>
       <h3 style="text-align:center; color:#0275d8;">Tracking Pesanan</h3>
-
       <div class="tracking-container">
-        <div class="step" id="step-dp">
-          <div class="circle"></div>
-          <div class="label">DP</div>
-        </div>
+        <div class="step" id="step-dp"><div class="circle"></div><div class="label">DP</div></div>
         <div class="line" id="line-1"></div>
-        <div class="step" id="step-produksi">
-          <div class="circle"></div>
-          <div class="label">Produksi</div>
-        </div>
+        <div class="step" id="step-produksi"><div class="circle"></div><div class="label">Produksi</div></div>
         <div class="line" id="line-2"></div>
-        <div class="step" id="step-ambil">
-          <div class="circle"></div>
-          <div class="label">Sudah Diambil</div>
-        </div>
+        <div class="step" id="step-ambil"><div class="circle"></div><div class="label">Sudah Diambil</div></div>
       </div>
     </div>
   </div>
 
   <script>
-    // ==== KONFIGURASI ====
-    const SPREADSHEET_ID = "1Aff2np0Q5vin7Obj3p51U3D5lJdsxNkAyx0bX3C8yjc"; // <-- ganti
+    const SPREADSHEET_ID = "1Aff2np0Q5vin7Obj3p51U3D5lJdsxNkAyx0bX3C8yjc"; 
     const SHEET_ORDER = "IPP";
     const SHEET_INVOICE = "LST_IPP";
 
-    // IPP: ID ORDER di kolom A
-    // LST_IPP: ID ORDER di kolom E
-    const WHERE_ORDER   = (id) => `A='${id}'`;
-    const WHERE_INVOICE = (id) => `E='${id}'`;
-
-    // ==== UTIL ====
     const urlParams = new URLSearchParams(window.location.search);
     const idOrder = urlParams.get("id_order");
 
-    function formatDateDDMMMMYYYY(dateStr) {
-      if (!dateStr) return "-";
-      const parts = String(dateStr).split("/");
-      // dukung "17/5/2025" dari sheet
-      if (parts.length === 3 && parts[2].length === 4) {
-        const d = new Date(+parts[2], +parts[1]-1, +parts[0]);
-        return d.toLocaleDateString("id-ID", { day:"2-digit", month:"long", year:"numeric" });
-      }
-      const d = new Date(dateStr);
-      if (isNaN(d)) return dateStr;
-      return d.toLocaleDateString("id-ID", { day:"2-digit", month:"long", year:"numeric" });
-    }
-    function num(n){ const x=Number(String(n).replace(/[^\d.-]+/g,"")); return isNaN(x)?0:x; }
-    function formatNum(n){ const x=num(n); return x===0? "0" : new Intl.NumberFormat("id-ID").format(x); }
-
-    // GViz fetch -> object array (pakai header)
-    async function gvizQuery({sheet, where}) {
-      const tq = encodeURIComponent(`select * where ${where}`);
-      const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheet)}&tq=${tq}`;
-      const res = await fetch(url, { cache:"no-store" });
-      const txt = await res.text();
-      // strip wrapper
-      const json = JSON.parse(txt.substring(47).replace(/\);?$/,''));
-      const cols = json.table.cols.map(c => (c.label || c.id || "").trim());
-      const rows = (json.table.rows||[]).map(r=>{
-        const obj = {};
-        r.c.forEach((c,i)=>{ obj[cols[i] || `COL${i}`] = c ? c.v : ""; });
-        return obj;
-      });
-      return rows;
-    }
-
-    function pick(obj, keys) {
-      for (const k of keys) if (obj[k] !== undefined && obj[k] !== "") return obj[k];
-      return "";
-    }
-
-    // ==== STATE ====
     let cachedInvoice = [];
     let orderData = {};
 
-    // ==== RENDER ====
-    function renderOrder(order) {
-      if (!order || Object.keys(order).length===0) {
-        document.querySelector("#orderTable tbody").innerHTML = `<tr><td colspan="5">❌ Data order tidak ditemukan.</td></tr>`;
-        document.getElementById("orderData").innerHTML = "❌ Data order tidak ditemukan.";
-        return;
+    function formatDate(dateStr) {
+      if (!dateStr) return "-";
+      const d = new Date(dateStr);
+      if (isNaN(d)) return dateStr;
+      return d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+    }
+    function formatNum(n) {
+      const num = typeof n === "string" ? Number(n.replace(/[^\d.-]+/g, "")) : n;
+      return isNaN(num) ? "-" : new Intl.NumberFormat("id-ID").format(num);
+    }
+
+    async function fetchGViz(sheet, query) {
+      const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheet}&tq=${encodeURIComponent(query)}`;
+      const res = await fetch(url);
+      const text = await res.text();
+      const jsonText = text.replace(/^[^\{]+/, "").replace(/\);?$/, "");
+      return JSON.parse(jsonText).table;
+    }
+
+    async function loadData() {
+      try {
+        console.log("🔍 Memuat data untuk ID:", idOrder);
+        const orderTable = await fetchGViz(SHEET_ORDER, `select * where A='${idOrder}'`);
+        const invoiceTable = await fetchGViz(SHEET_INVOICE, `select * where E='${idOrder}'`);
+
+        if (!orderTable.rows.length) throw new Error("Data order tidak ditemukan.");
+        orderData = mapRow(orderTable.rows[0]);
+        cachedInvoice = invoiceTable.rows.map(mapRow);
+
+        renderOrder();
+      } catch (err) {
+        console.error("❌ Gagal memuat data:", err);
+        document.getElementById("orderData").innerHTML = `<span style="color:red;">❌ Terjadi kesalahan saat memuat data.</span>`;
+        document.querySelector("#orderTable tbody").innerHTML = `<tr><td colspan="5">Coba muat ulang halaman.</td></tr>`;
       }
+    }
 
-      document.getElementById("orderData").innerHTML = `
+    function mapRow(row) {
+      return row.c.map(cell => (cell ? cell.v : ""));
+    }
+
+    function renderOrder() {
+      const d = orderData;
+      const infoHTML = `
         <table class="info-table">
-          <tr><td class="label">ID Order</td><td class="sep">:</td><td>${pick(order,["ID ORDER","ID_ORDER","ID"]) || "-"}</td></tr>
-          <tr><td class="label">Tanggal Order</td><td class="sep">:</td><td>${formatDateDDMMMMYYYY(pick(order,["TANGGAL ORDER","TANGGAL","ORDER DATE"]))}</td></tr>
-          <tr><td class="label">Deadline</td><td class="sep">:</td><td>${formatDateDDMMMMYYYY(pick(order,["DEADLINE","TGL DEADLINE"]))}</td></tr>
-          <tr><td class="label">Nama Customer</td><td class="sep">:</td><td>${pick(order,["NAMA CUSTOMER","CUSTOMER","NAMA"]) || "-"}</td></tr>
-          <tr><td class="label">No. WhatsApp</td><td class="sep">:</td><td>${pick(order,["NO WHATSAPP","NO WA","WHATSAPP"]) || "-"}</td></tr>
-          <tr><td class="label">Alamat</td><td class="sep">:</td><td>${pick(order,["ALAMAT","ADDRESS"]) || "-"}</td></tr>
-        </table>
-      `;
+          <tr><td class="label">ID Order</td><td>:</td><td>${d[0]}</td></tr>
+          <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDate(d[1])}</td></tr>
+          <tr><td class="label">Deadline</td><td>:</td><td>${formatDate(d[2])}</td></tr>
+          <tr><td class="label">Nama Customer</td><td>:</td><td>${d[4]}</td></tr>
+          <tr><td class="label">No. WhatsApp</td><td>:</td><td>${d[5]}</td></tr>
+          <tr><td class="label">Alamat</td><td>:</td><td>${d[6]}</td></tr>
+        </table>`;
+      document.getElementById("orderData").innerHTML = infoHTML;
 
-      const artikel = pick(order,["ARTIKEL UTAMA / SEASEON","ARTIKEL UTAMA / SEASON","ARTIKEL","SEASON"]) || "-";
-      const qty     = num(pick(order,["QTY","JUMLAH","JML"]));
-      const total   = num(pick(order,["TOTAL","TOTAL HARGA"]));
-      const diskon  = num(pick(order,["DISCOUNT","DISKON"]));
-      const totalAfter = total - diskon;
+      const totalQty = cachedInvoice.reduce((sum, r) => sum + Number(r[QTY] || 0), 0);
+      const totalHarga = Number(d[10] || 0);
+      const diskon = Number(d[11] || 0);
+      const totalSetelahDiskon = Number(d[12] || 0);
 
-      const tbody = document.querySelector("#orderTable tbody");
-      tbody.innerHTML = `
+      document.querySelector("#orderTable tbody").innerHTML = `
         <tr>
-          <td>${artikel}</td>
-          <td>${formatNum(qty)}</td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(total)}</span></div></td>
+          <td>${d[8]}</td>
+          <td>${formatNum(totalQty)}</td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalHarga)}</span></div></td>
           <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(diskon)}</span></div></td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalAfter)}</span></div></td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalSetelahDiskon)}</span></div></td>
         </tr>`;
     }
 
     function openInvoice() {
       const tbody = document.querySelector("#invoiceTable tbody");
       tbody.innerHTML = "";
-      if (cachedInvoice.length>0) {
-        cachedInvoice.forEach(item=>{
-          const nama = pick(item,["NAMA ARTIKEL","ARTIKEL","NAMA BARANG","NAMA PRODUK"]) || "-";
-          const qty  = num(pick(item,["JML","QTY","JUMLAH"]));
-          const tot  = num(pick(item,["TOTAL","TOTAL HARGA","SUBTOTAL"]));
-          tbody.insertAdjacentHTML("beforeend", `
-            <tr>
-              <td>${nama}</td>
-              <td>${formatNum(qty)}</td>
-              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(tot)}</span></div></td>
-            </tr>`);
-        });
-      } else {
-        tbody.innerHTML = `<tr><td colspan="3">Tidak ada data invoice</td></tr>`;
-      }
-      document.getElementById("invoiceOverlay").style.display = "flex";
-    }
-    function closeInvoice(){ document.getElementById("invoiceOverlay").style.display = "none"; }
-
-    function openTracking() {
-      if (!orderData || Object.keys(orderData).length===0) {
-        ["step-dp","step-produksi","step-ambil"].forEach(id=>document.getElementById(id).classList.remove("active","done"));
-        ["line-1","line-2"].forEach(id=>document.getElementById(id).classList.remove("active","done"));
-        return;
-      }
-      const dp = num(pick(orderData,["TOTAL DP","DP","UANG MUKA"]));
-      const statusProd = String(pick(orderData,["STATUS PRODUKSI","STATUS PRODUKSI/FINISH","PRODUKSI"])).toUpperCase();
-      const tanggalAmbil = pick(orderData,["TANGGAL PENGAMBILAN","TGL AMBIL","PENGAMBILAN"]);
-
-      ["step-dp","step-produksi","step-ambil"].forEach(id=>document.getElementById(id).classList.remove("active","done"));
-      ["line-1","line-2"].forEach(id=>document.getElementById(id).classList.remove("active","done"));
-
-      if (dp > 0) {
-        document.getElementById("step-dp").classList.add("done");
-        document.getElementById("line-1").classList.add("active");
-      }
-      if (statusProd === "SELESAI") {
-        document.getElementById("step-produksi").classList.add("done");
-        document.getElementById("line-1").classList.add("done");
-        document.getElementById("line-2").classList.add("active");
-      }
-      if (tanggalAmbil) {
-        document.getElementById("step-ambil").classList.add("done");
-        document.getElementById("line-2").classList.add("done");
-      }
-
-      document.getElementById("trackingOverlay").style.display = "flex";
-    }
-    function closeTracking(){ document.getElementById("trackingOverlay").style.display = "none"; }
-
-    function closeOverlay(event, id){ if (event.target.classList.contains("overlay")) document.getElementById(id).style.display="none"; }
-
-    // ==== INIT ====
-    async function loadOrderAndInvoice(){
-      if (!idOrder) {
-        document.getElementById("orderData").innerHTML = "❌ id_order tidak ditemukan di URL.";
-        return;
-      }
-      document.getElementById("note").textContent = "Sumber data: GViz (tanpa API key). Pastikan Sheet sudah Publish to the web.";
-
-      try {
-        const [orderRows, invoiceRows] = await Promise.all([
-          gvizQuery({ sheet: SHEET_ORDER,   where: WHERE_ORDER(idOrder) }),
-          gvizQuery({ sheet: SHEET_INVOICE, where: WHERE_INVOICE(idOrder) })
-        ]);
-
-        orderData = orderRows?.[0] || {};
-        cachedInvoice = invoiceRows || [];
-
-        if (!orderRows || orderRows.length===0) {
-          document.getElementById("orderData").innerHTML = "❌ Data order tidak ditemukan.";
-          document.querySelector("#orderTable tbody").innerHTML = `<tr><td colspan="5">❌ Data order tidak ditemukan.</td></tr>`;
-          return;
-        }
-
-        renderOrder(orderData);
-
-        // kalkulasi rekap dari invoice jika total di order kosong
-        const totalQty   = cachedInvoice.reduce((s,r)=> s + num(pick(r,["JML","QTY","JUMLAH"])), 0);
-        const totalHarga = cachedInvoice.reduce((s,r)=> s + num(pick(r,["TOTAL","TOTAL HARGA","SUBTOTAL"])), 0);
-        const diskon     = num(pick(orderData,["DISCOUNT","DISKON"]));
-        const totalAfter = totalHarga ? (totalHarga - diskon) : (num(pick(orderData,["TOTAL","TOTAL HARGA"])) - diskon);
-
-        // Jika di sheet IPP kolom artikel/qty/total sudah ada, render ulang agar konsisten:
-        const artikel = pick(orderData,["ARTIKEL UTAMA / SEASEON","ARTIKEL UTAMA / SEASON","ARTIKEL","SEASON"]) || "-";
-        const qtyIPP  = num(pick(orderData,["QTY","JUMLAH","JML"]));
-        const totIPP  = num(pick(orderData,["TOTAL","TOTAL HARGA"]));
-        const useInvoiceAgg = (!qtyIPP && totalQty) || (!totIPP && totalHarga);
-
-        const tbody = document.querySelector("#orderTable tbody");
-        tbody.innerHTML = `
+      cachedInvoice.forEach(r => {
+        tbody.insertAdjacentHTML("beforeend", `
           <tr>
-            <td>${artikel}</td>
-            <td>${formatNum(useInvoiceAgg ? totalQty : qtyIPP)}</td>
-            <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(useInvoiceAgg ? totalHarga : totIPP)}</span></div></td>
-            <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(diskon)}</span></div></td>
-            <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalAfter)}</span></div></td>
-          </tr>`;
-      } catch (err) {
-        console.error(err);
-        document.getElementById("orderData").innerHTML = "❌ Terjadi kesalahan saat mengambil data.";
-        document.querySelector("#orderTable tbody").innerHTML = `<tr><td colspan="5">❌ Gagal memuat data.</td></tr>`;
-      }
+            <td>${r[6]}</td>
+            <td>${r[1]}</td>
+            <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(r[1])}</span></div></td>
+          </tr>`);
+      });
     }
 
-    loadOrderAndInvoice();
+    loadData();
   </script>
 </body>
 </html>
