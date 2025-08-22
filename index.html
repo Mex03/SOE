@@ -104,18 +104,19 @@
     let orderData = {};
     let cachedInvoice = [];
 
-    function formatDateDDMMMMYYYY(dateStr) {
+    // === FORMAT TANGGAL "DDDD, DD MMMM YYYY" ===
+    function formatDateFull(dateStr) {
       if (!dateStr) return "-";
       const d = new Date(dateStr);
       if (isNaN(d)) return dateStr;
-      return d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+
+      const days = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+      const dayName = days[d.getDay()];
+      const date = d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+
+      return `${dayName}, ${date}`;
     }
-    
-    function formatDate(d) {
-      if (!d) return "-";
-      const t = new Date(d);
-      return isNaN(t) ? d : t.toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"});
-    }
+
     function formatNum(n) {
       const num = typeof n==="string" ? Number(n.replace(/[^\d.-]+/g,"")) : n;
       return isNaN(num) ? "-" : new Intl.NumberFormat("id-ID").format(num);
@@ -140,8 +141,8 @@
 
     async function loadData() {
       try {
-        const orderTable = await fetchGViz(SHEET_ORDER, `select * where A='${idOrder}'`);
-        const invoiceTable = await fetchGViz(SHEET_INVOICE, `select * where E='${idOrder}'`);
+        const orderTable = await fetchGViz(SHEET_ORDER, `select * where \`ID ORDER\`='${idOrder}'`);
+        const invoiceTable = await fetchGViz(SHEET_INVOICE, `select * where \`ID ORDER\`='${idOrder}'`);
         const orders = mapToObjects(orderTable);
         const invoices = mapToObjects(invoiceTable);
 
@@ -162,8 +163,8 @@
       const infoHTML = `
         <table class="info-table">
           <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"]}</td></tr>
-          <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDateDDMMMMYYYY(d["TANGGAL ORDER"])}</td></tr>
-          <tr><td class="label">Deadline</td><td>:</td><td>${formatDateDDMMMMYYYY(d["DEADLINE"])}</td></tr>
+          <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDateFull(d["TANGGAL ORDER"])}</td></tr>
+          <tr><td class="label">Deadline</td><td>:</td><td>${formatDateFull(d["DEADLINE"])}</td></tr>
           <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"]}</td></tr>
           <tr><td class="label">No. WhatsApp</td><td>:</td><td>${d["NO WHATSAPP"]}</td></tr>
           <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"]}</td></tr>
