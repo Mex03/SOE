@@ -29,8 +29,7 @@
     table { 
       width: 100%; 
       border-collapse: collapse; 
-      margin-top: 10px; 
-      text-align: center;
+      margin-top: 10px;
     }
     th, td { 
       border: 1px solid #ddd; 
@@ -41,23 +40,29 @@
     th { 
       background: #f0f8ff; 
       font-weight: bold; 
+      text-align: center;
     }
-    td.money { padding: 6px }
+    td.money { padding: 6px; text-align: center; }
     .money-wrap { display: flex; justify-content: center; gap: 4px; }
     .money-wrap .rp { min-width: 28px; text-align: right }
     .money-wrap .nominal { text-align: right }
 
+    .btn-container { 
+      display: flex; 
+      justify-content: space-between; 
+      gap: 10px; 
+      margin-top: 15px; 
+    }
     .btn { 
+      flex: 1;
       background: #0275d8; 
       color: #fff; 
       border: none; 
       padding: 10px; 
       border-radius: 6px; 
       cursor: pointer; 
-      margin-top: 10px; 
       font-size: 15px; 
-      width: 100%; 
-      display: block; 
+      text-align: center;
     }
     .btn:hover { background: #025aa5; }
 
@@ -99,8 +104,9 @@
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
     .info-table { width: 100%; border: none; margin-bottom: 10px; }
-    .info-table td { border: none; padding: 6px 4px; font-size: 14px; }
-    .info-table td.label { font-weight: bold; width: 120px; }
+    .info-table td { border: none; padding: 6px 4px; font-size: 14px; text-align: left; }
+    .info-table td.label { font-weight: bold; width: 130px; white-space: nowrap; }
+    .info-table td.sep { width: 10px; }
 
     /* Tracking timeline */
     .tracking-container { display: flex; justify-content: space-between; align-items: center;
@@ -108,14 +114,13 @@
     .step { text-align: center; flex: 1; position: relative; }
     .circle { width: 26px; height: 26px; border-radius: 50%; background: #ccc;
               margin: auto; transition: all 0.4s ease; box-shadow: 0 0 6px rgba(0,0,0,0.2); }
-    .label { margin-top: 6px; font-size: 13px; }
+    .label { margin-top: 6px; font-size: 13px; text-align: center; }
     .line { flex: 1; height: 3px; background: #ccc; margin: 0 4px; transition: background 0.4s ease; }
     .step.done .circle { background: green; transform: scale(1.1); }
     .step.active .circle { background: #0275d8; transform: scale(1.1); }
     .line.done { background: green; }
     .line.active { background: #0275d8; }
 
-    /* RESPONSIVE */
     @media (max-width: 480px) {
       body { padding: 10px; }
       .card { padding: 15px; }
@@ -140,8 +145,10 @@
       <tbody><tr><td colspan="5">Memuat data...</td></tr></tbody>
     </table>
 
-    <button class="btn" onclick="openInvoice()">📄 List Pesanan</button>
-    <button class="btn" onclick="openTracking()">📍 Tracking</button>
+    <div class="btn-container">
+      <button class="btn" onclick="openInvoice()">📄 List Pesanan</button>
+      <button class="btn" onclick="openTracking()">📍 Tracking</button>
+    </div>
   </div>
 
   <!-- Invoice Popup -->
@@ -184,7 +191,6 @@
     let orderData = {};
     let cachedInvoice = [];
 
-    // parsing Date(YYYY,MM,DD)
     function parseGVizDate(value) {
       if (!value) return null;
       if (typeof value === "string") {
@@ -196,8 +202,6 @@
       }
       return new Date(value);
     }
-
-    // format DDDD, DD MMMM YYYY
     function formatDateFull(value) {
       const d = parseGVizDate(value);
       if (!d || isNaN(d)) return "-";
@@ -205,7 +209,6 @@
         weekday: "long", day: "2-digit", month: "long", year: "numeric"
       });
     }
-
     function formatNum(n) {
       const num = typeof n==="string" ? Number(n.replace(/[^\d.-]+/g,"")) : n;
       return isNaN(num) ? "0" : new Intl.NumberFormat("id-ID").format(num);
@@ -219,7 +222,6 @@
       const jsonText = text.replace(/^[^{]+/,"").replace(/\);?$/,"");
       return JSON.parse(jsonText).table;
     }
-
     function mapToObjects(table) {
       const headers = table.cols.map(c => c.label.trim().toUpperCase());
       return table.rows.map(r => {
@@ -231,8 +233,8 @@
 
     async function loadData() {
       try {
-        const orderTable = await fetchGViz(SHEET_ORDER, `select * where A='${idOrder}'`);
-        const invoiceTable = await fetchGViz(SHEET_INVOICE, `select * where E='${idOrder}'`);
+        const orderTable = await fetchGViz(SHEET_ORDER, `select * where upper(A)='${idOrder.toUpperCase()}'`);
+        const invoiceTable = await fetchGViz(SHEET_INVOICE, `select * where upper(E)='${idOrder.toUpperCase()}'`);
         const orders = mapToObjects(orderTable);
         const invoices = mapToObjects(invoiceTable);
 
@@ -240,7 +242,6 @@
 
         orderData = orders[0];
         cachedInvoice = invoices;
-
         renderOrder();
       } catch (err) {
         console.error("❌ Error:", err);
@@ -255,12 +256,12 @@
 
       const infoHTML = `
         <table class="info-table">
-          <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"]}</td></tr>
-          <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDateFull(d["TANGGAL ORDER"])}</td></tr>
-          <tr><td class="label">Deadline</td><td>:</td><td>${formatDateFull(d["DEADLINE"])}</td></tr>
-          <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"]}</td></tr>
-          <tr><td class="label">No. WhatsApp</td><td>:</td><td>${waLink}</td></tr>
-          <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"]}</td></tr>
+          <tr><td class="label">ID Order</td><td class="sep">:</td><td>${d["ID ORDER"]}</td></tr>
+          <tr><td class="label">Tanggal Order</td><td class="sep">:</td><td>${formatDateFull(d["TANGGAL ORDER"])}</td></tr>
+          <tr><td class="label">Deadline</td><td class="sep">:</td><td>${formatDateFull(d["DEADLINE"])}</td></tr>
+          <tr><td class="label">Nama Customer</td><td class="sep">:</td><td>${d["NAMA CUSTOMER"]}</td></tr>
+          <tr><td class="label">No. WhatsApp</td><td class="sep">:</td><td>${waLink}</td></tr>
+          <tr><td class="label">Alamat</td><td class="sep">:</td><td>${d["ALAMAT"]}</td></tr>
         </table>`;
       document.getElementById("orderData").innerHTML = infoHTML;
 
@@ -272,7 +273,7 @@
       document.querySelector("#orderTable tbody").innerHTML = `
         <tr>
           <td>${d["ARTIKEL UTAMA / SEASEON"]}</td>
-          <td>${formatNum(totalQty)}</td>
+          <td style="text-align:center;">${formatNum(totalQty)}</td>
           <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalHarga)}</span></div></td>
           <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(diskon)}</span></div></td>
           <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalSetelahDiskon)}</span></div></td>
@@ -298,7 +299,6 @@
     }
     function closeInvoice(){ document.getElementById("invoiceOverlay").style.display="none"; }
 
-    // tracking dari AppSheet API
     async function fetchTracking() {
       const url = `https://api.appsheet.com/api/v2/apps/${APP_ID}/tables/IPP/Action`;
       const payload = { Action:"Find", Properties:{}, Rows:[{"ID ORDER":idOrder}] };
