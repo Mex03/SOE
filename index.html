@@ -2,58 +2,38 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Nota Order</title>
+  <title>Nota Order Dan Status</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      background: #0275d8; 
-      margin: 0; 
-      padding: 20px; 
-      display: flex; 
-      justify-content: center; 
-      align-items: flex-start; 
-      min-height: 100vh;
-    }
-    .card { 
-      background: #fff; 
-      padding: 20px; 
-      border-radius: 12px; 
-      width: 100%; 
-      max-width: 650px; 
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
-    }
+    body { font-family: Arial, sans-serif; background: #0275d8; margin: 0; padding: 20px;
+           display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+    .card { background: #fff; padding: 20px; border-radius: 12px; width: 100%; max-width: 650px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     h2 { text-align: center; color: #0275d8; margin-top: 0; }
     h3 { margin-top: 20px; margin-bottom: 8px; }
-
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { border: 1px solid #ddd; padding: 8px; font-size: 14px; }
     th { background: #f0f8ff; text-align: center; }
-
     td.money { padding: 6px; }
-    .money-wrap { display: flex; gap: 4px; align-items: center; }
-    .money-wrap .rp { min-width: 28px; text-align: left; }
+    .money-wrap { display: flex; }
+    .money-wrap .rp { text-align: left; min-width: 25px; }
     .money-wrap .nominal { flex: 1; text-align: right; }
-
     .btn-group { display: flex; gap: 10px; margin-top: 15px; }
     .btn { flex: 1; background: #0275d8; color: #fff; border: none; padding: 10px;
            border-radius: 6px; cursor: pointer; font-size: 15px; }
     .btn:hover { background: #025aa5; }
-
-    .overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4);
-               backdrop-filter: blur(3px); z-index: 1000; align-items: center; 
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+               backdrop-filter: blur(3px); z-index: 1000; align-items: center;
                justify-content: center; padding: 10px; }
-    .popup-card { background: #fff; padding: 20px; border-radius: 10px; width: 100%; 
+    .popup-card { background: #fff; padding: 20px; border-radius: 10px; width: 100%;
                   max-width: 420px; max-height: 85vh; overflow-y: auto;
                   box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: relative; }
     .popup-card table th, .popup-card table td { text-align: center; }
     .close-btn { position: absolute; top: 10px; right: 12px; cursor: pointer;
                  color: red; font-size: 20px; font-weight: bold; }
-
     .info-table { width: 100%; border: none; margin-bottom: 10px; }
     .info-table td { border: none; padding: 6px 4px; font-size: 14px; text-align: left; }
     .info-table td.label { font-weight: bold; width: 140px; white-space: nowrap; }
-
     @media (max-width: 480px) {
       body { padding: 10px; }
       .card { padding: 15px; }
@@ -104,6 +84,12 @@
     const idOrder = new URLSearchParams(window.location.search).get("id_order");
     let orderData = {}, cachedInvoice = [];
 
+    function get(obj, key) { return obj && obj[key] ? obj[key] : "-"; }
+    function formatNum(n) {
+      const num = Number(n) || 0;
+      return num.toLocaleString("id-ID");
+    }
+
     async function fetchGViz(sheet, query) {
       const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheet}&tq=${encodeURIComponent(query)}`;
       const res = await fetch(url);
@@ -114,7 +100,6 @@
 
     function mapToObjects(table) {
       const headers = table.cols.map(c => (c.label || "").trim());
-      console.log("HEADER DARI SHEET:", headers); // debug di console
       return table.rows.map(r => {
         const obj = {};
         headers.forEach((h,i) => obj[h] = r.c[i] ? r.c[i].v : "");
@@ -128,9 +113,7 @@
         const invoiceTable = await fetchGViz(SHEET_INVOICE, `select * where E='${idOrder}'`);
         const orders = mapToObjects(orderTable);
         const invoices = mapToObjects(invoiceTable);
-
         if (!orders.length) throw new Error("Order tidak ditemukan");
-
         orderData = orders[0];
         cachedInvoice = invoices;
         renderOrder();
@@ -141,31 +124,26 @@
 
     function renderOrder() {
       const d = orderData;
-      const noWa = d["NO WHATSAPP"] || "-";
+      const noWa = get(d,"No WhatsApp");
       const waLink = noWa !== "-" ? `<a href="https://wa.me/${noWa.replace(/[^0-9]/g,'')}" target="_blank">${noWa}</a>` : "-";
 
       document.getElementById("orderData").innerHTML = `
         <table class="info-table">
-          <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"]}</td></tr>
-          <tr><td class="label">Tanggal Order</td><td>:</td><td>${d["TANGGAL ORDER"]}</td></tr>
-          <tr><td class="label">Deadline</td><td>:</td><td>${d["DEADLINE"]}</td></tr>
-          <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"]}</td></tr>
+          <tr><td class="label">ID Order</td><td>:</td><td>${get(d,"ID Order")}</td></tr>
+          <tr><td class="label">Tanggal Order</td><td>:</td><td>${get(d,"Tanggal Order")}</td></tr>
+          <tr><td class="label">Deadline</td><td>:</td><td>${get(d,"Deadline")}</td></tr>
+          <tr><td class="label">Nama Customer</td><td>:</td><td>${get(d,"Nama Customer")}</td></tr>
           <tr><td class="label">No. WhatsApp</td><td>:</td><td>${waLink}</td></tr>
-          <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"]}</td></tr>
+          <tr><td class="label">Alamat</td><td>:</td><td>${get(d,"Alamat")}</td></tr>
         </table>`;
-
-      const totalQty = cachedInvoice.reduce((s,r)=> s+(+r["QTY"]||0),0);
-      const totalHarga = +d["TOTAL"]||0;
-      const diskon = +d["DISCOUNT"]||0;
-      const totalSetelahDiskon = +d["TOTAL SETELAH DISCOUNT"]||0;
 
       document.querySelector("#orderTable tbody").innerHTML = `
         <tr>
-          <td>${d["Artikel Utama / Seaseon"]||"-"}</td>
-          <td style="text-align:center">${totalQty}</td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${totalHarga.toLocaleString("id-ID")}</span></div></td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${diskon.toLocaleString("id-ID")}</span></div></td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${totalSetelahDiskon.toLocaleString("id-ID")}</span></div></td>
+          <td>${get(d,"Artikel Utama / Seaseon")}</td>
+          <td style="text-align:center">${cachedInvoice.reduce((s,r)=> s+(+r["Jml"]||0),0)}</td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(get(d,"Total"))}</span></div></td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(get(d,"Discount"))}</span></div></td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(get(d,"Total Setelah Discount"))}</span></div></td>
         </tr>`;
     }
 
@@ -178,16 +156,15 @@
         cachedInvoice.forEach(r=>{
           tbody.insertAdjacentHTML("beforeend",`
             <tr>
-              <td>${r["Nama Artikel"]}</td>
-              <td>${r["Jml"]}</td>
-              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${(+r["Total"]||0).toLocaleString("id-ID")}</span></div></td>
+              <td>${get(r,"Nama Artikel")}</td>
+              <td>${get(r,"Jml")}</td>
+              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(get(r,"Total"))}</span></div></td>
             </tr>`);
         });
       }
       document.getElementById("invoiceOverlay").style.display="flex";
     }
     function closeInvoice(){ document.getElementById("invoiceOverlay").style.display="none"; }
-
     function closeOverlay(e,id){ if(e.target.classList.contains("overlay")) document.getElementById(id).style.display="none"; }
 
     loadData();
