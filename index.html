@@ -104,19 +104,33 @@
     let orderData = {};
     let cachedInvoice = [];
 
-    // format tanggal: DDDD, DD MMMM YYYY
-    function formatDateFull(dateStr) {
-      if (!dateStr) return "-";
-      const d = new Date(dateStr);
-      if (isNaN(d)) return dateStr;
+    // parsing Date(YYYY,MM,DD)
+    function parseGVizDate(value) {
+      if (!value) return null;
+      if (typeof value === "string") {
+        const match = value.match(/Date\((\d+),(\d+),(\d+)\)/);
+        if (match) {
+          return new Date(parseInt(match[1]), parseInt(match[2]), parseInt(match[3]));
+        }
+        return new Date(value);
+      }
+      return new Date(value);
+    }
+
+    // format DDDD, DD MMMM YYYY
+    function formatDateFull(value) {
+      const d = parseGVizDate(value);
+      if (!d || isNaN(d)) return "-";
       return d.toLocaleDateString("id-ID", {
         weekday: "long", day: "2-digit", month: "long", year: "numeric"
       });
     }
+
     function formatNum(n) {
       const num = typeof n==="string" ? Number(n.replace(/[^\d.-]+/g,"")) : n;
-      return isNaN(num) ? "-" : new Intl.NumberFormat("id-ID").format(num);
+      return isNaN(num) ? "0" : new Intl.NumberFormat("id-ID").format(num);
     }
+    function numOrZero(v) { return isNaN(Number(v)) ? 0 : Number(v); }
 
     async function fetchGViz(sheet, query) {
       const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheet}&tq=${encodeURIComponent(query)}`;
@@ -127,7 +141,7 @@
     }
 
     function mapToObjects(table) {
-      const headers = table.cols.map(c => c.label);
+      const headers = table.cols.map(c => c.label.trim().toUpperCase());
       return table.rows.map(r => {
         const obj = {};
         headers.forEach((h,i) => obj[h] = r.c[i] ? r.c[i].v : "");
@@ -137,25 +151,15 @@
 
     async function loadData() {
       try {
-        const orderTable = await fetchGViz(SHEET_ORDER, `select *`);
-        const invoiceTable = await fetchGViz(SHEET_INVOICE, `select *`);
+        const orderTable = await fetchGViz(SHEET_ORDER, `select * where A='${idOrder}'`);
+        const invoiceTable = await fetchGViz(SHEET_INVOICE, `select * where E='${idOrder}'`);
         const orders = mapToObjects(orderTable);
         const invoices = mapToObjects(invoiceTable);
 
-        // normalisasi key jadi lowercase
-        const normalizeKeys = row => {
-          const obj = {};
-          for (let key in row) obj[key.trim().toLowerCase()] = row[key];
-          return obj;
-        };
-        const normalizedOrders = orders.map(normalizeKeys);
-        const normalizedInvoices = invoices.map(normalizeKeys);
+        if (!orders.length) throw new Error("Order tidak ditemukan");
 
-        const foundOrder = normalizedOrders.find(r => String(r["id order"]) === idOrder);
-        if (!foundOrder) throw new Error("Order tidak ditemukan");
-
-        orderData = foundOrder;
-        cachedInvoice = normalizedInvoices.filter(r => String(r["id order"]) === idOrder);
+        orderData = orders[0];
+        cachedInvoice = invoices;
 
         renderOrder();
       } catch (err) {
@@ -166,25 +170,27 @@
 
     function renderOrder() {
       const d = orderData;
+      const noWa = d["NO WHATSAPP"] || d["NO. WHATSAPP"] || "-";
+
       const infoHTML = `
         <table class="info-table">
-          <tr><td class="label">ID Order</td><td>:</td><td>${d["id order"]}</td></tr>
-          <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDateFull(d["tanggal order"])}</td></tr>
-          <tr><td class="label">Deadline</td><td>:</td><td>${formatDateFull(d["deadline"])}</td></tr>
-          <tr><td class="label">Nama Customer</td><td>:</td><td>${d["nama customer"]}</td></tr>
-          <tr><td class="label">No. WhatsApp</td><td>:</td><td>${d["no whatsapp"]}</td></tr>
-          <tr><td class="label">Alamat</td><td>:</td><td>${d["alamat"]}</td></tr>
+          <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"]}</td></tr>
+          <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDateFull(d["TANGGAL ORDER"])}</td></tr>
+          <tr><td class="label">Deadline</td><td>:</td><td>${formatDateFull(d["DEADLINE"])}</td></tr>
+          <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"]}</td></tr>
+          <tr><td class="label">No. WhatsApp</td><td>:</td><td>${noWa}</td></tr>
+          <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"]}</td></tr>
         </table>`;
       document.getElementById("orderData").innerHTML = infoHTML;
 
-      const totalQty = cachedInvoice.reduce((sum,r)=> sum+Number(r["jml"]||0),0);
-      const totalHarga = Number(d["total"]||0);
-      const diskon = Number(d["diskon"]||0);
-      const totalSetelahDiskon = Number(d["total setelah diskon"]||0);
+      const totalQty = cachedInvoice.reduce((sum,r)=> sum+numOrZero(r["JML"]),0);
+      const totalHarga = numOrZero(d["TOTAL"]);
+      const diskon = numOrZero(d["DISKON"]);
+      const totalSetelahDiskon = numOrZero(d["TOTAL SETELAH DISKON"]);
 
       document.querySelector("#orderTable tbody").innerHTML = `
         <tr>
-          <td>${d["artikel utama / seaseon"]}</td>
+          <td>${d["ARTIKEL UTAMA / SEASEON"]}</td>
           <td>${formatNum(totalQty)}</td>
           <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalHarga)}</span></div></td>
           <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(diskon)}</span></div></td>
@@ -201,9 +207,9 @@
         cachedInvoice.forEach(r=>{
           tbody.insertAdjacentHTML("beforeend",`
             <tr>
-              <td>${r["nama artikel"]}</td>
-              <td>${r["jml"]}</td>
-              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(r["total"])}</span></div></td>
+              <td>${r["NAMA ARTIKEL"]}</td>
+              <td>${r["JML"]}</td>
+              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(r["TOTAL"])}</span></div></td>
             </tr>`);
         });
       }
