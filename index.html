@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Nota Dan Status Order</title>
+  <title>Nota Order</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { 
@@ -141,23 +141,23 @@
 
     function renderOrder() {
       const d = orderData;
-      const noWa = d["No. WhatsApp"] || "-";
+      const noWa = d["NO WHATSAPP"] || "-";
       const waLink = noWa !== "-" ? `<a href="https://wa.me/${noWa.replace(/[^0-9]/g,'')}" target="_blank">${noWa}</a>` : "-";
 
       document.getElementById("orderData").innerHTML = `
         <table class="info-table">
-          <tr><td class="label">ID Order</td><td>:</td><td>${d["ID Order"]}</td></tr>
-          <tr><td class="label">Tanggal Order</td><td>:</td><td>${d["Tanggal Order"]}</td></tr>
-          <tr><td class="label">Deadline</td><td>:</td><td>${d["Deadline"]}</td></tr>
-          <tr><td class="label">Nama Customer</td><td>:</td><td>${d["Nama Customer"]}</td></tr>
+          <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"]}</td></tr>
+          <tr><td class="label">Tanggal Order</td><td>:</td><td>${d["TANGGAL ORDER"]}</td></tr>
+          <tr><td class="label">Deadline</td><td>:</td><td>${d["DEADLINE"]}</td></tr>
+          <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"]}</td></tr>
           <tr><td class="label">No. WhatsApp</td><td>:</td><td>${waLink}</td></tr>
-          <tr><td class="label">Alamat</td><td>:</td><td>${d["Alamat"]}</td></tr>
+          <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"]}</td></tr>
         </table>`;
 
-      const totalQty = cachedInvoice.reduce((s,r)=> s+(+r["Jml"]||0),0);
-      const totalHarga = +d["Total"]||0;
-      const diskon = +d["Discount"]||0;
-      const totalSetelahDiskon = +d["Total Setelah Discount"]||0;
+      const totalQty = cachedInvoice.reduce((s,r)=> s+(+r["QTY"]||0),0);
+      const totalHarga = +d["TOTAL"]||0;
+      const diskon = +d["DISCOUNT"]||0;
+      const totalSetelahDiskon = +d["TOTAL SETELAH DISCOUNT"]||0;
 
       document.querySelector("#orderTable tbody").innerHTML = `
         <tr>
