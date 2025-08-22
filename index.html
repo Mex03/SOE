@@ -88,11 +88,14 @@ const idOrder = new URLSearchParams(window.location.search).get("id_order");
 let orderData = {};
 let cachedInvoice = [];
 
-function formatDate(d){
+// ✅ Format tanggal custom
+function formatDateCustom(d){
   if(!d) return "-";
   const dt = new Date(d);
   if(isNaN(dt)) return d;
-  return dt.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+  const hari = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  return `${hari[dt.getDay()]}, ${String(dt.getDate()).padStart(2,'0')} ${bulan[dt.getMonth()]} ${dt.getFullYear()}`;
 }
 
 function formatNum(n){
@@ -135,8 +138,8 @@ function renderOrder(){
   document.getElementById("orderData").innerHTML = `
     <table class="info-table">
       <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"] || "-"}</td></tr>
-      <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDate(d["TANGGAL ORDER"])}</td></tr>
-      <tr><td class="label">Deadline</td><td>:</td><td>${formatDate(d["DEADLINE"])}</td></tr>
+      <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDateCustom(d["TANGGAL ORDER"])}</td></tr>
+      <tr><td class="label">Deadline</td><td>:</td><td>${formatDateCustom(d["DEADLINE"])}</td></tr>
       <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"] || "-"}</td></tr>
       <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"] || "-"}</td></tr>
     </table>`;
@@ -162,10 +165,11 @@ function openInvoice(){
 
 function closeInvoice(){ document.getElementById("invoiceOverlay").style.display = "none"; }
 
+// ✅ Ambil status dari AppSheet API (kolom virtual)
 async function openTracking(){
   document.getElementById("trackingOverlay").style.display = "flex";
   try {
-    const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_APP_ID}/tables/Tracking/Action`;
+    const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_APP_ID}/tables/IPP/Action`;
     const res = await fetch(url, {
       method: "POST",
       headers: {
@@ -179,28 +183,34 @@ async function openTracking(){
       })
     });
     const data = await res.json();
-    updateTrackingUI(data);
+    if(data && data.length > 0){
+      animateTracking(data[0]["STATUS REALTIME"]);
+    }
   } catch (err) {
     console.error("Error tracking:", err);
   }
 }
 
-function updateTrackingUI(data){
-  if(!data || !data.length) return;
-  const status = data[0]["STATUS REALTIME"];
+function animateTracking(status){
   const steps = ["DP","Produksi","Sudah Diambil"];
-  let activeIndex = steps.indexOf(status);
+  let index = 0;
+  const activeIndex = steps.indexOf(status);
 
-  steps.forEach((step, idx) => {
-    const stepId = idx === 0 ? "dp" : idx === 1 ? "produksi" : "ambil";
+  function activateStep(i){
+    if(i > activeIndex) return;
+    const stepId = i === 0 ? "dp" : i === 1 ? "produksi" : "ambil";
     const stepEl = document.getElementById(`step-${stepId}`);
-    if(idx < activeIndex){ stepEl.classList.add("done"); }
-    else if(idx === activeIndex){ stepEl.classList.add("active"); }
-  });
+    if(i < activeIndex){ stepEl.classList.add("done"); }
+    else if(i === activeIndex){ stepEl.classList.add("active"); }
 
-  if(activeIndex >= 1) document.getElementById("line-1").classList.add("active");
-  if(activeIndex >= 2) document.getElementById("line-1").classList.replace("active","done");
-  if(activeIndex === 2) document.getElementById("line-2").classList.add("active","done");
+    if(i === 1) document.getElementById("line-1").classList.add(i <= activeIndex ? "active" : "");
+    if(i === 2) {
+      document.getElementById("line-1").classList.replace("active","done");
+      document.getElementById("line-2").classList.add("active","done");
+    }
+    setTimeout(()=> activateStep(i+1), 500);
+  }
+  activateStep(index);
 }
 
 function closeTracking(){ document.getElementById("trackingOverlay").style.display = "none"; }
