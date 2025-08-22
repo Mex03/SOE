@@ -10,7 +10,8 @@
   table { width:100%; border-collapse:collapse; margin-top:10px; }
   th,td { border:1px solid #ddd; padding:8px; text-align:center; }
   th { background:#f0f8ff; }
-  .btn { background:#0275d8; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; margin:8px 4px 0 0; }
+  .btn-container { display:flex; justify-content:center; gap:15px; margin-top:15px; }
+  .btn { background:#0275d8; color:#fff; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-size:14px; min-width:120px; }
   .btn:hover { background:#025aa5; }
   .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.3); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center; }
   .popup-card { background:#fff; padding:15px; border-radius:8px; width:420px; max-height:80vh; overflow-y:auto; box-shadow:0 2px 10px rgba(0,0,0,0.3); position:relative; }
@@ -46,8 +47,11 @@
     </thead>
     <tbody><tr><td colspan="5">Memuat data...</td></tr></tbody>
   </table>
-  <button class="btn" onclick="openInvoice()">List Pesanan</button>
-  <button class="btn" onclick="openTracking()">Tracking</button>
+
+  <div class="btn-container">
+    <button class="btn" onclick="openInvoice()">List Pesanan</button>
+    <button class="btn" onclick="openTracking()">Tracking</button>
+  </div>
 </div>
 
 <!-- Invoice Popup -->
@@ -116,8 +120,9 @@ async function fetchGVizAsObjects(sheet, query){
 
 async function loadData(){
   try{
-    const orderTbl = await fetchGVizAsObjects(SHEET_ORDER,`select * where A='${idOrder}'`);
-    const invoiceTbl = await fetchGVizAsObjects(SHEET_INVOICE,`select * where E='${idOrder}'`);
+    // Ambil hanya kolom yang dibutuhkan
+    const orderTbl = await fetchGVizAsObjects(SHEET_ORDER,`select A,B,C,D,E,F,G where A='${idOrder}'`);
+    const invoiceTbl = await fetchGVizAsObjects(SHEET_INVOICE,`select E,F,G where E='${idOrder}'`);
     if(!orderTbl.length) throw new Error("Data order tidak ditemukan.");
     orderData = orderTbl[0];
     cachedInvoice = invoiceTbl;
@@ -140,18 +145,13 @@ function renderOrder(){
       <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"]}</td></tr>
     </table>`;
     
-  const totalQty = cachedInvoice.reduce((s,r)=>s+Number(r["JML"]||0),0);
-  const totalHarga = Number(d["TOTAL"]||0),
-        diskon = Number(d["DISCOUNT"]||0),
-        totalAfter = Number(d["TOTAL SETELAH DISCOUNT"]||0);
-
   document.querySelector("#orderTable tbody").innerHTML = `
     <tr>
       <td>${d["ARTIKEL UTAMA / SEASEON"]}</td>
-      <td>${formatNum(totalQty)}</td>
-      <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalHarga)}</span></div></td>
-      <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(diskon)}</span></div></td>
-      <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalAfter)}</span></div></td>
+      <td>${formatNum(d["QTY"])}</td>
+      <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["TOTAL"])}</span></div></td>
+      <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["DISCOUNT"])}</span></div></td>
+      <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["TOTAL SETELAH DISCOUNT"])}</span></div></td>
     </tr>`;
 }
 
