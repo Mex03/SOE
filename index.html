@@ -10,8 +10,8 @@
   table { width:100%; border-collapse:collapse; margin-top:10px; }
   th,td { border:1px solid #ddd; padding:8px; text-align:center; }
   th { background:#f0f8ff; }
-  .btn-container { display:flex; justify-content:center; gap:15px; margin-top:15px; }
-  .btn { background:#0275d8; color:#fff; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-size:14px; min-width:120px; }
+  .btn-container { display:flex; justify-content:center; gap:10px; margin-top:15px; }
+  .btn { background:#0275d8; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; }
   .btn:hover { background:#025aa5; }
   .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.3); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center; }
   .popup-card { background:#fff; padding:15px; border-radius:8px; width:420px; max-height:80vh; overflow-y:auto; box-shadow:0 2px 10px rgba(0,0,0,0.3); position:relative; }
@@ -47,7 +47,6 @@
     </thead>
     <tbody><tr><td colspan="5">Memuat data...</td></tr></tbody>
   </table>
-
   <div class="btn-container">
     <button class="btn" onclick="openInvoice()">List Pesanan</button>
     <button class="btn" onclick="openTracking()">Tracking</button>
@@ -83,10 +82,6 @@ const SPREADSHEET_ID = "1Aff2np0Q5vin7Obj3p51U3D5lJdsxNkAyx0bX3C8yjc";
 const SHEET_ORDER = "IPP";
 const SHEET_INVOICE = "LST_IPP";
 
-// AppSheet API
-const APPSHEET_API_URL = "https://api.appsheet.com/api/v2/apps/f9ea8b38-d0d6-4cb1-b8a3-716e048cc633/tables/Tracking/Action";
-const APPSHEET_KEY = "V2-WKh1n-l3Zod-daH2x-rvv8t-QAPmB-D8BWH-3LafJ-LkxyN";
-
 const idOrder = new URLSearchParams(window.location.search).get("id_order");
 let orderData = {};
 let cachedInvoice = [];
@@ -95,8 +90,7 @@ function formatDate(d){
   if(!d) return "-";
   const dt = new Date(d);
   if(isNaN(dt)) return d;
-  const options = { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' };
-  return dt.toLocaleDateString('id-ID', options);
+  return dt.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
 }
 
 function formatNum(n){
@@ -110,7 +104,7 @@ async function fetchGVizAsObjects(sheet, query){
   const text = await res.text();
   const json = text.replace(/^[^\{]+/,"").replace(/\);?$/,"");
   const data = JSON.parse(json).table;
-  const headers = data.cols.map(c => c.label);
+  const headers = data.cols.map(c => c.label.trim());
   return data.rows.map(row => {
     const obj = {};
     row.c.forEach((cell,i) => { obj[headers[i]] = cell ? cell.v : ""; });
@@ -120,9 +114,10 @@ async function fetchGVizAsObjects(sheet, query){
 
 async function loadData(){
   try{
-    // Ambil hanya kolom yang dibutuhkan
-    const orderTbl = await fetchGVizAsObjects(SHEET_ORDER,`select A,B,C,D,E,F,G where A='${idOrder}'`);
-    const invoiceTbl = await fetchGVizAsObjects(SHEET_INVOICE,`select E,F,G where E='${idOrder}'`);
+    // Ambil semua kolom supaya bebas posisi
+    const orderTbl = await fetchGVizAsObjects(SHEET_ORDER, `select * where A='${idOrder}'`);
+    const invoiceTbl = await fetchGVizAsObjects(SHEET_INVOICE, `select * where E='${idOrder}'`);
+
     if(!orderTbl.length) throw new Error("Data order tidak ditemukan.");
     orderData = orderTbl[0];
     cachedInvoice = invoiceTbl;
@@ -138,17 +133,17 @@ function renderOrder(){
   const d = orderData;
   document.getElementById("orderData").innerHTML = `
     <table class="info-table">
-      <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"]}</td></tr>
+      <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"] || "-"}</td></tr>
       <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDate(d["TANGGAL ORDER"])}</td></tr>
       <tr><td class="label">Deadline</td><td>:</td><td>${formatDate(d["DEADLINE"])}</td></tr>
-      <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"]}</td></tr>
-      <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"]}</td></tr>
+      <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"] || "-"}</td></tr>
+      <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"] || "-"}</td></tr>
     </table>`;
-    
+  
   document.querySelector("#orderTable tbody").innerHTML = `
     <tr>
-      <td>${d["ARTIKEL UTAMA / SEASEON"]}</td>
-      <td>${formatNum(d["QTY"])}</td>
+      <td>${d["ARTIKEL UTAMA / SEASEON"] || "-"}</td>
+      <td>${d["QTY"] || "-"}</td>
       <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["TOTAL"])}</span></div></td>
       <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["DISCOUNT"])}</span></div></td>
       <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["TOTAL SETELAH DISCOUNT"])}</span></div></td>
@@ -159,38 +154,14 @@ function openInvoice(){
   const tb = document.querySelector("#invoiceTable tbody");
   tb.innerHTML = "";
   cachedInvoice.forEach(r => {
-    tb.insertAdjacentHTML("beforeend",`<tr><td>${r["NAMA ARTIKEL"]}</td><td>${r["JML"]}</td><td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(r["TOTAL"])}</span></div></td></tr>`);
+    tb.insertAdjacentHTML("beforeend",`<tr><td>${r["NAMA ARTIKEL"]}</td><td>${r["JML"]||"-"}</td><td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(r["TOTAL"])}</span></div></td></tr>`);
   });
   document.getElementById("invoiceOverlay").style.display = "flex";
 }
+
 function closeInvoice(){ document.getElementById("invoiceOverlay").style.display = "none"; }
 
-async function openTracking(){
-  try{
-    const res = await fetch(APPSHEET_API_URL,{
-      method:"POST",
-      headers:{
-        "ApplicationAccessKey":APPSHEET_KEY,
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({Action:"Find",Properties:{},Rows:[{"ID ORDER":idOrder}]})
-    });
-    const data = await res.json();
-    updateTrackingUI(data);
-  }catch(err){ console.error("Gagal ambil tracking:",err); }
-  document.getElementById("trackingOverlay").style.display = "flex";
-}
-
-function updateTrackingUI(data){
-  ["step-dp","step-produksi","step-ambil"].forEach(id=>document.getElementById(id).classList.remove("done","active"));
-  ["line-1","line-2"].forEach(id=>document.getElementById(id).classList.remove("done","active"));
-  if(!data||!Array.isArray(data)||!data.length)return;
-  const t=data[0];
-  if(Number(t["TOTAL DP"]||0)>0){document.getElementById("step-dp").classList.add("done");document.getElementById("line-1").classList.add("active");}
-  if(t["STATUS PRODUKSI"]==="SELESAI"){document.getElementById("step-produksi").classList.add("done");document.getElementById("line-1").classList.add("done");document.getElementById("line-2").classList.add("active");}
-  if(t["TANGGAL PENGAMBILAN"]){document.getElementById("step-ambil").classList.add("done");document.getElementById("line-2").classList.add("done");}
-}
-
+function openTracking(){ document.getElementById("trackingOverlay").style.display = "flex"; }
 function closeTracking(){ document.getElementById("trackingOverlay").style.display = "none"; }
 function closeOverlay(e,id){ if(e.target.classList.contains("overlay")) document.getElementById(id).style.display = "none"; }
 
