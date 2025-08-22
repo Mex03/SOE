@@ -90,21 +90,27 @@ let cachedInvoice = [];
 function formatDate(d){ if(!d)return"-"; const dt=new Date(d); return isNaN(dt)?d:dt.toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"});}
 function formatNum(n){const num=typeof n==="string"?Number(n.replace(/[^\d.-]+/g,"")):n;return isNaN(num)?"-":new Intl.NumberFormat("id-ID").format(num);}
 
-async function fetchGViz(sheet, query){
+async function fetchGVizAsObjects(sheet, query){
   const url=`https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheet}&tq=${encodeURIComponent(query)}`;
   const res=await fetch(url);
   const text=await res.text();
   const json=text.replace(/^[^\{]+/,"").replace(/\);?$/,"");
-  return JSON.parse(json).table;
+  const data=JSON.parse(json).table;
+  const headers=data.cols.map(c=>c.label);
+  return data.rows.map(row=>{
+    const obj={};
+    row.c.forEach((cell,i)=>{obj[headers[i]]=cell?cell.v:"";});
+    return obj;
+  });
 }
 
 async function loadData(){
   try{
-    const orderTbl=await fetchGViz(SHEET_ORDER,`select * where A='${idOrder}'`);
-    const invoiceTbl=await fetchGViz(SHEET_INVOICE,`select * where E='${idOrder}'`);
-    if(!orderTbl.rows.length) throw new Error("Data order tidak ditemukan.");
-    orderData=orderTbl.rows[0].c.map(c=>c?c.v:"");
-    cachedInvoice=invoiceTbl.rows.map(r=>r.c.map(c=>c?c.v:""));
+    const orderTbl=await fetchGVizAsObjects(SHEET_ORDER,`select * where A='${idOrder}'`);
+    const invoiceTbl=await fetchGVizAsObjects(SHEET_INVOICE,`select * where E='${idOrder}'`);
+    if(!orderTbl.length) throw new Error("Data order tidak ditemukan.");
+    orderData=orderTbl[0];
+    cachedInvoice=invoiceTbl;
     renderOrder();
   }catch(err){
     console.error(err);
@@ -117,18 +123,18 @@ function renderOrder(){
   const d=orderData;
   document.getElementById("orderData").innerHTML=`
     <table class="info-table">
-      <tr><td class="label">ID Order</td><td>:</td><td>${d[0]}</td></tr>
-      <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDate(d[1])}</td></tr>
-      <tr><td class="label">Deadline</td><td>:</td><td>${formatDate(d[2])}</td></tr>
-      <tr><td class="label">Nama Customer</td><td>:</td><td>${d[4]}</td></tr>
-      <tr><td class="label">No. WhatsApp</td><td>:</td><td>${d[5]}</td></tr>
-      <tr><td class="label">Alamat</td><td>:</td><td>${d[6]}</td></tr>
+      <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"]}</td></tr>
+      <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDate(d["TANGGAL ORDER"])}</td></tr>
+      <tr><td class="label">Deadline</td><td>:</td><td>${formatDate(d["DEADLINE"])}</td></tr>
+      <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"]}</td></tr>
+      <tr><td class="label">No. WhatsApp</td><td>:</td><td>${d["NO WHATSAPP"]}</td></tr>
+      <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"]}</td></tr>
     </table>`;
-  const totalQty=cachedInvoice.reduce((s,r)=>s+Number(r[1]||0),0);
-  const totalHarga=Number(d[10]||0),diskon=Number(d[11]||0),totalAfter=Number(d[12]||0);
+  const totalQty=cachedInvoice.reduce((s,r)=>s+Number(r["JML"]||0),0);
+  const totalHarga=Number(d["TOTAL"]||0),diskon=Number(d["DISKON"]||0),totalAfter=Number(d["TOTAL SETELAH DISKON"]||0);
   document.querySelector("#orderTable tbody").innerHTML=`
     <tr>
-      <td>${d[8]}</td>
+      <td>${d["ARTIKEL UTAMA / SEASEON"]}</td>
       <td>${formatNum(totalQty)}</td>
       <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalHarga)}</span></div></td>
       <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(diskon)}</span></div></td>
@@ -140,7 +146,7 @@ function openInvoice(){
   const tb=document.querySelector("#invoiceTable tbody");
   tb.innerHTML="";
   cachedInvoice.forEach(r=>{
-    tb.insertAdjacentHTML("beforeend",`<tr><td>${r[6]}</td><td>${r[1]}</td><td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(r[2])}</span></div></td></tr>`);
+    tb.insertAdjacentHTML("beforeend",`<tr><td>${r["NAMA ARTIKEL"]}</td><td>${r["JML"]}</td><td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(r["TOTAL"])}</span></div></td></tr>`);
   });
   document.getElementById("invoiceOverlay").style.display="flex";
 }
