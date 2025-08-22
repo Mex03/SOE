@@ -187,7 +187,7 @@ async function openTracking(){
 
 function updateTrackingUI(data){
   if(!data || !data.length) return;
-  const status = data[0]["STATUS"];
+  const status = data[0]["STATUS REALTIME"];
   const steps = ["DP","Produksi","Sudah Diambil"];
   let activeIndex = steps.indexOf(status);
 
