@@ -104,6 +104,13 @@
     let orderData = {};
     let cachedInvoice = [];
 
+    function formatDateDDMMMMYYYY(dateStr) {
+      if (!dateStr) return "-";
+      const d = new Date(dateStr);
+      if (isNaN(d)) return dateStr;
+      return d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+    }
+    
     function formatDate(d) {
       if (!d) return "-";
       const t = new Date(d);
@@ -155,8 +162,8 @@
       const infoHTML = `
         <table class="info-table">
           <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"]}</td></tr>
-          <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDate(d["TANGGAL ORDER"])}</td></tr>
-          <tr><td class="label">Deadline</td><td>:</td><td>${formatDate(d["DEADLINE"])}</td></tr>
+          <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDateDDMMMMYYYY(d["TANGGAL ORDER"])}</td></tr>
+          <tr><td class="label">Deadline</td><td>:</td><td>${formatDateDDMMMMYYYY(d["DEADLINE"])}</td></tr>
           <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"]}</td></tr>
           <tr><td class="label">No. WhatsApp</td><td>:</td><td>${d["NO WHATSAPP"]}</td></tr>
           <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"]}</td></tr>
