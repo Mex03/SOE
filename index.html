@@ -2,38 +2,145 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Nota Order Dan Status</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nota Order Dan Status Order</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #0275d8; margin: 0; padding: 20px;
-           display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
-    .card { background: #fff; padding: 20px; border-radius: 12px; width: 100%; max-width: 650px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-    h2 { text-align: center; color: #0275d8; margin-top: 0; }
-    h3 { margin-top: 20px; margin-bottom: 8px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ddd; padding: 8px; font-size: 14px; }
-    th { background: #f0f8ff; text-align: center; }
-    td.money { padding: 6px; }
-    .money-wrap { display: flex; }
-    .money-wrap .rp { text-align: left; min-width: 25px; }
-    .money-wrap .nominal { flex: 1; text-align: right; }
-    .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-    .btn { flex: 1; background: #0275d8; color: #fff; border: none; padding: 10px;
-           border-radius: 6px; cursor: pointer; font-size: 15px; }
-    .btn:hover { background: #025aa5; }
-    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
-               backdrop-filter: blur(3px); z-index: 1000; align-items: center;
-               justify-content: center; padding: 10px; }
-    .popup-card { background: #fff; padding: 20px; border-radius: 10px; width: 100%;
-                  max-width: 500px; max-height: 85vh; overflow-y: auto;
-                  box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: relative; }
-    .popup-card table th, .popup-card table td { text-align: center; }
-    .close-btn { position: absolute; top: 10px; right: 12px; cursor: pointer;
-                 color: red; font-size: 20px; font-weight: bold; }
-    .info-table { width: 100%; border: none; margin-bottom: 10px; }
-    .info-table td { border: none; padding: 6px 4px; font-size: 14px; text-align: left; }
-    .info-table td.label { font-weight: bold; width: 140px; white-space: nowrap; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #0275d8;
+      margin: 0;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      margin: auto;
+      width: 600px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    h2 {
+      text-align: center;
+      color: #0275d8;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #f0f8ff;
+    }
+    .btn {
+      background: #0275d8;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 8px 4px 0 0;
+    }
+    .btn:hover {
+      background: #025aa5;
+    }
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .popup-card {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      width: 420px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      position: relative;
+      animation: fadeIn 0.3s ease;
+    }
+    .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      cursor: pointer;
+      color: red;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    td.money { padding: 4px 6px }
+    .money-wrap {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+    }
+    .money-wrap .rp { min-width: 28px; text-align: left }
+    .money-wrap .nominal { flex: 1; text-align: right }
+    .info-table { width: 100%; border: none; margin-bottom: 15px; }
+    .info-table td { border: none; padding: 4px 6px; text-align: left; }
+    .info-table td.label { font-weight: bold; width: 150px; white-space: nowrap; }
+    .info-table td.sep { width: 10px; text-align: center; }
+
+    /* === Timeline Tracking === */
+    .tracking-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 30px auto;
+      max-width: 360px;
+    }
+    .step {
+      text-align: center;
+      flex: 1;
+      position: relative;
+    }
+    .circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #ccc;
+      margin: auto;
+      transition: all 0.4s ease;
+      box-shadow: 0 0 6px rgba(0,0,0,0.2);
+    }
+    .label {
+      margin-top: 6px;
+      font-size: 13px;
+    }
+    .line {
+      flex: 1;
+      height: 3px;
+      background: #ccc;
+      margin: 0 4px;
+      transition: background 0.4s ease;
+    }
+    .step.active .circle {
+      background: #0275d8;
+      transform: scale(1.15);
+    }
+    .step.done .circle {
+      background: green;
+    }
+    .line.active {
+      background: #0275d8;
+    }
+    .line.done {
+      background: green;
+    }
   </style>
 </head>
 <body>
@@ -45,172 +152,203 @@
     <table id="orderTable">
       <thead>
         <tr>
-          <th>Artikel</th><th>Qty</th><th>Total</th><th>Diskon</th><th>Total Setelah Diskon</th>
+          <th>Artikel</th>
+          <th>Qty</th>
+          <th>Total</th>
+          <th>Diskon</th>
+          <th>Total Setelah Diskon</th>
         </tr>
       </thead>
-      <tbody><tr><td colspan="5">Memuat data...</td></tr></tbody>
+      <tbody>
+        <tr><td colspan="5">Memuat data...</td></tr>
+      </tbody>
     </table>
 
-    <div class="btn-group">
-      <button class="btn" onclick="openInvoice()">📄 List Pesanan</button>
-      <button class="btn" onclick="openTracking()">📍 Tracking</button>
-    </div>
+    <button class="btn" onclick="openInvoice()">List Pesanan</button>
+    <button class="btn" onclick="openTracking()">Tracking</button>
   </div>
 
-  <!-- Invoice Popup -->
-  <div class="overlay" id="invoiceOverlay" onclick="closeOverlay(event,'invoiceOverlay')">
+  <!-- Overlay + Invoice Popup -->
+  <div class="overlay" id="invoiceOverlay" onclick="closeOverlay(event, 'invoiceOverlay')">
     <div class="popup-card">
       <span class="close-btn" onclick="closeInvoice()">✖</span>
       <h3 style="text-align:center; color:#0275d8;">List Pesanan</h3>
       <table id="invoiceTable">
-        <thead><tr><th>Nama Artikel</th><th>Qty</th><th>Total Harga</th></tr></thead>
-        <tbody><tr><td colspan="3">Memuat data...</td></tr></tbody>
+        <thead>
+          <tr>
+            <th>Nama Artikel</th>
+            <th>Qty</th>
+            <th>Total Harga</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="3">Memuat data...</td></tr>
+        </tbody>
       </table>
     </div>
   </div>
 
-  <!-- Tracking Popup -->
-  <div class="overlay" id="trackingOverlay" onclick="closeOverlay(event,'trackingOverlay')">
+  <!-- Overlay + Tracking Popup -->
+  <div class="overlay" id="trackingOverlay" onclick="closeOverlay(event, 'trackingOverlay')">
     <div class="popup-card">
       <span class="close-btn" onclick="closeTracking()">✖</span>
       <h3 style="text-align:center; color:#0275d8;">Tracking Pesanan</h3>
-      <table id="trackingTable">
-        <thead><tr><th>Tanggal</th><th>Status</th><th>Keterangan</th></tr></thead>
-        <tbody><tr><td colspan="3">Memuat data...</td></tr></tbody>
-      </table>
+
+      <div class="tracking-container">
+        <div class="step" id="step-dp">
+          <div class="circle"></div>
+          <div class="label">DP</div>
+        </div>
+        <div class="line" id="line-1"></div>
+        <div class="step" id="step-produksi">
+          <div class="circle"></div>
+          <div class="label">Produksi</div>
+        </div>
+        <div class="line" id="line-2"></div>
+        <div class="step" id="step-ambil">
+          <div class="circle"></div>
+          <div class="label">Sudah Diambil</div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    const SPREADSHEET_ID = "1Aff2np0Q5vin7Obj3p51U3D5lJdsxNkAyx0bX3C8yjc";
-    const SHEET_ORDER = "IPP";
-    const SHEET_INVOICE = "LST_IPP";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbz7nFoLuaZF_Hxrmc67O9uj8nD0MSwcUaYchak59O9WteSe2KIGlIaQfWJ0y8ldcRWL/exec";
 
-    const idOrder = new URLSearchParams(window.location.search).get("id_order");
-    let orderData = {}, cachedInvoice = [];
+    const urlParams = new URLSearchParams(window.location.search);
+    const idOrder = urlParams.get("id_order");
 
-    async function fetchGViz(sheet, query) {
-      const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheet}&tq=${encodeURIComponent(query)}`;
-      const res = await fetch(url);
-      const text = await res.text();
-      const jsonText = text.replace(/^[^{]+/,"").replace(/\);?$/,"");
-      return JSON.parse(jsonText).table;
+    let cachedInvoice = [];
+    let orderData = {};
+
+    function formatDateDDMMMMYYYY(dateStr) {
+      if (!dateStr) return "-";
+      const d = new Date(dateStr);
+      if (isNaN(d)) return dateStr;
+      return d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+    }
+    function formatNum(n) {
+      if (n === undefined || n === null || n === "") return "-";
+      const num = typeof n === "string" ? Number(n.replace(/[^\d.-]+/g, "")) : n;
+      return isNaN(num) ? n : new Intl.NumberFormat("id-ID").format(num);
     }
 
-    function mapToObjects(table) {
-      const headers = table.cols.map(c => (c.label || "").trim());
-      return table.rows.map(r => {
-        const obj = {};
-        headers.forEach((h,i) => obj[h] = r.c[i] ? r.c[i].v : "");
-        return obj;
-      });
-    }
-
-    async function loadData() {
+    async function loadOrderAndInvoice() {
       try {
-        const orderTable = await fetchGViz(SHEET_ORDER, `select * where A='${idOrder}'`);
-        const invoiceTable = await fetchGViz(SHEET_INVOICE, `select * where E='${idOrder}'`);
-        const orders = mapToObjects(orderTable);
-        const invoices = mapToObjects(invoiceTable);
+        const res = await fetch(`${GAS_URL}?id_order=${idOrder}`);
+        const data = await res.json();
 
-        if (!orders.length) throw new Error("Order tidak ditemukan");
+        orderData = (Array.isArray(data.order) && data.order.length > 0) ? data.order[0] : {};
+        cachedInvoice = data.invoice || [];
 
-        orderData = orders[0];
-        cachedInvoice = invoices;
-        renderOrder();
+        renderOrder(orderData);
       } catch (err) {
-        document.getElementById("orderData").innerHTML = `<span style="color:red;">Data tidak ditemukan</span>`;
+        console.error("Gagal memuat data:", err);
+        document.getElementById("orderData").innerHTML = "❌ Terjadi kesalahan.";
       }
     }
 
-    function formatNum(n){ return (Number(n)||0).toLocaleString("id-ID"); }
+    function renderOrder(order) {
+      if (!order || Object.keys(order).length === 0) {
+        document.querySelector("#orderTable tbody").innerHTML = `<tr><td colspan="5">❌ Data order tidak ditemukan.</td></tr>`;
+        document.getElementById("orderData").innerHTML = "❌ Data order tidak ditemukan.";
+        return;
+      }
 
-    function renderOrder() {
-      const d = orderData;
       document.getElementById("orderData").innerHTML = `
         <table class="info-table">
-          <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"]}</td></tr>
-          <tr><td class="label">Tanggal Order</td><td>:</td><td>${d["TANGGAL ORDER"]}</td></tr>
-          <tr><td class="label">Deadline</td><td>:</td><td>${d["DEADLINE"]}</td></tr>
-          <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"]}</td></tr>
-          <tr><td class="label">No. WhatsApp</td><td>:</td><td>${d["NO WHATSAPP"]}</td></tr>
-          <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"]}</td></tr>
-        </table>`;
+          <tr><td class="label">ID Order</td><td class="sep">:</td><td>${order["ID ORDER"] || "-"}</td></tr>
+          <tr><td class="label">Tanggal Order</td><td class="sep">:</td><td>${formatDateDDMMMMYYYY(order["TANGGAL ORDER"])}</td></tr>
+          <tr><td class="label">Deadline</td><td class="sep">:</td><td>${formatDateDDMMMMYYYY(order["DEADLINE"])}</td></tr>
+          <tr><td class="label">Nama Customer</td><td class="sep">:</td><td>${order["NAMA CUSTOMER"] || "-"}</td></tr>
+          <tr><td class="label">No. WhatsApp</td><td class="sep">:</td><td>${order["NO WHATSAPP"] || "-"}</td></tr>
+          <tr><td class="label">Alamat</td><td class="sep">:</td><td>${order["ALAMAT"] || "-"}</td></tr>
+        </table>
+      `;
 
-      document.querySelector("#orderTable tbody").innerHTML = `
+      // --- Rekap Pesanan dihitung dari invoice langsung ---
+      let totalQty = cachedInvoice.reduce((sum, i) => sum + Number(i["JML"] || 0), 0);
+      let totalHarga = cachedInvoice.reduce((sum, i) => sum + Number(i["TOTAL"] || 0), 0);
+      let diskon = Number(order["DISKON"] || 0);
+      let totalSetelahDiskon = totalHarga - diskon;
+
+      const tbody = document.querySelector("#orderTable tbody");
+      tbody.innerHTML = `
         <tr>
-          <td>${d["Artikel Utama / Seaseon"]||"-"}</td>
-          <td style="text-align:center">${cachedInvoice.reduce((s,r)=> s+(+r["Jml"]||0),0)}</td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["TOTAL"])}</span></div></td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["DISCOUNT"])}</span></div></td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["TOTAL SETELAH DISCOUNT"])}</span></div></td>
+          <td>${order["ARTIKEL UTAMA / SEASEON"] || "-"}</td>
+          <td>${formatNum(totalQty)}</td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalHarga)}</span></div></td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(diskon)}</span></div></td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalSetelahDiskon)}</span></div></td>
         </tr>`;
     }
 
     function openInvoice() {
-      const tbody = document.querySelector("#invoiceTable tbody");
-      tbody.innerHTML = "";
-      if (cachedInvoice.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3">Tidak ada data</td></tr>`;
-      } else {
-        cachedInvoice.forEach(r=>{
-          tbody.insertAdjacentHTML("beforeend",`
+      const tbodyInvoice = document.querySelector("#invoiceTable tbody");
+      tbodyInvoice.innerHTML = "";
+
+      if (cachedInvoice.length > 0) {
+        cachedInvoice.forEach(item => {
+          tbodyInvoice.insertAdjacentHTML("beforeend", `
             <tr>
-              <td>${r["Nama Artikel"]}</td>
-              <td>${r["Jml"]}</td>
-              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(r["Total"])}</span></div></td>
+              <td>${item["NAMA ARTIKEL"] || "-"}</td>
+              <td>${item["JML"] || 0}</td>
+              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(item["TOTAL"] || 0)}</span></div></td>
             </tr>`);
         });
+      } else {
+        tbodyInvoice.innerHTML = `<tr><td colspan="3">Tidak ada data invoice</td></tr>`;
       }
-      document.getElementById("invoiceOverlay").style.display="flex";
+      document.getElementById("invoiceOverlay").style.display = "flex";
     }
-    function closeInvoice(){ document.getElementById("invoiceOverlay").style.display="none"; }
+    function closeInvoice() { document.getElementById("invoiceOverlay").style.display = "none"; }
 
-    // Tracking dari API AppSheet
-    async function openTracking() {
-      const tbody = document.querySelector("#trackingTable tbody");
-      tbody.innerHTML = `<tr><td colspan="3">Memuat data...</td></tr>`;
-
-      try {
-        const url = "https://api.appsheet.com/api/v2/apps/f9ea8b38-d0d6-4cb1-b8a3-716e048cc633/tables/Tracking/Action";
-        const res = await fetch(url, {
-          method: "POST",
-          headers: {
-            "ApplicationAccessKey": "V2-WKh1n-l3Zod-daH2x-rvv8t-QAPmB-D8BWH-3LafJ-LkxyN",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            "Action": "Find",
-            "Properties": {},
-            "Rows": [ { "ID Order": idOrder } ]
-          })
-        });
-        const data = await res.json();
-        console.log("Tracking:", data);
-
-        tbody.innerHTML = "";
-        if (!data.length) {
-          tbody.innerHTML = `<tr><td colspan="3">Belum ada data tracking</td></tr>`;
-        } else {
-          data.forEach(row=>{
-            tbody.insertAdjacentHTML("beforeend",`
-              <tr>
-                <td>${row.Tanggal || "-"}</td>
-                <td>${row.Status || "-"}</td>
-                <td>${row.Keterangan || "-"}</td>
-              </tr>`);
-          });
-        }
-      } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="3" style="color:red">Gagal ambil data</td></tr>`;
+    function openTracking() {
+      if (!orderData || Object.keys(orderData).length === 0) {
+        document.querySelector("#step-dp").classList.remove("done","active");
+        document.querySelector("#step-produksi").classList.remove("done","active");
+        document.querySelector("#step-ambil").classList.remove("done","active");
+        return;
       }
 
-      document.getElementById("trackingOverlay").style.display="flex";
-    }
-    function closeTracking(){ document.getElementById("trackingOverlay").style.display="none"; }
-    function closeOverlay(e,id){ if(e.target.classList.contains("overlay")) document.getElementById(id).style.display="none"; }
+      const dp = Number(orderData["TOTAL DP"] || 0);
+      const statusProd = orderData["STATUS PRODUKSI"];
+      const tanggalAmbil = orderData["TANGGAL PENGAMBILAN"];
 
-    loadData();
+      // Reset semua step
+      ["step-dp","step-produksi","step-ambil"].forEach(id => {
+        document.getElementById(id).classList.remove("active","done");
+      });
+      ["line-1","line-2"].forEach(id => {
+        document.getElementById(id).classList.remove("active","done");
+      });
+
+      if (dp > 0) {
+        document.getElementById("step-dp").classList.add("done");
+        document.getElementById("line-1").classList.add("active");
+      }
+      if (statusProd === "SELESAI") {
+        document.getElementById("step-produksi").classList.add("done");
+        document.getElementById("line-1").classList.add("done");
+        document.getElementById("line-2").classList.add("active");
+      }
+      if (tanggalAmbil) {
+        document.getElementById("step-ambil").classList.add("done");
+        document.getElementById("line-2").classList.add("done");
+      }
+
+      document.getElementById("trackingOverlay").style.display = "flex";
+    }
+    function closeTracking() { document.getElementById("trackingOverlay").style.display = "none"; }
+
+    function closeOverlay(event, id) {
+      if (event.target.classList.contains("overlay")) {
+        document.getElementById(id).style.display = "none";
+      }
+    }
+
+    loadOrderAndInvoice();
   </script>
 </body>
 </html>
