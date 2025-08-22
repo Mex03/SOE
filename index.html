@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Nota Order</title>
+  <title>Nota & Status Order</title>
   <style>
     body { font-family: Arial, sans-serif; background: #0275d8; margin: 0; padding: 20px; }
     .card { background: #fff; padding: 20px; border-radius: 8px; margin: auto; width: 600px;
@@ -170,7 +170,6 @@
 
     function renderOrder() {
       const d = orderData;
-      const noWa = d["NO WHATSAPP"] || "-";
 
       const infoHTML = `
         <table class="info-table">
@@ -178,7 +177,7 @@
           <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDateFull(d["TANGGAL ORDER"])}</td></tr>
           <tr><td class="label">Deadline</td><td>:</td><td>${formatDateFull(d["DEADLINE"])}</td></tr>
           <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"]}</td></tr>
-          <tr><td class="label">No. WhatsApp</td><td>:</td><td>${noWa}</td></tr>
+          <tr><td class="label">No. WhatsApp</td><td>:</td><td>${d["NO WHATSAPP"]}</td></tr>
           <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"]}</td></tr>
         </table>`;
       document.getElementById("orderData").innerHTML = infoHTML;
