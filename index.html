@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Nota Order</title>
+  <title>Nota Dan Status Order</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { 
@@ -26,98 +26,39 @@
     h2 { text-align: center; color: #0275d8; margin-top: 0; }
     h3 { margin-top: 20px; margin-bottom: 8px; }
 
-    table { 
-      width: 100%; 
-      border-collapse: collapse; 
-      margin-top: 10px; 
-    }
-    th, td { 
-      border: 1px solid #ddd; 
-      padding: 10px; 
-      font-size: 14px; 
-      vertical-align: middle;
-    }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 8px; font-size: 14px; }
     th { background: #f0f8ff; text-align: center; }
-    td { text-align: left; }
-    td.center { text-align: center; }
+
     td.money { padding: 6px; }
-    .money-wrap { display: flex; }
-    .money-wrap .rp { text-align: left; min-width: 28px; }
+    .money-wrap { display: flex; gap: 4px; align-items: center; }
+    .money-wrap .rp { min-width: 28px; text-align: left; }
     .money-wrap .nominal { flex: 1; text-align: right; }
 
-    .btn-container { display: flex; gap: 10px; margin-top: 12px; }
-    .btn { 
-      flex: 1;
-      background: #0275d8; 
-      color: #fff; 
-      border: none; 
-      padding: 10px; 
-      border-radius: 6px; 
-      cursor: pointer; 
-      font-size: 15px; 
-    }
+    .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+    .btn { flex: 1; background: #0275d8; color: #fff; border: none; padding: 10px;
+           border-radius: 6px; cursor: pointer; font-size: 15px; }
     .btn:hover { background: #025aa5; }
 
-    .overlay { 
-      display: none; 
-      position: fixed; 
-      inset: 0; 
-      background: rgba(0, 0, 0, 0.4); 
-      backdrop-filter: blur(3px); 
-      z-index: 1000; 
-      align-items: center; 
-      justify-content: center; 
-      padding: 10px;
-    }
-    .popup-card { 
-      background: #fff; 
-      padding: 20px; 
-      border-radius: 10px; 
-      width: 100%; 
-      max-width: 420px; 
-      max-height: 85vh; 
-      overflow-y: auto; 
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
-      position: relative; 
-      animation: fadeIn 0.3s ease; 
-    }
-    .popup-card table th, 
-    .popup-card table td { text-align: center; }
-
-    .close-btn { 
-      position: absolute; 
-      top: 10px; 
-      right: 12px; 
-      cursor: pointer; 
-      color: red; 
-      font-size: 20px; 
-      font-weight: bold; 
-    }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4);
+               backdrop-filter: blur(3px); z-index: 1000; align-items: center; 
+               justify-content: center; padding: 10px; }
+    .popup-card { background: #fff; padding: 20px; border-radius: 10px; width: 100%; 
+                  max-width: 420px; max-height: 85vh; overflow-y: auto;
+                  box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: relative; }
+    .popup-card table th, .popup-card table td { text-align: center; }
+    .close-btn { position: absolute; top: 10px; right: 12px; cursor: pointer;
+                 color: red; font-size: 20px; font-weight: bold; }
 
     .info-table { width: 100%; border: none; margin-bottom: 10px; }
     .info-table td { border: none; padding: 6px 4px; font-size: 14px; text-align: left; }
     .info-table td.label { font-weight: bold; width: 140px; white-space: nowrap; }
 
-    /* Tracking timeline */
-    .tracking-container { display: flex; justify-content: space-between; align-items: center;
-                          margin: 30px auto; max-width: 320px; }
-    .step { text-align: center; flex: 1; position: relative; }
-    .circle { width: 26px; height: 26px; border-radius: 50%; background: #ccc;
-              margin: auto; transition: all 0.4s ease; box-shadow: 0 0 6px rgba(0,0,0,0.2); }
-    .label { margin-top: 6px; font-size: 13px; }
-    .line { flex: 1; height: 3px; background: #ccc; margin: 0 4px; transition: background 0.4s ease; }
-    .step.done .circle { background: green; transform: scale(1.1); }
-    .step.active .circle { background: #0275d8; transform: scale(1.1); }
-    .line.done { background: green; }
-    .line.active { background: #0275d8; }
-
-    /* RESPONSIVE */
     @media (max-width: 480px) {
       body { padding: 10px; }
       .card { padding: 15px; }
       h2 { font-size: 18px; }
-      th, td { font-size: 12px; padding: 8px; }
+      th, td { font-size: 12px; padding: 6px; }
       .btn { font-size: 14px; padding: 8px; }
     }
   </style>
@@ -137,7 +78,7 @@
       <tbody><tr><td colspan="5">Memuat data...</td></tr></tbody>
     </table>
 
-    <div class="btn-container">
+    <div class="btn-group">
       <button class="btn" onclick="openInvoice()">📄 List Pesanan</button>
       <button class="btn" onclick="openTracking()">📍 Tracking</button>
     </div>
@@ -155,60 +96,13 @@
     </div>
   </div>
 
-  <!-- Tracking Popup -->
-  <div class="overlay" id="trackingOverlay" onclick="closeOverlay(event,'trackingOverlay')">
-    <div class="popup-card">
-      <span class="close-btn" onclick="closeTracking()">✖</span>
-      <h3 style="text-align:center; color:#0275d8;">Tracking Pesanan</h3>
-      <div class="tracking-container">
-        <div class="step" id="step-dp"><div class="circle"></div><div class="label">DP</div></div>
-        <div class="line" id="line-1"></div>
-        <div class="step" id="step-produksi"><div class="circle"></div><div class="label">Produksi</div></div>
-        <div class="line" id="line-2"></div>
-        <div class="step" id="step-ambil"><div class="circle"></div><div class="label">Sudah Diambil</div></div>
-      </div>
-    </div>
-  </div>
-
   <script>
-    // ==== KONFIGURASI ====
-    const APP_ID = "f9ea8b38-d0d6-4cb1-b8a3-716e048cc633";
-    const ACCESS_KEY = "V2-WKh1n-l3Zod-daH2x-rvv8t-QAPmB-D8BWH-3LafJ-LkxyN";
     const SPREADSHEET_ID = "1Aff2np0Q5vin7Obj3p51U3D5lJdsxNkAyx0bX3C8yjc";
     const SHEET_ORDER = "IPP";
     const SHEET_INVOICE = "LST_IPP";
 
     const idOrder = new URLSearchParams(window.location.search).get("id_order");
-
-    let orderData = {};
-    let cachedInvoice = [];
-
-    // parsing Date(YYYY,MM,DD)
-    function parseGVizDate(value) {
-      if (!value) return null;
-      if (typeof value === "string") {
-        const match = value.match(/Date\((\d+),(\d+),(\d+)\)/);
-        if (match) {
-          return new Date(parseInt(match[1]), parseInt(match[2]), parseInt(match[3]));
-        }
-        return new Date(value);
-      }
-      return new Date(value);
-    }
-
-    function formatDateFull(value) {
-      const d = parseGVizDate(value);
-      if (!d || isNaN(d)) return "-";
-      return d.toLocaleDateString("id-ID", {
-        weekday: "long", day: "2-digit", month: "long", year: "numeric"
-      });
-    }
-
-    function formatNum(n) {
-      const num = typeof n==="string" ? Number(n.replace(/[^\d.-]+/g,"")) : n;
-      return isNaN(num) ? "0" : new Intl.NumberFormat("id-ID").format(num);
-    }
-    function numOrZero(v) { return isNaN(Number(v)) ? 0 : Number(v); }
+    let orderData = {}, cachedInvoice = [];
 
     async function fetchGViz(sheet, query) {
       const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheet}&tq=${encodeURIComponent(query)}`;
@@ -219,11 +113,11 @@
     }
 
     function mapToObjects(table) {
-      const headers = table.cols.map(c => c.label.trim().toUpperCase());
+      const headers = table.cols.map(c => (c.label || "").trim());
+      console.log("HEADER DARI SHEET:", headers); // debug di console
       return table.rows.map(r => {
         const obj = {};
-        headers.forEach((h,i) => obj[h] = r.c[i] ? r.c[i].v : "";
-        );
+        headers.forEach((h,i) => obj[h] = r.c[i] ? r.c[i].v : "");
         return obj;
       });
     }
@@ -239,42 +133,39 @@
 
         orderData = orders[0];
         cachedInvoice = invoices;
-
         renderOrder();
       } catch (err) {
-        console.error("❌ Error:", err);
         document.getElementById("orderData").innerHTML = `<span style="color:red;">Data tidak ditemukan</span>`;
       }
     }
 
     function renderOrder() {
       const d = orderData;
-      const noWa = d["NO WHATSAPP"] || "-";
+      const noWa = d["No. WhatsApp"] || "-";
       const waLink = noWa !== "-" ? `<a href="https://wa.me/${noWa.replace(/[^0-9]/g,'')}" target="_blank">${noWa}</a>` : "-";
 
-      const infoHTML = `
+      document.getElementById("orderData").innerHTML = `
         <table class="info-table">
-          <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"]}</td></tr>
-          <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDateFull(d["TANGGAL ORDER"])}</td></tr>
-          <tr><td class="label">Deadline</td><td>:</td><td>${formatDateFull(d["DEADLINE"])}</td></tr>
-          <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"]}</td></tr>
+          <tr><td class="label">ID Order</td><td>:</td><td>${d["ID Order"]}</td></tr>
+          <tr><td class="label">Tanggal Order</td><td>:</td><td>${d["Tanggal Order"]}</td></tr>
+          <tr><td class="label">Deadline</td><td>:</td><td>${d["Deadline"]}</td></tr>
+          <tr><td class="label">Nama Customer</td><td>:</td><td>${d["Nama Customer"]}</td></tr>
           <tr><td class="label">No. WhatsApp</td><td>:</td><td>${waLink}</td></tr>
-          <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"]}</td></tr>
+          <tr><td class="label">Alamat</td><td>:</td><td>${d["Alamat"]}</td></tr>
         </table>`;
-      document.getElementById("orderData").innerHTML = infoHTML;
 
-      const totalQty = cachedInvoice.reduce((sum,r)=> sum+numOrZero(r["JML"]),0);
-      const totalHarga = numOrZero(d["TOTAL"]);
-      const diskon = numOrZero(d["DISCOUNT"]);
-      const totalSetelahDiskon = numOrZero(d["TOTAL SETELAH DISCOUNT"]);
+      const totalQty = cachedInvoice.reduce((s,r)=> s+(+r["Jml"]||0),0);
+      const totalHarga = +d["Total"]||0;
+      const diskon = +d["Discount"]||0;
+      const totalSetelahDiskon = +d["Total Setelah Discount"]||0;
 
       document.querySelector("#orderTable tbody").innerHTML = `
         <tr>
-          <td>${d["ARTIKEL UTAMA / SEASEON"]}</td>
-          <td class="center">${formatNum(totalQty)}</td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalHarga)}</span></div></td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(diskon)}</span></div></td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalSetelahDiskon)}</span></div></td>
+          <td>${d["Artikel Utama / Seaseon"]||"-"}</td>
+          <td style="text-align:center">${totalQty}</td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${totalHarga.toLocaleString("id-ID")}</span></div></td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${diskon.toLocaleString("id-ID")}</span></div></td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${totalSetelahDiskon.toLocaleString("id-ID")}</span></div></td>
         </tr>`;
     }
 
@@ -287,55 +178,15 @@
         cachedInvoice.forEach(r=>{
           tbody.insertAdjacentHTML("beforeend",`
             <tr>
-              <td>${r["NAMA ARTIKEL"]}</td>
-              <td class="center">${r["JML"]}</td>
-              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(r["TOTAL"])}</span></div></td>
+              <td>${r["Nama Artikel"]}</td>
+              <td>${r["Jml"]}</td>
+              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${(+r["Total"]||0).toLocaleString("id-ID")}</span></div></td>
             </tr>`);
         });
       }
       document.getElementById("invoiceOverlay").style.display="flex";
     }
     function closeInvoice(){ document.getElementById("invoiceOverlay").style.display="none"; }
-
-    // tracking dari AppSheet API
-    async function fetchTracking() {
-      const url = `https://api.appsheet.com/api/v2/apps/${APP_ID}/tables/IPP/Action`;
-      const payload = { Action:"Find", Properties:{}, Rows:[{"ID ORDER":idOrder}] };
-      const res = await fetch(url,{
-        method:"POST",
-        headers:{"ApplicationAccessKey":ACCESS_KEY,"Content-Type":"application/json"},
-        body:JSON.stringify(payload)
-      });
-      const data = await res.json();
-      return data.length? data[0]: null;
-    }
-
-    function resetTrackingSteps() {
-      ["step-dp","step-produksi","step-ambil"].forEach(id=>{
-        document.getElementById(id).classList.remove("done","active");
-      });
-      ["line-1","line-2"].forEach(id=>{
-        document.getElementById(id).classList.remove("done","active");
-      });
-    }
-
-    function openTracking() {
-      resetTrackingSteps();
-      fetchTracking().then(track=>{
-        if (!track) return;
-        if (Number(track["TOTAL DP"]||0)>0) document.getElementById("step-dp").classList.add("done");
-        if (track["STATUS PRODUKSI"]==="SELESAI") {
-          document.getElementById("step-produksi").classList.add("done");
-          document.getElementById("line-1").classList.add("done");
-        }
-        if (track["TANGGAL PENGAMBILAN"]) {
-          document.getElementById("step-ambil").classList.add("done");
-          document.getElementById("line-2").classList.add("done");
-        }
-        document.getElementById("trackingOverlay").style.display="flex";
-      });
-    }
-    function closeTracking(){ document.getElementById("trackingOverlay").style.display="none"; }
 
     function closeOverlay(e,id){ if(e.target.classList.contains("overlay")) document.getElementById(id).style.display="none"; }
 
