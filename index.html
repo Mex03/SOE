@@ -2,33 +2,33 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Nota & Status Order</title>
+  <title>Nota Order</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { font-family: Arial, sans-serif; background: #0275d8; margin: 0; padding: 20px; }
-    .card { background: #fff; padding: 20px; border-radius: 8px; margin: auto; width: 600px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+    .card { background: #fff; padding: 20px; border-radius: 8px; margin: auto; width: 100%;
+            max-width: 600px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
     h2 { text-align: center; color: #0275d8; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; font-size: 14px; }
     th { background: #f0f8ff; }
     .btn { background: #0275d8; color: #fff; border: none; padding: 6px 12px;
-           border-radius: 4px; cursor: pointer; margin: 8px 4px 0 0; }
+           border-radius: 4px; cursor: pointer; margin: 8px 4px 0 0; font-size: 14px; }
     .btn:hover { background: #025aa5; }
     .overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.3);
-               backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center; }
-    .popup-card { background: #fff; padding: 15px; border-radius: 8px; width: 420px;
+               backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center; padding: 10px; }
+    .popup-card { background: #fff; padding: 15px; border-radius: 8px; width: 100%; max-width: 420px;
                   max-height: 80vh; overflow-y: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
                   position: relative; animation: fadeIn 0.3s ease; }
     .close-btn { position: absolute; top: 8px; right: 10px; cursor: pointer;
                  color: red; font-size: 18px; font-weight: bold; }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); }
-                        to { opacity: 1; transform: scale(1); } }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
     td.money { padding: 4px 6px }
     .money-wrap { display: flex; gap: 8px; align-items: center; width: 100%; }
     .money-wrap .rp { min-width: 28px; text-align: left }
     .money-wrap .nominal { flex: 1; text-align: right }
     .info-table { width: 100%; border: none; margin-bottom: 15px; }
-    .info-table td { border: none; padding: 4px 6px; text-align: left; }
+    .info-table td { border: none; padding: 4px 6px; text-align: left; font-size: 14px; }
     .info-table td.label { font-weight: bold; width: 150px; white-space: nowrap; }
 
     /* tracking timeline */
@@ -43,6 +43,23 @@
     .step.active .circle { background: #0275d8; transform: scale(1.1); }
     .line.done { background: green; }
     .line.active { background: #0275d8; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      body { padding: 10px; }
+      .card { padding: 15px; }
+      th, td { font-size: 12px; padding: 6px; }
+      .btn { padding: 5px 10px; font-size: 12px; }
+      .info-table td { font-size: 12px; }
+    }
+    @media (max-width: 480px) {
+      .card { padding: 12px; }
+      h2 { font-size: 18px; }
+      table { font-size: 12px; display: block; overflow-x: auto; }
+      th, td { white-space: nowrap; }
+      .btn { width: 100%; margin: 5px 0; }
+      .popup-card { width: 100%; max-width: 95%; }
+    }
   </style>
 </head>
 <body>
@@ -109,9 +126,7 @@
       if (!value) return null;
       if (typeof value === "string") {
         const match = value.match(/Date\((\d+),(\d+),(\d+)\)/);
-        if (match) {
-          return new Date(parseInt(match[1]), parseInt(match[2]), parseInt(match[3]));
-        }
+        if (match) return new Date(parseInt(match[1]), parseInt(match[2]), parseInt(match[3]));
         return new Date(value);
       }
       return new Date(value);
@@ -121,9 +136,7 @@
     function formatDateFull(value) {
       const d = parseGVizDate(value);
       if (!d || isNaN(d)) return "-";
-      return d.toLocaleDateString("id-ID", {
-        weekday: "long", day: "2-digit", month: "long", year: "numeric"
-      });
+      return d.toLocaleDateString("id-ID", { weekday:"long", day:"2-digit", month:"long", year:"numeric" });
     }
 
     function formatNum(n) {
@@ -160,7 +173,6 @@
 
         orderData = orders[0];
         cachedInvoice = invoices;
-
         renderOrder();
       } catch (err) {
         console.error("❌ Error:", err);
@@ -170,14 +182,14 @@
 
     function renderOrder() {
       const d = orderData;
-
+      const noWa = d["NO WHATSAPP"] || "-";
       const infoHTML = `
         <table class="info-table">
           <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"]}</td></tr>
           <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDateFull(d["TANGGAL ORDER"])}</td></tr>
           <tr><td class="label">Deadline</td><td>:</td><td>${formatDateFull(d["DEADLINE"])}</td></tr>
           <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"]}</td></tr>
-          <tr><td class="label">No. WhatsApp</td><td>:</td><td>${d["NO WHATSAPP"]}</td></tr>
+          <tr><td class="label">No. WhatsApp</td><td>:</td><td>${noWa}</td></tr>
           <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"]}</td></tr>
         </table>`;
       document.getElementById("orderData").innerHTML = infoHTML;
@@ -230,12 +242,8 @@
     }
 
     function resetTrackingSteps() {
-      ["step-dp","step-produksi","step-ambil"].forEach(id=>{
-        document.getElementById(id).classList.remove("done","active");
-      });
-      ["line-1","line-2"].forEach(id=>{
-        document.getElementById(id).classList.remove("done","active");
-      });
+      ["step-dp","step-produksi","step-ambil"].forEach(id=>document.getElementById(id).classList.remove("done","active"));
+      ["line-1","line-2"].forEach(id=>document.getElementById(id).classList.remove("done","active"));
     }
 
     function openTracking() {
