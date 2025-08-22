@@ -26,7 +26,7 @@
                backdrop-filter: blur(3px); z-index: 1000; align-items: center;
                justify-content: center; padding: 10px; }
     .popup-card { background: #fff; padding: 20px; border-radius: 10px; width: 100%;
-                  max-width: 420px; max-height: 85vh; overflow-y: auto;
+                  max-width: 500px; max-height: 85vh; overflow-y: auto;
                   box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: relative; }
     .popup-card table th, .popup-card table td { text-align: center; }
     .close-btn { position: absolute; top: 10px; right: 12px; cursor: pointer;
@@ -34,13 +34,6 @@
     .info-table { width: 100%; border: none; margin-bottom: 10px; }
     .info-table td { border: none; padding: 6px 4px; font-size: 14px; text-align: left; }
     .info-table td.label { font-weight: bold; width: 140px; white-space: nowrap; }
-    @media (max-width: 480px) {
-      body { padding: 10px; }
-      .card { padding: 15px; }
-      h2 { font-size: 18px; }
-      th, td { font-size: 12px; padding: 6px; }
-      .btn { font-size: 14px; padding: 8px; }
-    }
   </style>
 </head>
 <body>
@@ -76,6 +69,18 @@
     </div>
   </div>
 
+  <!-- Tracking Popup -->
+  <div class="overlay" id="trackingOverlay" onclick="closeOverlay(event,'trackingOverlay')">
+    <div class="popup-card">
+      <span class="close-btn" onclick="closeTracking()">✖</span>
+      <h3 style="text-align:center; color:#0275d8;">Tracking Pesanan</h3>
+      <table id="trackingTable">
+        <thead><tr><th>Tanggal</th><th>Status</th><th>Keterangan</th></tr></thead>
+        <tbody><tr><td colspan="3">Memuat data...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
   <script>
     const SPREADSHEET_ID = "1Aff2np0Q5vin7Obj3p51U3D5lJdsxNkAyx0bX3C8yjc";
     const SHEET_ORDER = "IPP";
@@ -83,12 +88,6 @@
 
     const idOrder = new URLSearchParams(window.location.search).get("id_order");
     let orderData = {}, cachedInvoice = [];
-
-    function get(obj, key) { return obj && obj[key] ? obj[key] : "-"; }
-    function formatNum(n) {
-      const num = Number(n) || 0;
-      return num.toLocaleString("id-ID");
-    }
 
     async function fetchGViz(sheet, query) {
       const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheet}&tq=${encodeURIComponent(query)}`;
@@ -113,7 +112,9 @@
         const invoiceTable = await fetchGViz(SHEET_INVOICE, `select * where E='${idOrder}'`);
         const orders = mapToObjects(orderTable);
         const invoices = mapToObjects(invoiceTable);
+
         if (!orders.length) throw new Error("Order tidak ditemukan");
+
         orderData = orders[0];
         cachedInvoice = invoices;
         renderOrder();
@@ -122,28 +123,27 @@
       }
     }
 
+    function formatNum(n){ return (Number(n)||0).toLocaleString("id-ID"); }
+
     function renderOrder() {
       const d = orderData;
-      const noWa = get(d,"No WhatsApp");
-      const waLink = noWa !== "-" ? `<a href="https://wa.me/${noWa.replace(/[^0-9]/g,'')}" target="_blank">${noWa}</a>` : "-";
-
       document.getElementById("orderData").innerHTML = `
         <table class="info-table">
-          <tr><td class="label">ID Order</td><td>:</td><td>${get(d,"ID Order")}</td></tr>
-          <tr><td class="label">Tanggal Order</td><td>:</td><td>${get(d,"Tanggal Order")}</td></tr>
-          <tr><td class="label">Deadline</td><td>:</td><td>${get(d,"Deadline")}</td></tr>
-          <tr><td class="label">Nama Customer</td><td>:</td><td>${get(d,"Nama Customer")}</td></tr>
-          <tr><td class="label">No. WhatsApp</td><td>:</td><td>${waLink}</td></tr>
-          <tr><td class="label">Alamat</td><td>:</td><td>${get(d,"Alamat")}</td></tr>
+          <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"]}</td></tr>
+          <tr><td class="label">Tanggal Order</td><td>:</td><td>${d["TANGGAL ORDER"]}</td></tr>
+          <tr><td class="label">Deadline</td><td>:</td><td>${d["DEADLINE"]}</td></tr>
+          <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"]}</td></tr>
+          <tr><td class="label">No. WhatsApp</td><td>:</td><td>${d["NO WHATSAPP"]}</td></tr>
+          <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"]}</td></tr>
         </table>`;
 
       document.querySelector("#orderTable tbody").innerHTML = `
         <tr>
-          <td>${get(d,"Artikel Utama / Seaseon")}</td>
+          <td>${d["Artikel Utama / Seaseon"]||"-"}</td>
           <td style="text-align:center">${cachedInvoice.reduce((s,r)=> s+(+r["Jml"]||0),0)}</td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(get(d,"Total"))}</span></div></td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(get(d,"Discount"))}</span></div></td>
-          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(get(d,"Total Setelah Discount"))}</span></div></td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["TOTAL"])}</span></div></td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["DISCOUNT"])}</span></div></td>
+          <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["TOTAL SETELAH DISCOUNT"])}</span></div></td>
         </tr>`;
     }
 
@@ -156,15 +156,58 @@
         cachedInvoice.forEach(r=>{
           tbody.insertAdjacentHTML("beforeend",`
             <tr>
-              <td>${get(r,"Nama Artikel")}</td>
-              <td>${get(r,"Jml")}</td>
-              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(get(r,"Total"))}</span></div></td>
+              <td>${r["Nama Artikel"]}</td>
+              <td>${r["Jml"]}</td>
+              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(r["Total"])}</span></div></td>
             </tr>`);
         });
       }
       document.getElementById("invoiceOverlay").style.display="flex";
     }
     function closeInvoice(){ document.getElementById("invoiceOverlay").style.display="none"; }
+
+    // Tracking dari API AppSheet
+    async function openTracking() {
+      const tbody = document.querySelector("#trackingTable tbody");
+      tbody.innerHTML = `<tr><td colspan="3">Memuat data...</td></tr>`;
+
+      try {
+        const url = "https://api.appsheet.com/api/v2/apps/f9ea8b38-d0d6-4cb1-b8a3-716e048cc633/tables/Tracking/Action";
+        const res = await fetch(url, {
+          method: "POST",
+          headers: {
+            "ApplicationAccessKey": "V2-WKh1n-l3Zod-daH2x-rvv8t-QAPmB-D8BWH-3LafJ-LkxyN",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            "Action": "Find",
+            "Properties": {},
+            "Rows": [ { "ID Order": idOrder } ]
+          })
+        });
+        const data = await res.json();
+        console.log("Tracking:", data);
+
+        tbody.innerHTML = "";
+        if (!data.length) {
+          tbody.innerHTML = `<tr><td colspan="3">Belum ada data tracking</td></tr>`;
+        } else {
+          data.forEach(row=>{
+            tbody.insertAdjacentHTML("beforeend",`
+              <tr>
+                <td>${row.Tanggal || "-"}</td>
+                <td>${row.Status || "-"}</td>
+                <td>${row.Keterangan || "-"}</td>
+              </tr>`);
+          });
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="3" style="color:red">Gagal ambil data</td></tr>`;
+      }
+
+      document.getElementById("trackingOverlay").style.display="flex";
+    }
+    function closeTracking(){ document.getElementById("trackingOverlay").style.display="none"; }
     function closeOverlay(e,id){ if(e.target.classList.contains("overlay")) document.getElementById(id).style.display="none"; }
 
     loadData();
