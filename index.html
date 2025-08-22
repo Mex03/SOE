@@ -142,8 +142,8 @@ function renderOrder(){
     
   const totalQty = cachedInvoice.reduce((s,r)=>s+Number(r["JML"]||0),0);
   const totalHarga = Number(d["TOTAL"]||0),
-        diskon = Number(d["DISKON"]||0),
-        totalAfter = Number(d["TOTAL SETELAH DISKON"]||0);
+        diskon = Number(d["DISCOUNT"]||0),
+        totalAfter = Number(d["TOTAL SETELAH DISCOUNT"]||0);
 
   document.querySelector("#orderTable tbody").innerHTML = `
     <tr>
