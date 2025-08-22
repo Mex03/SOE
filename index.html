@@ -185,8 +185,8 @@
 
       const totalQty = cachedInvoice.reduce((sum,r)=> sum+numOrZero(r["JML"]),0);
       const totalHarga = numOrZero(d["TOTAL"]);
-      const diskon = numOrZero(d["DISKON"]);
-      const totalSetelahDiskon = numOrZero(d["TOTAL SETELAH DISKON"]);
+      const diskon = numOrZero(d["DISCOUNT"]);
+      const totalSetelahDiskon = numOrZero(d["TOTAL SETELAH DISCOUNT"]);
 
       document.querySelector("#orderTable tbody").innerHTML = `
         <tr>
