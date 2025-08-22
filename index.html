@@ -104,19 +104,15 @@
     let orderData = {};
     let cachedInvoice = [];
 
-    // === FORMAT TANGGAL "DDDD, DD MMMM YYYY" ===
+    // format tanggal: DDDD, DD MMMM YYYY
     function formatDateFull(dateStr) {
       if (!dateStr) return "-";
       const d = new Date(dateStr);
       if (isNaN(d)) return dateStr;
-
-      const days = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
-      const dayName = days[d.getDay()];
-      const date = d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
-
-      return `${dayName}, ${date}`;
+      return d.toLocaleDateString("id-ID", {
+        weekday: "long", day: "2-digit", month: "long", year: "numeric"
+      });
     }
-
     function formatNum(n) {
       const num = typeof n==="string" ? Number(n.replace(/[^\d.-]+/g,"")) : n;
       return isNaN(num) ? "-" : new Intl.NumberFormat("id-ID").format(num);
@@ -141,15 +137,25 @@
 
     async function loadData() {
       try {
-        const orderTable = await fetchGViz(SHEET_ORDER, `select * where \`ID ORDER\`='${idOrder}'`);
-        const invoiceTable = await fetchGViz(SHEET_INVOICE, `select * where \`ID ORDER\`='${idOrder}'`);
+        const orderTable = await fetchGViz(SHEET_ORDER, `select *`);
+        const invoiceTable = await fetchGViz(SHEET_INVOICE, `select *`);
         const orders = mapToObjects(orderTable);
         const invoices = mapToObjects(invoiceTable);
 
-        if (!orders.length) throw new Error("Order tidak ditemukan");
+        // normalisasi key jadi lowercase
+        const normalizeKeys = row => {
+          const obj = {};
+          for (let key in row) obj[key.trim().toLowerCase()] = row[key];
+          return obj;
+        };
+        const normalizedOrders = orders.map(normalizeKeys);
+        const normalizedInvoices = invoices.map(normalizeKeys);
 
-        orderData = orders[0];
-        cachedInvoice = invoices;
+        const foundOrder = normalizedOrders.find(r => String(r["id order"]) === idOrder);
+        if (!foundOrder) throw new Error("Order tidak ditemukan");
+
+        orderData = foundOrder;
+        cachedInvoice = normalizedInvoices.filter(r => String(r["id order"]) === idOrder);
 
         renderOrder();
       } catch (err) {
@@ -162,23 +168,23 @@
       const d = orderData;
       const infoHTML = `
         <table class="info-table">
-          <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"]}</td></tr>
-          <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDateFull(d["TANGGAL ORDER"])}</td></tr>
-          <tr><td class="label">Deadline</td><td>:</td><td>${formatDateFull(d["DEADLINE"])}</td></tr>
-          <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"]}</td></tr>
-          <tr><td class="label">No. WhatsApp</td><td>:</td><td>${d["NO WHATSAPP"]}</td></tr>
-          <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"]}</td></tr>
+          <tr><td class="label">ID Order</td><td>:</td><td>${d["id order"]}</td></tr>
+          <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDateFull(d["tanggal order"])}</td></tr>
+          <tr><td class="label">Deadline</td><td>:</td><td>${formatDateFull(d["deadline"])}</td></tr>
+          <tr><td class="label">Nama Customer</td><td>:</td><td>${d["nama customer"]}</td></tr>
+          <tr><td class="label">No. WhatsApp</td><td>:</td><td>${d["no whatsapp"]}</td></tr>
+          <tr><td class="label">Alamat</td><td>:</td><td>${d["alamat"]}</td></tr>
         </table>`;
       document.getElementById("orderData").innerHTML = infoHTML;
 
-      const totalQty = cachedInvoice.reduce((sum,r)=> sum+Number(r["JML"]||0),0);
-      const totalHarga = Number(d["TOTAL"]||0);
-      const diskon = Number(d["DISKON"]||0);
-      const totalSetelahDiskon = Number(d["TOTAL SETELAH DISKON"]||0);
+      const totalQty = cachedInvoice.reduce((sum,r)=> sum+Number(r["jml"]||0),0);
+      const totalHarga = Number(d["total"]||0);
+      const diskon = Number(d["diskon"]||0);
+      const totalSetelahDiskon = Number(d["total setelah diskon"]||0);
 
       document.querySelector("#orderTable tbody").innerHTML = `
         <tr>
-          <td>${d["ARTIKEL UTAMA / SEASEON"]}</td>
+          <td>${d["artikel utama / seaseon"]}</td>
           <td>${formatNum(totalQty)}</td>
           <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(totalHarga)}</span></div></td>
           <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(diskon)}</span></div></td>
@@ -195,9 +201,9 @@
         cachedInvoice.forEach(r=>{
           tbody.insertAdjacentHTML("beforeend",`
             <tr>
-              <td>${r["NAMA ARTIKEL"]}</td>
-              <td>${r["JML"]}</td>
-              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(r["TOTAL"])}</span></div></td>
+              <td>${r["nama artikel"]}</td>
+              <td>${r["jml"]}</td>
+              <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(r["total"])}</span></div></td>
             </tr>`);
         });
       }
