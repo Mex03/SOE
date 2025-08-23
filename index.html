@@ -32,11 +32,22 @@
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
     margin-top:10px;
+    position: relative;
+  }
+  .swipe-hint {
+    text-align:center;
+    font-size:12px;
+    color:#555;
+    margin-top:4px;
+    font-style:italic;
   }
 
   table {
     border-collapse:collapse;
     width:100%;
+  }
+  #orderTable {
+    min-width:600px; /* ✅ scroll hanya untuk Rekap Pesanan */
   }
   th,td {
     border:1px solid #ddd;
@@ -206,6 +217,7 @@
       <tbody><tr><td colspan="5">Memuat data...</td></tr></tbody>
     </table>
   </div>
+  <div class="swipe-hint">Geser ke kanan untuk melihat semua kolom →</div>
   <div class="btn-container">
     <button class="btn" onclick="openInvoice()">List Pesanan</button>
     <button class="btn" onclick="openTracking()">Tracking</button>
