@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nota Order & Tracking</title>
+<title>Nota Order</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -26,26 +26,10 @@
   h2 { text-align:center; color:#0275d8; }
   h3 { text-align:center; color:#333; }
 
-  /* ✅ Wrapper agar tabel Rekap Pesanan bisa scroll horizontal jika perlu */
-  .table-wrapper {
-    width:100%;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-    margin-top:10px;
-    position: relative;
-  }
-  .swipe-hint {
-    text-align:center;
-    font-size:12px;
-    color:#555;
-    margin-top:4px;
-    font-style:italic;
-    display:none; /* Default sembunyi */
-  }
-
   table {
     border-collapse:collapse;
     width:100%;
+    margin-top:10px;
   }
   th,td {
     border:1px solid #ddd;
@@ -57,11 +41,19 @@
   #orderTable th { font-size:14px; font-weight:bold; }
   #orderTable td { font-size:12px; word-break:break-word; }
 
-  /* List Pesanan tetap normal tanpa scroll */
-  #invoiceTable {
-    width:100%;
-    margin-top:10px;
+  /* ✅ Kolom angka di Rekap Pesanan tidak wrap */
+  #orderTable th:nth-child(2),
+  #orderTable th:nth-child(3),
+  #orderTable th:nth-child(4),
+  #orderTable th:nth-child(5),
+  #orderTable td:nth-child(2),
+  #orderTable td:nth-child(3),
+  #orderTable td:nth-child(4),
+  #orderTable td:nth-child(5) {
+    white-space: nowrap;
+    width: 1%;
   }
+
   #invoiceTable th { font-size:14px; font-weight:bold; }
   #invoiceTable td { font-size:12px; }
 
@@ -117,74 +109,14 @@
     font-size:18px;
     font-weight:bold;
   }
-  .info-table {
-    width:100%;
-    border:none;
-    margin-bottom:15px;
-  }
-  .info-table td { border:none; padding:4px 6px; text-align:left; }
-  .info-table td.label { font-weight:bold; width:150px; white-space:nowrap; }
-  td.money { padding:4px 6px; }
-  .money-wrap { display:flex; gap:8px; align-items:center; width:100%; }
-  .money-wrap .rp { min-width:28px; text-align:left; }
-  .money-wrap .nominal { flex:1; text-align:right; }
 
-  /* Tracking timeline vertikal */
-  .tracking-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    margin: 20px 0;
-  }
-  .step {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .circle {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: #ccc;
-    transition: all 0.35s ease;
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
-  }
-  .step.done .circle {
-    background: green;
-    transform: scale(1.1);
-    box-shadow: 0 0 8px rgba(0, 128, 0, 0.7);
-  }
-  .label { font-size: 14px; }
-
-  /* Loader untuk tracking */
-  .loader {
-    display:inline-block;
-    width:18px;
-    height:18px;
-    border:3px solid #ccc;
-    border-top:3px solid #0275d8;
-    border-radius:50%;
-    animation:spin 1s linear infinite;
-    margin-bottom:6px;
-  }
-  @keyframes spin { 0% { transform:rotate(0deg);} 100% { transform:rotate(360deg);} }
-
-  /* RESPONSIVE DESIGN */
-  @media(max-width:768px){
-    body { padding:15px; }
-    .card { padding:15px; }
-    h2 { font-size:20px; }
-    .btn { font-size:14px; padding:8px 14px; }
-    .popup-card { width:95%; padding:12px; }
-  }
-  @media(max-width:480px){
-    body { padding:10px; }
-    .card { padding:12px; border-radius:6px; }
-    h2 { font-size:18px; }
-    table th, table td { font-size:12px; padding:6px; }
-    .btn { font-size:13px; padding:8px 12px; }
-    .popup-card { width:100%; border-radius:6px; padding:10px; }
+  /* ✅ Hint geser kanan */
+  .scroll-hint {
+    text-align:right;
+    font-size:12px;
+    color:#888;
+    margin-top:4px;
+    display:none;
   }
 </style>
 </head>
@@ -193,204 +125,74 @@
   <h2>Nota Order</h2>
   <div id="orderData">Memuat data...</div>
   <h3>Rekap Pesanan</h3>
-  <div class="table-wrapper">
+  <div style="overflow-x:auto;">
     <table id="orderTable">
       <thead>
-        <tr><th>ARTIKEL</th><th>QTY</th><th>TOTAL</th><th>DISKON</th><th>TOTAL SETELAH DISKON</th></tr>
+        <tr>
+          <th>ARTIKEL</th>
+          <th>QTY</th>
+          <th>TOTAL</th>
+          <th>DISKON</th>
+          <th>TOTAL SETELAH DISKON</th>
+        </tr>
       </thead>
-      <tbody><tr><td colspan="5">Memuat data...</td></tr></tbody>
+      <tbody>
+        <tr><td colspan="5">Memuat data...</td></tr>
+      </tbody>
     </table>
   </div>
-  <div class="swipe-hint">Geser ke kanan untuk melihat semua kolom →</div>
+  <div id="scrollHint" class="scroll-hint">Geser ke kanan →</div>
+
   <div class="btn-container">
     <button class="btn" onclick="openInvoice()">List Pesanan</button>
     <button class="btn" onclick="openTracking()">Tracking</button>
   </div>
 </div>
 
-<!-- Invoice Popup -->
+<!-- Popup invoice -->
 <div class="overlay" id="invoiceOverlay" onclick="closeOverlay(event,'invoiceOverlay')">
   <div class="popup-card">
     <span class="close-btn" onclick="closeInvoice()">✖</span>
     <h3 style="text-align:center;color:#0275d8;">List Pesanan</h3>
-    <table id="invoiceTable"><thead><tr><th>Nama Artikel</th><th>Qty</th><th>Total Harga</th></tr></thead><tbody><tr><td colspan="3">Memuat data...</td></tr></tbody></table>
+    <table id="invoiceTable">
+      <thead>
+        <tr><th>Nama Artikel</th><th>Qty</th><th>Total Harga</th></tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="3">Memuat data...</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
-<!-- Tracking Popup -->
+<!-- Popup tracking -->
 <div class="overlay" id="trackingOverlay" onclick="closeOverlay(event,'trackingOverlay')">
   <div class="popup-card">
     <span class="close-btn" onclick="closeTracking()">✖</span>
     <h3 style="text-align:center;color:#0275d8;">Tracking Pesanan</h3>
-    <div id="trackingLoader" style="text-align:center; padding:10px; font-size:14px;">
-      <div class="loader"></div>
-      Memuat status...
-    </div>
-    <div class="tracking-container" id="trackingSteps" style="display:none;">
-      <div class="step" id="step-dp"><div class="circle"></div><div class="label">DP</div></div>
-      <div class="step" id="step-produksi"><div class="circle"></div><div class="label">Produksi</div></div>
-      <div class="step" id="step-ambil"><div class="circle"></div><div class="label">Sudah Diambil</div></div>
-    </div>
-    <div id="trackingInfo" style="font-size:12px;color:#555;text-align:center;margin-top:6px;"></div>
+    <div id="trackingInfo">Memuat status...</div>
   </div>
 </div>
 
 <script>
-const SPREADSHEET_ID = "1Aff2np0Q5vin7Obj3p51U3D5lJdsxNkAyx0bX3C8yjc"; 
-const SHEET_ORDER = "IPP";
-const SHEET_INVOICE = "LST_IPP";
-const APPSHEET_APP_ID = "f9ea8b38-d0d6-4cb1-b8a3-716e048cc633";
-const APPSHEET_KEY = "V2-WKh1n-l3Zod-daH2x-rvv8t-QAPmB-D8BWH-3LafJ-LkxyN";
+function openInvoice(){document.getElementById('invoiceOverlay').style.display='flex';}
+function closeInvoice(){document.getElementById('invoiceOverlay').style.display='none';}
+function openTracking(){document.getElementById('trackingOverlay').style.display='flex';}
+function closeTracking(){document.getElementById('trackingOverlay').style.display='none';}
+function closeOverlay(e,id){if(e.target.classList.contains('overlay'))document.getElementById(id).style.display='none';}
 
-const idOrder = new URLSearchParams(window.location.search).get("id_order");
-let orderData = {};
-let cachedInvoice = [];
-
-function formatNum(n){
-  const num = typeof n === "string" ? Number(n.replace(/[^\d.-]+/g,"")) : n;
-  return isNaN(num) ? "-" : new Intl.NumberFormat("id-ID").format(num);
-}
-
-async function fetchGVizAsObjects(sheet, query){
-  const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheet}&tq=${encodeURIComponent(query)}`;
-  const res = await fetch(url);
-  const text = await res.text();
-  const json = text.replace(/^[^\{]+/,"").replace(/\);?$/,"");
-  const data = JSON.parse(json).table;
-  const headers = data.cols.map(c => c.label.trim());
-  return data.rows.map(row => {
-    const obj = {};
-    row.c.forEach((cell,i) => { obj[headers[i]] = cell ? (cell.f || cell.v) : ""; });
-    return obj;
-  });
-}
-
-async function loadData(){
-  try{
-    const orderTbl = await fetchGVizAsObjects(SHEET_ORDER, `select * where A='${idOrder}'`);
-    const invoiceTbl = await fetchGVizAsObjects(SHEET_INVOICE, `select * where E='${idOrder}'`);
-    if(!orderTbl.length) throw new Error("Data order tidak ditemukan.");
-    orderData = orderTbl[0];
-    cachedInvoice = invoiceTbl;
-    renderOrder();
-    checkScrollHint();
-  }catch(err){
-    document.getElementById("orderData").innerHTML = "<span style='color:red;'>❌ Gagal memuat data.</span>";
-    document.querySelector("#orderTable tbody").innerHTML = "<tr><td colspan='5'>Coba muat ulang.</td></tr>";
-  }
-}
-
-function renderOrder(){
-  const d = orderData;
-  document.getElementById("orderData").innerHTML = `
-    <table class="info-table">
-      <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"] || "-"}</td></tr>
-      <tr><td class="label">Tanggal Order</td><td>:</td><td>${d["TANGGAL ORDER"] || "-"}</td></tr>
-      <tr><td class="label">Deadline</td><td>:</td><td>${d["DEADLINE"] || "-"}</td></tr>
-      <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"] || "-"}</td></tr>
-      <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"] || "-"}</td></tr>
-    </table>`;
-  
-  document.querySelector("#orderTable tbody").innerHTML = `
-    <tr>
-      <td>${d["ARTIKEL UTAMA / SEASEON"] || "-"}</td>
-      <td>${d["QTY"] || "-"}</td>
-      <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["TOTAL"])}</span></div></td>
-      <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["DISCOUNT"])}</span></div></td>
-      <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["TOTAL SETELAH DISCOUNT"])}</span></div></td>
-    </tr>`;
-}
-
+/* ✅ Hint scroll otomatis */
 function checkScrollHint(){
-  const wrapper = document.querySelector('.table-wrapper');
-  const hint = document.querySelector('.swipe-hint');
-  if(wrapper.scrollWidth > wrapper.clientWidth){
-    hint.style.display = 'block';
-  } else {
-    hint.style.display = 'none';
+  const wrapper=document.querySelector('#orderTable').parentElement;
+  const hint=document.getElementById('scrollHint');
+  if(wrapper.scrollWidth>wrapper.clientWidth){
+    hint.style.display='block';
+  }else{
+    hint.style.display='none';
   }
 }
-
-function openInvoice(){
-  const tb = document.querySelector("#invoiceTable tbody");
-  tb.innerHTML = "";
-  cachedInvoice.forEach(r => {
-    tb.insertAdjacentHTML("beforeend",`<tr><td>${r["NAMA ARTIKEL"]}</td><td>${r["JML"]||"-"}</td><td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(r["TOTAL"])}</span></div></td></tr>`);
-  });
-  document.getElementById("invoiceOverlay").style.display = "flex";
-}
-
-function closeInvoice(){ document.getElementById("invoiceOverlay").style.display = "none"; }
-
-function isFilled(val){ return !(val === null || val === undefined || String(val).trim() === ""); }
-
-function resetTrackingUI(){
-  ["step-dp","step-produksi","step-ambil"].forEach(id=>{ document.getElementById(id).classList.remove("done"); });
-  document.getElementById('trackingInfo').textContent = "";
-}
-
-async function openTracking(){
-  document.getElementById("trackingOverlay").style.display = "flex";
-  resetTrackingUI();
-  document.getElementById('trackingLoader').style.display = 'block';
-  document.getElementById('trackingSteps').style.display = 'none';
-  try {
-    const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_APP_ID}/tables/IPP/Action`;
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "ApplicationAccessKey": APPSHEET_KEY,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        Action: "Find",
-        Properties: {},
-        Rows: [{ "ID ORDER": idOrder }]
-      })
-    });
-
-    if(!res.ok){ throw new Error(`HTTP ${res.status}`); }
-    const data = await res.json();
-
-    document.getElementById('trackingLoader').style.display = 'none';
-    document.getElementById('trackingSteps').style.display = 'flex';
-
-    if(Array.isArray(data) && data.length){
-      const row = data[0];
-      const dpDone = isFilled(row["TOTAL DP"]);
-      const produksiDone = isFilled(row["STATUS PRODUKSI"]);
-      const ambilDone = isFilled(row["TANGGAL PENGAMBILAN"]);
-      document.getElementById('trackingInfo').innerHTML = `DP: <b>${dpDone?"✔︎" : "–"}</b> • Produksi: <b>${produksiDone?"✔︎":"–"}</b> • Diambil: <b>${ambilDone?"✔︎":"–"}</b>`;
-      animateTrackingBooleans({ dpDone, produksiDone, ambilDone });
-    } else {
-      document.getElementById('trackingInfo').textContent = 'Data tidak ditemukan di AppSheet.';
-    }
-  } catch (err) {
-    document.getElementById('trackingLoader').style.display = 'none';
-    document.getElementById('trackingInfo').textContent = 'Gagal mengambil status dari AppSheet.';
-  }
-}
-
-function animateTrackingBooleans({ dpDone, produksiDone, ambilDone }){
-  const steps = [
-    { id: 'step-dp', done: dpDone },
-    { id: 'step-produksi', done: produksiDone },
-    { id: 'step-ambil', done: ambilDone }
-  ];
-  let i = 0;
-  function next(){
-    if(i >= steps.length) return;
-    const s = steps[i++];
-    if(s.done){ document.getElementById(s.id).classList.add('done'); }
-    setTimeout(next, 250);
-  }
-  next();
-}
-
-function closeTracking(){ document.getElementById("trackingOverlay").style.display = "none"; }
-function closeOverlay(e,id){ if(e.target.classList.contains("overlay")) document.getElementById(id).style.display = "none"; }
-
-loadData();
+window.addEventListener('resize',checkScrollHint);
+window.addEventListener('load',checkScrollHint);
 </script>
 </body>
 </html>
