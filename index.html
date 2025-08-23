@@ -25,9 +25,18 @@
   }
   h2 { text-align:center; color:#0275d8; }
   h3 { text-align:center; color:#333; }
+
+  /* ✅ Wrapper agar tabel Rekap Pesanan bisa scroll horizontal */
+  .table-wrapper {
+    width:100%;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    margin-top:10px;
+  }
+
   table {
     border-collapse:collapse;
-    margin-top:10px;
+    width:100%;
   }
   th,td {
     border:1px solid #ddd;
@@ -35,23 +44,27 @@
     text-align:center;
   }
   th { background:#f0f8ff; }
-  #orderTable {
-    margin: 10px auto;
-    display: table;
-    white-space: normal;
-  }
-  #invoiceTable {
-    margin: 10px auto;
-    display: table;
-    text-align:center;
-  }
 
   /* ✅ Ukuran font header & isi tabel */
-  #orderTable th, #invoiceTable th {
+  #orderTable th {
     font-size:14px;
     font-weight:bold;
   }
-  #orderTable td, #invoiceTable td {
+  #orderTable td {
+    font-size:12px;
+    word-break:break-word;
+  }
+
+  /* Untuk List Pesanan tetap normal */
+  #invoiceTable {
+    width:100%;
+    margin-top:10px;
+  }
+  #invoiceTable th {
+    font-size:14px;
+    font-weight:bold;
+  }
+  #invoiceTable td {
     font-size:12px;
   }
 
@@ -185,12 +198,14 @@
   <h2>Nota Order</h2>
   <div id="orderData">Memuat data...</div>
   <h3>Rekap Pesanan</h3>
-  <table id="orderTable">
-    <thead>
-      <tr><th>Artikel</th><th>Qty</th><th>Total</th><th>Diskon</th><th>Total Setelah Diskon</th></tr>
-    </thead>
-    <tbody><tr><td colspan="5">Memuat data...</td></tr></tbody>
-  </table>
+  <div class="table-wrapper">
+    <table id="orderTable">
+      <thead>
+        <tr><th>ARTIKEL</th><th>QTY</th><th>TOTAL</th><th>DISKON</th><th>TOTAL SETELAH DISKON</th></tr>
+      </thead>
+      <tbody><tr><td colspan="5">Memuat data...</td></tr></tbody>
+    </table>
+  </div>
   <div class="btn-container">
     <button class="btn" onclick="openInvoice()">List Pesanan</button>
     <button class="btn" onclick="openTracking()">Tracking</button>
