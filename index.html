@@ -35,6 +35,7 @@ table {
   border-collapse:collapse;
   margin:10px auto; /* tabel center */
   text-align:center; /* semua isi tabel rata tengah */
+  table-layout:auto; /* responsive width */
 }
 
 th, td {
@@ -42,6 +43,7 @@ th, td {
   padding:8px;
   text-align:center;
   vertical-align:middle; /* ✅ konten vertikal rata tengah */
+  word-wrap:break-word;
 }
 
 th { 
@@ -230,6 +232,7 @@ td.money {
   .btn { font-size:14px; padding:8px 14px; }
   .popup-card { width:95%; padding:12px; }
   .tracking-container .label { font-size:12px; }
+  table th, table td { font-size:13px; padding:6px; }
 }
 
 @media(max-width:480px){
