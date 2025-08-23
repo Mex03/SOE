@@ -33,6 +33,10 @@
   /* Hijau jika kolom virtual TERISI */
   .step.done .circle { background:green; transform:scale(1.1); box-shadow:0 0 8px rgba(0,128,0,0.7); }
   .line.done { background:green; }
+
+  /* Loader untuk tracking */
+  .loader { display:inline-block; width:18px; height:18px; border:3px solid #ccc; border-top:3px solid #0275d8; border-radius:50%; animation:spin 1s linear infinite; margin-right:6px; vertical-align:middle; }
+  @keyframes spin { 0% { transform:rotate(0deg);} 100% { transform:rotate(360deg);} }
 </style>
 </head>
 <body>
@@ -88,16 +92,6 @@ const idOrder = new URLSearchParams(window.location.search).get("id_order");
 let orderData = {};
 let cachedInvoice = [];
 
-// ✅ Format tanggal custom
-function formatDateCustom(d){
-  if(!d) return "-";
-  const dt = new Date(d);
-  if(isNaN(dt)) return d;
-  const hari = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
-  const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-  return `${hari[dt.getDay()]}, ${String(dt.getDate()).padStart(2,'0')} ${bulan[dt.getMonth()]} ${dt.getFullYear()}`;
-}
-
 function formatNum(n){
   const num = typeof n === "string" ? Number(n.replace(/[^\d.-]+/g,"")) : n;
   return isNaN(num) ? "-" : new Intl.NumberFormat("id-ID").format(num);
@@ -138,8 +132,8 @@ function renderOrder(){
   document.getElementById("orderData").innerHTML = `
     <table class="info-table">
       <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"] || "-"}</td></tr>
-      <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDateCustom(d["TANGGAL ORDER"])}</td></tr>
-      <tr><td class="label">Deadline</td><td>:</td><td>${formatDateCustom(d["DEADLINE"])}</td></tr>
+      <tr><td class="label">Tanggal Order</td><td>:</td><td>${d["TANGGAL ORDER"] || "-"}</td></tr>
+      <tr><td class="label">Deadline</td><td>:</td><td>${d["DEADLINE"] || "-"}</td></tr>
       <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"] || "-"}</td></tr>
       <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"] || "-"}</td></tr>
     </table>`;
@@ -185,6 +179,8 @@ function resetTrackingUI(){
 async function openTracking(){
   document.getElementById("trackingOverlay").style.display = "flex";
   resetTrackingUI();
+  // Tampilkan loader saat menunggu API
+  document.getElementById('trackingInfo').innerHTML = `<span class="loader"></span> Memuat status...`;
   try {
     const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_APP_ID}/tables/IPP/Action`;
     const res = await fetch(url, {
@@ -214,11 +210,11 @@ async function openTracking(){
 
       animateTrackingBooleans({ dpDone, produksiDone, ambilDone });
     } else {
-      document.getElementById('trackingInfo').textContent = 'Data tidak ditemukan.';
+      document.getElementById('trackingInfo').textContent = 'Data tidak ditemukan di AppSheet.';
     }
   } catch (err) {
     console.error("Error tracking:", err);
-    document.getElementById('trackingInfo').textContent = 'Gagal mengambil status.';
+    document.getElementById('trackingInfo').textContent = 'Gagal mengambil status dari AppSheet.';
   }
 }
 
