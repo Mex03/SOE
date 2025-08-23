@@ -4,39 +4,163 @@
 <meta charset="UTF-8">
 <title>Nota Order & Tracking</title>
 <style>
-  body { font-family: Arial, sans-serif; background:#0275d8; margin:0; padding:20px; }
-  .card { background:#fff; padding:20px; border-radius:8px; margin:auto; width:600px; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+  body {
+    font-family: Arial, sans-serif;
+    background:#0275d8;
+    margin:0;
+    padding:20px;
+    display:flex;
+    justify-content:center;
+  }
+  .card {
+    background:#fff;
+    padding:20px;
+    border-radius:8px;
+    margin:auto;
+    width:100%;
+    max-width:600px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.2);
+    box-sizing:border-box;
+  }
   h2 { text-align:center; color:#0275d8; }
-  table { width:100%; border-collapse:collapse; margin-top:10px; }
+  table {
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+    display:block;
+    overflow-x:auto;
+    white-space:nowrap;
+  }
   th,td { border:1px solid #ddd; padding:8px; text-align:center; }
   th { background:#f0f8ff; }
-  .btn-container { display:flex; justify-content:center; gap:10px; margin-top:15px; }
-  .btn { background:#0275d8; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; transition:0.3s; }
+  .btn-container {
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-top:15px;
+    flex-wrap:wrap;
+  }
+  .btn {
+    background:#0275d8;
+    color:#fff;
+    border:none;
+    padding:10px 16px;
+    border-radius:6px;
+    cursor:pointer;
+    transition:0.3s;
+    font-size:16px;
+  }
   .btn:hover { background:#025aa5; transform:scale(1.05); }
-  .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.3); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center; }
-  .popup-card { background:#fff; padding:15px; border-radius:8px; width:420px; max-height:80vh; overflow-y:auto; box-shadow:0 2px 10px rgba(0,0,0,0.3); position:relative; }
-  .close-btn { position:absolute; top:8px; right:10px; cursor:pointer; color:red; font-size:18px; font-weight:bold; }
-  .info-table { width:100%; border:none; margin-bottom:15px; }
+
+  /* Overlay & popup */
+  .overlay {
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.3);
+    backdrop-filter:blur(5px);
+    z-index:1000;
+    align-items:center;
+    justify-content:center;
+    padding:10px;
+    box-sizing:border-box;
+  }
+  .popup-card {
+    background:#fff;
+    padding:15px;
+    border-radius:8px;
+    width:90%;
+    max-width:420px;
+    max-height:80vh;
+    overflow-y:auto;
+    box-shadow:0 2px 10px rgba(0,0,0,0.3);
+    position:relative;
+  }
+  .close-btn {
+    position:absolute;
+    top:8px;
+    right:10px;
+    cursor:pointer;
+    color:red;
+    font-size:18px;
+    font-weight:bold;
+  }
+  .info-table {
+    width:100%;
+    border:none;
+    margin-bottom:15px;
+  }
   .info-table td { border:none; padding:4px 6px; text-align:left; }
   .info-table td.label { font-weight:bold; width:150px; white-space:nowrap; }
-  td.money { padding:4px 6px }
+  td.money { padding:4px 6px; }
   .money-wrap { display:flex; gap:8px; align-items:center; width:100%; }
-  .money-wrap .rp { min-width:28px; text-align:left }
-  .money-wrap .nominal { flex:1; text-align:right }
+  .money-wrap .rp { min-width:28px; text-align:left; }
+  .money-wrap .nominal { flex:1; text-align:right; }
 
   /* Tracking timeline */
-  .tracking-container { display:flex; justify-content:space-between; align-items:center; margin:30px auto; max-width:360px; position:relative; }
+  .tracking-container {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:30px auto;
+    max-width:100%;
+    position:relative;
+    gap:6px;
+  }
   .step { text-align:center; flex:1; position:relative; }
-  .circle { width:28px; height:28px; border-radius:50%; background:#ccc; margin:auto; transition:all 0.35s ease; box-shadow:0 0 6px rgba(0,0,0,0.2); }
+  .circle {
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    background:#ccc;
+    margin:auto;
+    transition:all 0.35s ease;
+    box-shadow:0 0 6px rgba(0,0,0,0.2);
+  }
   .label { margin-top:6px; font-size:13px; }
-  .line { flex:1; height:4px; background:#ccc; margin:0 4px; transition:background 0.35s ease; }
-  /* Hijau jika kolom virtual TERISI */
+  .line {
+    flex:1;
+    height:4px;
+    background:#ccc;
+    margin:0 4px;
+    transition:background 0.35s ease;
+  }
   .step.done .circle { background:green; transform:scale(1.1); box-shadow:0 0 8px rgba(0,128,0,0.7); }
   .line.done { background:green; }
 
   /* Loader untuk tracking */
-  .loader { display:inline-block; width:18px; height:18px; border:3px solid #ccc; border-top:3px solid #0275d8; border-radius:50%; animation:spin 1s linear infinite; margin-right:6px; vertical-align:middle; }
+  .loader {
+    display:inline-block;
+    width:18px;
+    height:18px;
+    border:3px solid #ccc;
+    border-top:3px solid #0275d8;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+    margin-right:6px;
+    vertical-align:middle;
+  }
   @keyframes spin { 0% { transform:rotate(0deg);} 100% { transform:rotate(360deg);} }
+
+  /* RESPONSIVE DESIGN */
+  @media(max-width:768px){
+    body { padding:15px; }
+    .card { padding:15px; }
+    h2 { font-size:20px; }
+    .btn { font-size:14px; padding:8px 14px; }
+    .popup-card { width:95%; padding:12px; }
+    .tracking-container .label { font-size:12px; }
+  }
+  @media(max-width:480px){
+    body { padding:10px; }
+    .card { padding:12px; border-radius:6px; }
+    h2 { font-size:18px; }
+    table th, table td { font-size:12px; padding:6px; }
+    .btn { font-size:13px; padding:8px 12px; }
+    .popup-card { width:100%; border-radius:6px; padding:10px; }
+    .tracking-container { flex-direction:column; align-items:flex-start; }
+    .line { display:none; }
+  }
 </style>
 </head>
 <body>
@@ -92,6 +216,16 @@ const idOrder = new URLSearchParams(window.location.search).get("id_order");
 let orderData = {};
 let cachedInvoice = [];
 
+// ✅ Format tanggal custom
+function formatDateCustom(d){
+  if(!d) return "-";
+  const dt = new Date(d);
+  if(isNaN(dt)) return d;
+  const hari = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  return `${hari[dt.getDay()]}, ${String(dt.getDate()).padStart(2,'0')} ${bulan[dt.getMonth()]} ${dt.getFullYear()}`;
+}
+
 function formatNum(n){
   const num = typeof n === "string" ? Number(n.replace(/[^\d.-]+/g,"")) : n;
   return isNaN(num) ? "-" : new Intl.NumberFormat("id-ID").format(num);
@@ -132,8 +266,8 @@ function renderOrder(){
   document.getElementById("orderData").innerHTML = `
     <table class="info-table">
       <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"] || "-"}</td></tr>
-      <tr><td class="label">Tanggal Order</td><td>:</td><td>${d["TANGGAL ORDER"] || "-"}</td></tr>
-      <tr><td class="label">Deadline</td><td>:</td><td>${d["DEADLINE"] || "-"}</td></tr>
+      <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDateCustom(d["TANGGAL ORDER"])}</td></tr>
+      <tr><td class="label">Deadline</td><td>:</td><td>${formatDateCustom(d["DEADLINE"])}</td></tr>
       <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"] || "-"}</td></tr>
       <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"] || "-"}</td></tr>
     </table>`;
@@ -179,8 +313,6 @@ function resetTrackingUI(){
 async function openTracking(){
   document.getElementById("trackingOverlay").style.display = "flex";
   resetTrackingUI();
-  // Tampilkan loader saat menunggu API
-  document.getElementById('trackingInfo').innerHTML = `<span class="loader"></span> Memuat status...`;
   try {
     const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_APP_ID}/tables/IPP/Action`;
     const res = await fetch(url, {
@@ -210,11 +342,11 @@ async function openTracking(){
 
       animateTrackingBooleans({ dpDone, produksiDone, ambilDone });
     } else {
-      document.getElementById('trackingInfo').textContent = 'Data tidak ditemukan di AppSheet.';
+      document.getElementById('trackingInfo').textContent = 'Data tidak ditemukan.';
     }
   } catch (err) {
     console.error("Error tracking:", err);
-    document.getElementById('trackingInfo').textContent = 'Gagal mengambil status dari AppSheet.';
+    document.getElementById('trackingInfo').textContent = 'Gagal mengambil status.';
   }
 }
 
