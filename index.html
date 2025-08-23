@@ -26,7 +26,7 @@
   h2 { text-align:center; color:#0275d8; }
   h3 { text-align:center; color:#333; }
 
-  /* ✅ Wrapper agar tabel Rekap Pesanan bisa scroll horizontal */
+  /* ✅ Wrapper agar tabel Rekap Pesanan bisa scroll horizontal jika perlu */
   .table-wrapper {
     width:100%;
     overflow-x:auto;
@@ -40,14 +40,12 @@
     color:#555;
     margin-top:4px;
     font-style:italic;
+    display:none; /* Default sembunyi */
   }
 
   table {
     border-collapse:collapse;
     width:100%;
-  }
-  #orderTable {
-    min-width:600px; /* ✅ scroll hanya untuk Rekap Pesanan */
   }
   th,td {
     border:1px solid #ddd;
@@ -56,28 +54,16 @@
   }
   th { background:#f0f8ff; }
 
-  /* ✅ Ukuran font header & isi tabel */
-  #orderTable th {
-    font-size:14px;
-    font-weight:bold;
-  }
-  #orderTable td {
-    font-size:12px;
-    word-break:break-word;
-  }
+  #orderTable th { font-size:14px; font-weight:bold; }
+  #orderTable td { font-size:12px; word-break:break-word; }
 
-  /* Untuk List Pesanan tetap normal */
+  /* List Pesanan tetap normal tanpa scroll */
   #invoiceTable {
     width:100%;
     margin-top:10px;
   }
-  #invoiceTable th {
-    font-size:14px;
-    font-weight:bold;
-  }
-  #invoiceTable td {
-    font-size:12px;
-  }
+  #invoiceTable th { font-size:14px; font-weight:bold; }
+  #invoiceTable td { font-size:12px; }
 
   .btn-container {
     display:flex;
@@ -169,9 +155,7 @@
     transform: scale(1.1);
     box-shadow: 0 0 8px rgba(0, 128, 0, 0.7);
   }
-  .label {
-    font-size: 14px;
-  }
+  .label { font-size: 14px; }
 
   /* Loader untuk tracking */
   .loader {
@@ -289,6 +273,7 @@ async function loadData(){
     orderData = orderTbl[0];
     cachedInvoice = invoiceTbl;
     renderOrder();
+    checkScrollHint();
   }catch(err){
     document.getElementById("orderData").innerHTML = "<span style='color:red;'>❌ Gagal memuat data.</span>";
     document.querySelector("#orderTable tbody").innerHTML = "<tr><td colspan='5'>Coba muat ulang.</td></tr>";
@@ -314,6 +299,16 @@ function renderOrder(){
       <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["DISCOUNT"])}</span></div></td>
       <td class="money"><div class="money-wrap"><span class="rp">Rp</span><span class="nominal">${formatNum(d["TOTAL SETELAH DISCOUNT"])}</span></div></td>
     </tr>`;
+}
+
+function checkScrollHint(){
+  const wrapper = document.querySelector('.table-wrapper');
+  const hint = document.querySelector('.swipe-hint');
+  if(wrapper.scrollWidth > wrapper.clientWidth){
+    hint.style.display = 'block';
+  } else {
+    hint.style.display = 'none';
+  }
 }
 
 function openInvoice(){
