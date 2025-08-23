@@ -5,296 +5,169 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nota Order & Tracking</title>
 <style>
-/* RESET & BASE */
-body {
-  font-family: Arial, sans-serif;
-  background: #0275d8;
-  margin: 0;
-  padding: 20px;
-  display: flex;
-  justify-content: center;
-}
-
-.card {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  margin: auto;
-  width: 100%;
-  max-width: 600px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  box-sizing: border-box;
-}
-
-h2 {
-  text-align: center;
-  color: #0275d8;
-}
-
-h3 {
-  text-align: center;
-  color: #444;
-  margin-top: 20px;
-  margin-bottom: 10px;
-}
-
-/* Table - Center content */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: center;
-}
-
-th {
-  background: #f0f8ff;
-  font-size: 14px;
-}
-
-td {
-  font-size: 14px;
-}
-
-.btn-container {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 15px;
-  flex-wrap: wrap;
-}
-
-.btn {
-  background: #0275d8;
-  color: #fff;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.3s;
-  font-size: 16px;
-}
-
-.btn:hover {
-  background: #025aa5;
-  transform: scale(1.05);
-}
-
-/* Overlay & Popup */
-.overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(5px);
-  z-index: 1000;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  box-sizing: border-box;
-}
-
-.popup-card {
-  background: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 420px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  position: relative;
-}
-
-.close-btn {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  cursor: pointer;
-  color: red;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-/* Info table */
-.info-table {
-  width: 100%;
-  border: none;
-  margin-bottom: 15px;
-}
-
-.info-table td {
-  border: none;
-  padding: 4px 6px;
-  text-align: left;
-}
-
-.info-table td.label {
-  font-weight: bold;
-  width: 150px;
-  white-space: nowrap;
-}
-
-/* Money formatting */
-td.money {
-  padding: 4px 6px;
-}
-
-.money-wrap {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  width: 100%;
-}
-
-.money-wrap .rp {
-  min-width: 28px;
-  text-align: left;
-}
-
-.money-wrap .nominal {
-  flex: 1;
-  text-align: right;
-}
-
-/* Tracking timeline */
-.tracking-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 30px auto;
-  max-width: 100%;
-  position: relative;
-  gap: 6px;
-}
-
-.step {
-  text-align: center;
-  flex: 1;
-  position: relative;
-}
-
-.circle {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #ccc;
-  margin: auto;
-  transition: all 0.35s ease;
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
-}
-
-.label {
-  margin-top: 6px;
-  font-size: 13px;
-}
-
-.line {
-  flex: 1;
-  height: 4px;
-  background: #ccc;
-  margin: 0 4px;
-  transition: background 0.35s ease;
-}
-
-.step.done .circle {
-  background: green;
-  transform: scale(1.1);
-  box-shadow: 0 0 8px rgba(0, 128, 0, 0.7);
-}
-
-.line.done {
-  background: green;
-}
-
-/* Loader */
-.loader {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 3px solid #ccc;
-  border-top: 3px solid #0275d8;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-right: 6px;
-  vertical-align: middle;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* RESPONSIVE DESIGN */
-@media (max-width: 768px) {
   body {
-    padding: 15px;
+    font-family: Arial, sans-serif;
+    background:#0275d8;
+    margin:0;
+    padding:20px;
+    display:flex;
+    justify-content:center;
   }
   .card {
-    padding: 15px;
+    background:#fff;
+    padding:20px;
+    border-radius:8px;
+    margin:auto;
+    width:100%;
+    max-width:600px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.2);
+    box-sizing:border-box;
   }
-  h2 {
-    font-size: 20px;
+  h2 { text-align:center; color:#0275d8; }
+  h3 { text-align:center; color:#333; }
+  table {
+    border-collapse:collapse;
+    margin-top:10px;
   }
-  h3 {
-    font-size: 16px;
+  th,td {
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:center;
+  }
+  th { background:#f0f8ff; }
+  #orderTable {
+    margin: 10px auto; /* agar tabel rekap pesanan di tengah */
+    display: table;
+    white-space: normal;
+  }
+  #invoiceTable {
+    margin: 10px auto; /* agar tabel list pesanan di tengah */
+    display: table;
+    text-align:center;
+  }
+  .btn-container {
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-top:15px;
+    flex-wrap:wrap;
   }
   .btn {
-    font-size: 14px;
-    padding: 8px 14px;
+    background:#0275d8;
+    color:#fff;
+    border:none;
+    padding:10px 16px;
+    border-radius:6px;
+    cursor:pointer;
+    transition:0.3s;
+    font-size:16px;
   }
-  table th,
-  table td {
-    font-size: 13px;
-  }
-}
+  .btn:hover { background:#025aa5; transform:scale(1.05); }
 
-@media (max-width: 480px) {
-  body {
-    padding: 10px;
-  }
-  .card {
-    padding: 12px;
-    border-radius: 6px;
-  }
-  h2 {
-    font-size: 18px;
-  }
-  h3 {
-    font-size: 15px;
-  }
-  table th,
-  table td {
-    font-size: 12px;
-    padding: 6px;
-  }
-  .btn {
-    font-size: 13px;
-    padding: 8px 12px;
+  /* Overlay & popup */
+  .overlay {
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.3);
+    backdrop-filter:blur(5px);
+    z-index:1000;
+    align-items:center;
+    justify-content:center;
+    padding:10px;
+    box-sizing:border-box;
   }
   .popup-card {
-    width: 100%;
-    border-radius: 6px;
-    padding: 10px;
+    background:#fff;
+    padding:15px;
+    border-radius:8px;
+    width:90%;
+    max-width:420px;
+    max-height:80vh;
+    overflow-y:auto;
+    box-shadow:0 2px 10px rgba(0,0,0,0.3);
+    position:relative;
   }
+  .close-btn {
+    position:absolute;
+    top:8px;
+    right:10px;
+    cursor:pointer;
+    color:red;
+    font-size:18px;
+    font-weight:bold;
+  }
+  .info-table {
+    width:100%;
+    border:none;
+    margin-bottom:15px;
+  }
+  .info-table td { border:none; padding:4px 6px; text-align:left; }
+  .info-table td.label { font-weight:bold; width:150px; white-space:nowrap; }
+  td.money { padding:4px 6px; }
+  .money-wrap { display:flex; gap:8px; align-items:center; width:100%; }
+  .money-wrap .rp { min-width:28px; text-align:left; }
+  .money-wrap .nominal { flex:1; text-align:right; }
+
+  /* Tracking timeline vertikal */
   .tracking-container {
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
+    gap: 12px;
+    margin: 20px 0;
   }
-  .line {
-    display: none;
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
-}
+  .circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #ccc;
+    transition: all 0.35s ease;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+  }
+  .step.done .circle {
+    background: green;
+    transform: scale(1.1);
+    box-shadow: 0 0 8px rgba(0, 128, 0, 0.7);
+  }
+  .label {
+    font-size: 14px;
+  }
 
+  /* Loader untuk tracking */
+  .loader {
+    display:inline-block;
+    width:18px;
+    height:18px;
+    border:3px solid #ccc;
+    border-top:3px solid #0275d8;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+    margin-bottom:6px;
+  }
+  @keyframes spin { 0% { transform:rotate(0deg);} 100% { transform:rotate(360deg);} }
+
+  /* RESPONSIVE DESIGN */
+  @media(max-width:768px){
+    body { padding:15px; }
+    .card { padding:15px; }
+    h2 { font-size:20px; }
+    .btn { font-size:14px; padding:8px 14px; }
+    .popup-card { width:95%; padding:12px; }
+  }
+  @media(max-width:480px){
+    body { padding:10px; }
+    .card { padding:12px; border-radius:6px; }
+    h2 { font-size:18px; }
+    table th, table td { font-size:12px; padding:6px; }
+    .btn { font-size:13px; padding:8px 12px; }
+    .popup-card { width:100%; border-radius:6px; padding:10px; }
+  }
 </style>
 </head>
 <body>
@@ -328,11 +201,13 @@ td.money {
   <div class="popup-card">
     <span class="close-btn" onclick="closeTracking()">✖</span>
     <h3 style="text-align:center;color:#0275d8;">Tracking Pesanan</h3>
-    <div class="tracking-container">
+    <div id="trackingLoader" style="text-align:center; padding:10px; font-size:14px;">
+      <div class="loader"></div>
+      Memuat status...
+    </div>
+    <div class="tracking-container" id="trackingSteps" style="display:none;">
       <div class="step" id="step-dp"><div class="circle"></div><div class="label">DP</div></div>
-      <div class="line" id="line-1"></div>
       <div class="step" id="step-produksi"><div class="circle"></div><div class="label">Produksi</div></div>
-      <div class="line" id="line-2"></div>
       <div class="step" id="step-ambil"><div class="circle"></div><div class="label">Sudah Diambil</div></div>
     </div>
     <div id="trackingInfo" style="font-size:12px;color:#555;text-align:center;margin-top:6px;"></div>
@@ -349,16 +224,6 @@ const APPSHEET_KEY = "V2-WKh1n-l3Zod-daH2x-rvv8t-QAPmB-D8BWH-3LafJ-LkxyN";
 const idOrder = new URLSearchParams(window.location.search).get("id_order");
 let orderData = {};
 let cachedInvoice = [];
-
-// ✅ Format tanggal custom
-function formatDateCustom(d){
-  if(!d) return "-";
-  const dt = new Date(d);
-  if(isNaN(dt)) return d;
-  const hari = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
-  const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-  return `${hari[dt.getDay()]}, ${String(dt.getDate()).padStart(2,'0')} ${bulan[dt.getMonth()]} ${dt.getFullYear()}`;
-}
 
 function formatNum(n){
   const num = typeof n === "string" ? Number(n.replace(/[^\d.-]+/g,"")) : n;
@@ -383,14 +248,12 @@ async function loadData(){
   try{
     const orderTbl = await fetchGVizAsObjects(SHEET_ORDER, `select * where A='${idOrder}'`);
     const invoiceTbl = await fetchGVizAsObjects(SHEET_INVOICE, `select * where E='${idOrder}'`);
-
     if(!orderTbl.length) throw new Error("Data order tidak ditemukan.");
     orderData = orderTbl[0];
     cachedInvoice = invoiceTbl;
     renderOrder();
   }catch(err){
-    console.error(err);
-    document.getElementById("orderData").innerHTML = "<span style='color:red;'>❌ Terjadi kesalahan saat memuat data.</span>";
+    document.getElementById("orderData").innerHTML = "<span style='color:red;'>❌ Gagal memuat data.</span>";
     document.querySelector("#orderTable tbody").innerHTML = "<tr><td colspan='5'>Coba muat ulang.</td></tr>";
   }
 }
@@ -400,8 +263,8 @@ function renderOrder(){
   document.getElementById("orderData").innerHTML = `
     <table class="info-table">
       <tr><td class="label">ID Order</td><td>:</td><td>${d["ID ORDER"] || "-"}</td></tr>
-      <tr><td class="label">Tanggal Order</td><td>:</td><td>${formatDateCustom(d["TANGGAL ORDER"])}</td></tr>
-      <tr><td class="label">Deadline</td><td>:</td><td>${formatDateCustom(d["DEADLINE"])}</td></tr>
+      <tr><td class="label">Tanggal Order</td><td>:</td><td>${d["TANGGAL ORDER"] || "-"}</td></tr>
+      <tr><td class="label">Deadline</td><td>:</td><td>${d["DEADLINE"] || "-"}</td></tr>
       <tr><td class="label">Nama Customer</td><td>:</td><td>${d["NAMA CUSTOMER"] || "-"}</td></tr>
       <tr><td class="label">Alamat</td><td>:</td><td>${d["ALAMAT"] || "-"}</td></tr>
     </table>`;
@@ -428,25 +291,18 @@ function openInvoice(){
 function closeInvoice(){ document.getElementById("invoiceOverlay").style.display = "none"; }
 
 // Util cek kolom "terisi"
-function isFilled(val){
-  return !(val === null || val === undefined || String(val).trim() === "");
-}
+function isFilled(val){ return !(val === null || val === undefined || String(val).trim() === ""); }
 
-// 🔁 Reset state UI tracking
 function resetTrackingUI(){
-  ["step-dp","step-produksi","step-ambil"].forEach(id=>{
-    document.getElementById(id).classList.remove("done");
-  });
-  ["line-1","line-2"].forEach(id=>{
-    document.getElementById(id).classList.remove("done");
-  });
+  ["step-dp","step-produksi","step-ambil"].forEach(id=>{ document.getElementById(id).classList.remove("done"); });
   document.getElementById('trackingInfo').textContent = "";
 }
 
-// ✅ Ambil 3 virtual kolom dari AppSheet API & update tracking
 async function openTracking(){
   document.getElementById("trackingOverlay").style.display = "flex";
   resetTrackingUI();
+  document.getElementById('trackingLoader').style.display = 'block';
+  document.getElementById('trackingSteps').style.display = 'none';
   try {
     const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_APP_ID}/tables/IPP/Action`;
     const res = await fetch(url, {
@@ -465,42 +321,34 @@ async function openTracking(){
     if(!res.ok){ throw new Error(`HTTP ${res.status}`); }
     const data = await res.json();
 
+    document.getElementById('trackingLoader').style.display = 'none';
+    document.getElementById('trackingSteps').style.display = 'flex';
+
     if(Array.isArray(data) && data.length){
       const row = data[0];
       const dpDone = isFilled(row["TOTAL DP"]);
       const produksiDone = isFilled(row["STATUS PRODUKSI"]);
       const ambilDone = isFilled(row["TANGGAL PENGAMBILAN"]);
-
-      // Info ringkas
       document.getElementById('trackingInfo').innerHTML = `DP: <b>${dpDone?"✔︎" : "–"}</b> • Produksi: <b>${produksiDone?"✔︎":"–"}</b> • Diambil: <b>${ambilDone?"✔︎":"–"}</b>`;
-
       animateTrackingBooleans({ dpDone, produksiDone, ambilDone });
     } else {
-      document.getElementById('trackingInfo').textContent = 'Data tidak ditemukan.';
+      document.getElementById('trackingInfo').textContent = 'Data tidak ditemukan di AppSheet.';
     }
   } catch (err) {
-    console.error("Error tracking:", err);
-    document.getElementById('trackingInfo').textContent = 'Gagal mengambil status.';
+    document.getElementById('trackingLoader').style.display = 'none';
+    document.getElementById('trackingInfo').textContent = 'Gagal mengambil status dari AppSheet.';
   }
 }
 
-// 🎬 Animasi hijau hanya saat TERISI (tanpa status biru)
 function animateTrackingBooleans({ dpDone, produksiDone, ambilDone }){
   const steps = [
     { id: 'step-dp', done: dpDone },
     { id: 'step-produksi', done: produksiDone },
     { id: 'step-ambil', done: ambilDone }
   ];
-
-  // Animasi berantai sederhana
   let i = 0;
   function next(){
-    if(i >= steps.length) {
-      // Garis penghubung ikut hijau bila kedua sisi selesai
-      if(dpDone && produksiDone){ document.getElementById('line-1').classList.add('done'); }
-      if(produksiDone && ambilDone){ document.getElementById('line-2').classList.add('done'); }
-      return;
-    }
+    if(i >= steps.length) return;
     const s = steps[i++];
     if(s.done){ document.getElementById(s.id).classList.add('done'); }
     setTimeout(next, 250);
