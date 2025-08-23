@@ -36,15 +36,25 @@
   }
   th { background:#f0f8ff; }
   #orderTable {
-    margin: 10px auto; /* agar tabel rekap pesanan di tengah */
+    margin: 10px auto;
     display: table;
     white-space: normal;
   }
   #invoiceTable {
-    margin: 10px auto; /* agar tabel list pesanan di tengah */
+    margin: 10px auto;
     display: table;
     text-align:center;
   }
+
+  /* ✅ Ukuran font header & isi tabel */
+  #orderTable th, #invoiceTable th {
+    font-size:14px;
+    font-weight:bold;
+  }
+  #orderTable td, #invoiceTable td {
+    font-size:12px;
+  }
+
   .btn-container {
     display:flex;
     justify-content:center;
@@ -136,7 +146,7 @@
     box-shadow: 0 0 8px rgba(0, 128, 0, 0.7);
   }
   .label {
-    font-size: 10px;
+    font-size: 14px;
   }
 
   /* Loader untuk tracking */
@@ -290,7 +300,6 @@ function openInvoice(){
 
 function closeInvoice(){ document.getElementById("invoiceOverlay").style.display = "none"; }
 
-// Util cek kolom "terisi"
 function isFilled(val){ return !(val === null || val === undefined || String(val).trim() === ""); }
 
 function resetTrackingUI(){
