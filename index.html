@@ -24,15 +24,14 @@
   .money-wrap .rp { min-width:28px; text-align:left }
   .money-wrap .nominal { flex:1; text-align:right }
 
-  /* Tracking timeline dengan animasi */
+  /* Tracking timeline */
   .tracking-container { display:flex; justify-content:space-between; align-items:center; margin:30px auto; max-width:360px; position:relative; }
   .step { text-align:center; flex:1; position:relative; }
-  .circle { width:28px; height:28px; border-radius:50%; background:#ccc; margin:auto; transition:all 0.6s ease; box-shadow:0 0 6px rgba(0,0,0,0.2); }
+  .circle { width:28px; height:28px; border-radius:50%; background:#ccc; margin:auto; transition:all 0.35s ease; box-shadow:0 0 6px rgba(0,0,0,0.2); }
   .label { margin-top:6px; font-size:13px; }
-  .line { flex:1; height:4px; background:#ccc; margin:0 4px; transition:background 0.6s ease; }
-  .step.active .circle { background:#0275d8; transform:scale(1.2); box-shadow:0 0 10px rgba(2,117,216,0.7); }
+  .line { flex:1; height:4px; background:#ccc; margin:0 4px; transition:background 0.35s ease; }
+  /* Hijau jika kolom virtual TERISI */
   .step.done .circle { background:green; transform:scale(1.1); box-shadow:0 0 8px rgba(0,128,0,0.7); }
-  .line.active { background:#0275d8; }
   .line.done { background:green; }
 </style>
 </head>
@@ -74,6 +73,7 @@
       <div class="line" id="line-2"></div>
       <div class="step" id="step-ambil"><div class="circle"></div><div class="label">Sudah Diambil</div></div>
     </div>
+    <div id="trackingInfo" style="font-size:12px;color:#555;text-align:center;margin-top:6px;"></div>
   </div>
 </div>
 
@@ -165,9 +165,26 @@ function openInvoice(){
 
 function closeInvoice(){ document.getElementById("invoiceOverlay").style.display = "none"; }
 
-// ✅ Ambil status dari AppSheet API (kolom virtual)
+// Util cek kolom "terisi"
+function isFilled(val){
+  return !(val === null || val === undefined || String(val).trim() === "");
+}
+
+// 🔁 Reset state UI tracking
+function resetTrackingUI(){
+  ["step-dp","step-produksi","step-ambil"].forEach(id=>{
+    document.getElementById(id).classList.remove("done");
+  });
+  ["line-1","line-2"].forEach(id=>{
+    document.getElementById(id).classList.remove("done");
+  });
+  document.getElementById('trackingInfo').textContent = "";
+}
+
+// ✅ Ambil 3 virtual kolom dari AppSheet API & update tracking
 async function openTracking(){
   document.getElementById("trackingOverlay").style.display = "flex";
+  resetTrackingUI();
   try {
     const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_APP_ID}/tables/IPP/Action`;
     const res = await fetch(url, {
@@ -182,35 +199,51 @@ async function openTracking(){
         Rows: [{ "ID ORDER": idOrder }]
       })
     });
+
+    if(!res.ok){ throw new Error(`HTTP ${res.status}`); }
     const data = await res.json();
-    if(data && data.length > 0){
-      animateTracking(data[0]["STATUS REALTIME"]);
+
+    if(Array.isArray(data) && data.length){
+      const row = data[0];
+      const dpDone = isFilled(row["TOTAL DP"]);
+      const produksiDone = isFilled(row["STATUS PRODUKSI"]);
+      const ambilDone = isFilled(row["TANGGAL PENGAMBILAN"]);
+
+      // Info ringkas
+      document.getElementById('trackingInfo').innerHTML = `DP: <b>${dpDone?"✔︎" : "–"}</b> • Produksi: <b>${produksiDone?"✔︎":"–"}</b> • Diambil: <b>${ambilDone?"✔︎":"–"}</b>`;
+
+      animateTrackingBooleans({ dpDone, produksiDone, ambilDone });
+    } else {
+      document.getElementById('trackingInfo').textContent = 'Data tidak ditemukan.';
     }
   } catch (err) {
     console.error("Error tracking:", err);
+    document.getElementById('trackingInfo').textContent = 'Gagal mengambil status.';
   }
 }
 
-function animateTracking(status){
-  const steps = ["DP","Produksi","Sudah Diambil"];
-  let index = 0;
-  const activeIndex = steps.indexOf(status);
+// 🎬 Animasi hijau hanya saat TERISI (tanpa status biru)
+function animateTrackingBooleans({ dpDone, produksiDone, ambilDone }){
+  const steps = [
+    { id: 'step-dp', done: dpDone },
+    { id: 'step-produksi', done: produksiDone },
+    { id: 'step-ambil', done: ambilDone }
+  ];
 
-  function activateStep(i){
-    if(i > activeIndex) return;
-    const stepId = i === 0 ? "dp" : i === 1 ? "produksi" : "ambil";
-    const stepEl = document.getElementById(`step-${stepId}`);
-    if(i < activeIndex){ stepEl.classList.add("done"); }
-    else if(i === activeIndex){ stepEl.classList.add("active"); }
-
-    if(i === 1) document.getElementById("line-1").classList.add(i <= activeIndex ? "active" : "");
-    if(i === 2) {
-      document.getElementById("line-1").classList.replace("active","done");
-      document.getElementById("line-2").classList.add("active","done");
+  // Animasi berantai sederhana
+  let i = 0;
+  function next(){
+    if(i >= steps.length) {
+      // Garis penghubung ikut hijau bila kedua sisi selesai
+      if(dpDone && produksiDone){ document.getElementById('line-1').classList.add('done'); }
+      if(produksiDone && ambilDone){ document.getElementById('line-2').classList.add('done'); }
+      return;
     }
-    setTimeout(()=> activateStep(i+1), 500);
+    const s = steps[i++];
+    if(s.done){ document.getElementById(s.id).classList.add('done'); }
+    setTimeout(next, 250);
   }
-  activateStep(index);
+  next();
 }
 
 function closeTracking(){ document.getElementById("trackingOverlay").style.display = "none"; }
