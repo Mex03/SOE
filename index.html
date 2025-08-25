@@ -336,11 +336,15 @@ function openInvoice(){
 
 function closeInvoice(){ document.getElementById("invoiceOverlay").style.display = "none"; }
 
-function isFilled(val){ return !(val === null || val === undefined || String(val).trim() === ""); }
+function isFilled(val){ 
+  return !(val === null || val === undefined || String(val).trim() === ""); 
+}
 
 function resetTrackingUI(){
-  ["step-dp","step-produksi","step-ambil"].forEach(id=>{ document.getElementById(id).classList.remove("done"); });
-  document.getElementById('trackingInfo').textContent = "";
+  ["step-dp","step-produksi","step-ambil"].forEach(id=>{
+    document.getElementById(id).classList.remove("done");
+  });
+  document.getElementById('trackingInfo').innerHTML = "";
 }
 
 async function openTracking(){
@@ -348,6 +352,7 @@ async function openTracking(){
   resetTrackingUI();
   document.getElementById('trackingLoader').style.display = 'block';
   document.getElementById('trackingSteps').style.display = 'none';
+
   try {
     const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_APP_ID}/tables/IPP/Action`;
     const res = await fetch(url, {
@@ -371,10 +376,23 @@ async function openTracking(){
 
     if(Array.isArray(data) && data.length){
       const row = data[0];
+
+      // ✅ Aturan status
       const dpDone = isFilled(row["TOTAL DP"]);
-      const produksiDone = isFilled(row["STATUS PRODUKSI"]);
+      const produksiDone = String(row["STATUS PRODUKSI"]||"").toUpperCase() === "SELESAI";
       const ambilDone = isFilled(row["TANGGAL PENGAMBILAN"]);
-      document.getElementById('trackingInfo').innerHTML = `DP: <b>${dpDone?"✔︎" : "–"}</b> • Produksi: <b>${produksiDone?"✔︎":"–"}</b> • Diambil: <b>${ambilDone?"✔︎":"–"}</b>`;
+
+      // Label keterangan
+      let dpText = dpDone ? "<span style='color:green'>DP sudah dibayar</span>" : "<span style='color:gray'>DP belum dibayar</span>";
+      let produksiText = produksiDone ? "<span style='color:green'>Produksi selesai</span>" : "<span style='color:gray'>Produksi belum selesai</span>";
+      let ambilText = ambilDone ? "<span style='color:green'>Pesanan sudah diambil</span>" : "<span style='color:gray'>Belum diambil</span>";
+
+      document.getElementById('trackingInfo').innerHTML = `
+        <div>${dpText}</div>
+        <div>${produksiText}</div>
+        <div>${ambilText}</div>
+      `;
+
       animateTrackingBooleans({ dpDone, produksiDone, ambilDone });
     } else {
       document.getElementById('trackingInfo').textContent = 'Data tidak ditemukan di AppSheet.';
@@ -408,4 +426,3 @@ loadData();
 </script>
 </body>
 </html>
-
