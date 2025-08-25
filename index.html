@@ -377,8 +377,8 @@ async function openTracking(){
     if(Array.isArray(data) && data.length){
       const row = data[0];
 
-      // ✅ Aturan status
-      const dpDone = isFilled(row["TOTAL DP"]);
+      // ✅ Aturan status baru
+      const dpDone = Number(row["TOTAL DP"] || 0) > 1;
       const produksiDone = String(row["STATUS PRODUKSI"]||"").toUpperCase() === "SELESAI";
       const ambilDone = isFilled(row["TANGGAL PENGAMBILAN"]);
 
