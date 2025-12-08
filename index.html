@@ -577,9 +577,11 @@
     }
 
     async function printPDF() {
+      console.log("🔍 Mengambil data FILE INV dari AppSheet...");
+
+      const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_APP_ID}/tables/IPP/Action`;
+
       try {
-        console.log("📤 Mengirim request ke AppSheet...");
-        const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_APP_ID}/tables/IPP/Action`;
         const res = await fetch(url, {
           method: "POST",
           headers: {
@@ -587,44 +589,57 @@
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            Action: "GetFileUrl",
-            Properties: { Locale: "id-ID" },
-            Rows: [{
-              "ID ORDER": idOrder,
-              "_FileColumn": "FILE INV"
-            }]
+            Action: "Find",
+            Properties: {},
+            Rows: [{ "ID ORDER": idOrder }]
           })
         });
 
-
-        console.log("📥 Status Response:", res.status);
+        console.log("📥 Status:", res.status);
         const text = await res.text();
         console.log("📥 Raw Response:", text);
 
-
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-
-        let data;
-        try { data = JSON.parse(text); }
-        catch (e) { throw new Error("Response bukan JSON valid: " + text); }
-
-
-        if (Array.isArray(data) && data[0] && data[0].Url) {
-          console.log("🔗 URL ditemukan:", data[0].Url);
-          window.open(data[0].Url, "_blank");
-        } else {
-          console.error("❌ JSON tanpa Url:", data);
-          alert("PDF tidak ditemukan di AppSheet. Cek console untuk detail.");
+        let rows;
+        try {
+          rows = JSON.parse(text);
+        } catch (err) {
+          console.error("❌ Gagal parse JSON. Respons bukan JSON:", err);
+          return alert("❌ Data AppSheet tidak valid.");
         }
 
+        if (!Array.isArray(rows) || !rows.length) {
+          return alert("❌ Data order tidak ditemukan di AppSheet.");
+        }
+
+        const filePath = rows[0]["FILE INV"];
+        console.log("📄 FILE INV:", filePath);
+
+        if (!filePath || filePath.trim() === "") {
+          return alert("❌ Kolom FILE INV kosong.");
+        }
+
+        // Pastikan encode file path
+        const encodedFile = encodeURIComponent(filePath);
+
+        // 🔗 Bangun URL download AppSheet sesuai format resminya
+        const downloadURL =
+          `https://www.appsheet.com/template/gettablefileurl` +
+          `?appName=MEXGARMENTINDONESIA-239724850` +
+          `&tableName=IPP` +
+          `&fileName=${encodedFile}` +
+          `&appVersion=1.000409`;
+
+        console.log("🔗 Final download URL:", downloadURL);
+
+        // Redirect → browser auto download PDF
+        window.location.href = downloadURL;
 
       } catch (err) {
-        console.error("❌ ERROR DETAIL:", err);
-        alert("Gagal mengambil PDF dari AppSheet. Lihat console.");
+        console.error("❌ ERROR:", err);
+        alert("❌ Gagal mengambil PDF dari AppSheet.");
       }
     }
-    
+
     function closeTracking() { document.getElementById("trackingOverlay").style.display = "none"; }
     function closeOverlay(e, id) { if (e.target.classList.contains("overlay")) document.getElementById(id).style.display = "none"; }
 
