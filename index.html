@@ -578,6 +578,7 @@
 
     async function printPDF() {
       try {
+        console.log("📤 Mengirim request ke AppSheet...");
         const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_APP_ID}/tables/IPP/Action`;
         const res = await fetch(url, {
           method: "POST",
@@ -587,34 +588,43 @@
           },
           body: JSON.stringify({
             Action: "GetFileUrl",
-            Properties: {
-              Locale: "id-ID"
-            },
+            Properties: { Locale: "id-ID" },
             Rows: [{
               "ID ORDER": idOrder,
-              "_FileColumn": "FILE INV" // kolom file di AppSheet
+              "_FileColumn": "FILE INV"
             }]
           })
         });
 
 
+        console.log("📥 Status Response:", res.status);
+        const text = await res.text();
+        console.log("📥 Raw Response:", text);
+
+
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
 
-        const data = await res.json();
+        let data;
+        try { data = JSON.parse(text); }
+        catch (e) { throw new Error("Response bukan JSON valid: " + text); }
+
+
         if (Array.isArray(data) && data[0] && data[0].Url) {
+          console.log("🔗 URL ditemukan:", data[0].Url);
           window.open(data[0].Url, "_blank");
         } else {
-          alert("PDF tidak ditemukan di AppSheet.");
+          console.error("❌ JSON tanpa Url:", data);
+          alert("PDF tidak ditemukan di AppSheet. Cek console untuk detail.");
         }
 
 
       } catch (err) {
-        alert("Gagal mengambil PDF dari AppSheet");
+        console.error("❌ ERROR DETAIL:", err);
+        alert("Gagal mengambil PDF dari AppSheet. Lihat console.");
       }
     }
-
-
+    
     function closeTracking() { document.getElementById("trackingOverlay").style.display = "none"; }
     function closeOverlay(e, id) { if (e.target.classList.contains("overlay")) document.getElementById(id).style.display = "none"; }
 
