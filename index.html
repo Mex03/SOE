@@ -420,32 +420,44 @@ function animateTrackingBooleans({ dpDone, produksiDone, ambilDone }){
   next();
 }
 
-// === Cetak Nota PDF dari AppSheet ===
 async function printPDF(){
   try{
-    // Ambil data order berdasarkan ID ORDER
-    const orderTbl = await fetchGVizAsObjects(SHEET_ORDER, `select * where A='${idOrder}'`);
+    const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_APP_ID}/tables/IPP/Action`;
     
-    if(!orderTbl.length){
-      alert("Data order tidak ditemukan.");
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "ApplicationAccessKey": APPSHEET_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        Action: "GetFileUrl",
+        Properties: {
+          Locale: "id-ID"
+        },
+        Rows: [{
+          "ID ORDER": idOrder,
+          "_FileColumn": "FILE INV"   // Kolom file PDF di AppSheet
+        }]
+      })
+    });
+
+    if(!res.ok){
+      alert("Gagal meminta link PDF dari AppSheet.");
       return;
     }
 
-    // Ambil kolom file (ubah jika nama kolom berbeda)
-    const fileUrl = orderTbl[0]["FILE INV"];
+    const data = await res.json();
 
-    // Validasi file kosong
-    if(!fileUrl || String(fileUrl).trim() === ""){
-      alert("File PDF tidak tersedia di AppSheet (kolom FILE INV kosong).");
-      return;
+    if(Array.isArray(data) && data[0]?.Url){
+      window.open(data[0].Url, "_blank"); // ✔ URL resmi AppSheet
+    } else {
+      alert("AppSheet tidak mengembalikan file PDF.");
     }
-
-    // Buka file PDF di tab baru
-    window.open(fileUrl, "_blank");
 
   }catch(err){
     console.error(err);
-    alert("Gagal membuka file PDF.");
+    alert("Error saat mengambil PDF dari AppSheet.");
   }
 }
 
