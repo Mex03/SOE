@@ -219,6 +219,7 @@
   <div class="btn-container">
     <button class="btn" onclick="openInvoice()">List Pesanan</button>
     <button class="btn" onclick="openTracking()">Tracking</button>
+    <button class="btn" onclick="printPDF()">Cetak Nota</button>
   </div>
 </div>
 
@@ -418,6 +419,36 @@ function animateTrackingBooleans({ dpDone, produksiDone, ambilDone }){
   }
   next();
 }
+
+// === Cetak Nota PDF dari AppSheet ===
+async function printPDF(){
+  try{
+    // Ambil data order berdasarkan ID ORDER
+    const orderTbl = await fetchGVizAsObjects(SHEET_ORDER, `select * where A='${idOrder}'`);
+    
+    if(!orderTbl.length){
+      alert("Data order tidak ditemukan.");
+      return;
+    }
+
+    // Ambil kolom file (ubah jika nama kolom berbeda)
+    const fileUrl = orderTbl[0]["FILE INV"];
+
+    // Validasi file kosong
+    if(!fileUrl || String(fileUrl).trim() === ""){
+      alert("File PDF tidak tersedia di AppSheet (kolom FILE INV kosong).");
+      return;
+    }
+
+    // Buka file PDF di tab baru
+    window.open(fileUrl, "_blank");
+
+  }catch(err){
+    console.error(err);
+    alert("Gagal membuka file PDF.");
+  }
+}
+
 
 function closeTracking(){ document.getElementById("trackingOverlay").style.display = "none"; }
 function closeOverlay(e,id){ if(e.target.classList.contains("overlay")) document.getElementById(id).style.display = "none"; }
