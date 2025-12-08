@@ -595,51 +595,47 @@
           })
         });
 
-        console.log("📥 Status:", res.status);
         const text = await res.text();
-        console.log("📥 Raw Response:", text);
+        console.log("➡ Raw Response:", text);
 
         let rows;
-        try {
-          rows = JSON.parse(text);
-        } catch (err) {
-          console.error("❌ Gagal parse JSON. Respons bukan JSON:", err);
-          return alert("❌ Data AppSheet tidak valid.");
+        try { rows = JSON.parse(text); }
+        catch { return alert("❌ Data AppSheet tidak valid."); }
+
+        if (!rows.length) return alert("❌ Data ORDER tidak ditemukan.");
+
+        let fileInv = rows[0]["FILE INV"];
+        console.log("📄 FILE INV:", fileInv);
+
+        if (!fileInv || fileInv.trim() === "") {
+          return alert("❌ FILE INV kosong.");
         }
 
-        if (!Array.isArray(rows) || !rows.length) {
-          return alert("❌ Data order tidak ditemukan di AppSheet.");
+        // --- FIX UTAMA ---
+        // Jika FILE INV = URL penuh → langsung buka!
+        if (fileInv.startsWith("http://") || fileInv.startsWith("https://")) {
+          console.log("🔗 FILE INV adalah URL lengkap → membuka langsung...");
+          return window.location.href = fileInv;
         }
 
-        const filePath = rows[0]["FILE INV"];
-        console.log("📄 FILE INV:", filePath);
+        // Jika FILE INV berupa path → gunakan gettablefileurl
+        const encodedPath = encodeURIComponent(fileInv);
 
-        if (!filePath || filePath.trim() === "") {
-          return alert("❌ Kolom FILE INV kosong.");
-        }
-
-        // Pastikan encode file path
-        const encodedFile = encodeURIComponent(filePath);
-
-        // 🔗 Bangun URL download AppSheet sesuai format resminya
-        const downloadURL =
+        const finalURL =
           `https://www.appsheet.com/template/gettablefileurl` +
           `?appName=MEXGARMENTINDONESIA-239724850` +
           `&tableName=IPP` +
-          `&fileName=${encodedFile}` +
+          `&fileName=${encodedPath}` +
           `&appVersion=1.000409`;
 
-        console.log("🔗 Final download URL:", downloadURL);
-
-        // Redirect → browser auto download PDF
-        window.location.href = downloadURL;
+        console.log("🔗 Final AppSheet URL:", finalURL);
+        window.location.href = finalURL;
 
       } catch (err) {
         console.error("❌ ERROR:", err);
         alert("❌ Gagal mengambil PDF dari AppSheet.");
       }
     }
-
     function closeTracking() { document.getElementById("trackingOverlay").style.display = "none"; }
     function closeOverlay(e, id) { if (e.target.classList.contains("overlay")) document.getElementById(id).style.display = "none"; }
 
