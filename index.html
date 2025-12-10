@@ -322,6 +322,13 @@
         border-radius: 6px;
         padding: 10px;
       }
+
+      /* Popup loading PDF */
+      .popup-card {
+        max-width: 240px;
+        padding: 20px;
+      }
+
     }
   </style>
 </head>
@@ -407,11 +414,14 @@
   </div>
 
   <!-- PDF Loading Popup -->
-  <div class="overlay" id="pdfOverlay">
+  <div class="overlay" id="pdfOverlay" onclick="closeOverlay(event,'pdfOverlay')">
     <div class="popup-card" style="text-align:center;">
-      <div class="loader" style="margin: 10px auto;"></div>
-      <div style="font-size:14px;">Mengambil file nota...</div>
-    </div>
+    <span class="close-btn" onclick="closeTracking()">✖</span>
+    <h3 style="text-align:center;color:#0275d8;">Download Nota</h3>
+    <div id="loader" style="text-align:center; padding:10px; font-size:14px;">
+        <div class="loader"></div>
+        Mohon tunggu...
+      </div>
   </div>
 
 
