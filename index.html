@@ -406,6 +406,15 @@
     </div>
   </div>
 
+  <!-- PDF Loading Popup -->
+  <div class="overlay" id="pdfOverlay">
+    <div class="popup-card" style="text-align:center;">
+      <div class="loader" style="margin: 10px auto;"></div>
+      <div style="font-size:14px;">Mengambil file nota...</div>
+    </div>
+  </div>
+
+
   <script>
     const SPREADSHEET_ID = "1Aff2np0Q5vin7Obj3p51U3D5lJdsxNkAyx0bX3C8yjc";
     const SHEET_ORDER = "IPP";
@@ -579,6 +588,9 @@
     async function printPDF() {
       console.log("🔍 Mengambil data FILE INV dari AppSheet...");
 
+      // Tampilkan loading popup
+      document.getElementById("pdfOverlay").style.display = "flex";
+
       const url = `https://api.appsheet.com/api/v2/apps/${APPSHEET_APP_ID}/tables/IPP/Action`;
 
       try {
@@ -600,25 +612,31 @@
 
         let rows;
         try { rows = JSON.parse(text); }
-        catch { return alert("❌ Data AppSheet tidak valid."); }
+        catch {
+          document.getElementById("pdfOverlay").style.display = "none";
+          return alert("❌ Data AppSheet tidak valid.");
+        }
 
-        if (!rows.length) return alert("❌ Data ORDER tidak ditemukan.");
+        if (!rows.length) {
+          document.getElementById("pdfOverlay").style.display = "none";
+          return alert("❌ Data ORDER tidak ditemukan.");
+        }
 
         let fileInv = rows[0]["FILE INV"];
         console.log("📄 FILE INV:", fileInv);
 
         if (!fileInv || fileInv.trim() === "") {
+          document.getElementById("pdfOverlay").style.display = "none";
           return alert("❌ FILE INV kosong.");
         }
 
-        // --- FIX UTAMA ---
-        // Jika FILE INV = URL penuh → langsung buka!
+        // Jika sudah berupa URL penuh → buka langsung
         if (fileInv.startsWith("http://") || fileInv.startsWith("https://")) {
           console.log("🔗 FILE INV adalah URL lengkap → membuka langsung...");
           return window.location.href = fileInv;
         }
 
-        // Jika FILE INV berupa path → gunakan gettablefileurl
+        // Jika berupa path → gunakan gettablefileurl
         const encodedPath = encodeURIComponent(fileInv);
 
         const finalURL =
@@ -634,8 +652,14 @@
       } catch (err) {
         console.error("❌ ERROR:", err);
         alert("❌ Gagal mengambil PDF dari AppSheet.");
+      } finally {
+        // Sembunyikan loader setelah 2 detik (ada waktu pindah halaman)
+        setTimeout(() => {
+          document.getElementById("pdfOverlay").style.display = "none";
+        }, 2000);
       }
     }
+
     function closeTracking() { document.getElementById("trackingOverlay").style.display = "none"; }
     function closeOverlay(e, id) { if (e.target.classList.contains("overlay")) document.getElementById(id).style.display = "none"; }
 
